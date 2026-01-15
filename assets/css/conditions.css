@@ -1,0 +1,449 @@
+/**
+ * Conditions Builder Styles
+ *
+ * @package ArrayPress\Conditions
+ */
+
+/* Container */
+.conditions-builder {
+    margin-top: 12px;
+}
+
+.conditions-builder > .description {
+    margin-bottom: 16px;
+    color: #646970;
+}
+
+/* Groups Container */
+.condition-groups {
+    margin-bottom: 12px;
+}
+
+/* Single Group */
+.condition-group {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.condition-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Group Header */
+.condition-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f6f7f7;
+    border-bottom: 1px solid #c3c4c7;
+    border-radius: 4px 4px 0 0;
+}
+
+.condition-group-header .group-label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #1d2327;
+}
+
+.condition-group-header .group-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.condition-group-header .group-actions a {
+    color: #2271b1;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.condition-group-header .group-actions a:hover {
+    color: #135e96;
+    text-decoration: underline;
+}
+
+.condition-group-header .group-actions .delete-group {
+    color: #b32d2e;
+}
+
+.condition-group-header .group-actions .delete-group:hover {
+    color: #a00;
+}
+
+/* Conditions List */
+.conditions-list {
+    padding: 12px;
+}
+
+/* Condition Row */
+.condition-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.condition-row:last-child {
+    margin-bottom: 0;
+}
+
+/* Condition Fields */
+.condition-fields {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    align-items: center;
+}
+
+.condition-fields > .condition-select {
+    flex: 1.5;
+    min-width: 180px;
+}
+
+.condition-fields > .operator-select {
+    flex: 0 0 140px;
+    min-width: 140px;
+}
+
+.condition-fields > .value-field-wrapper {
+    flex: 2;
+    min-width: 200px;
+}
+
+/* Row Actions */
+.condition-row-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.condition-row-actions .button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.condition-row-actions .button-link {
+    color: #a7aaad;
+    cursor: pointer;
+    padding: 4px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.condition-row-actions .button-link:hover {
+    color: #b32d2e;
+}
+
+.condition-row-actions .button-link .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 1;
+}
+
+.condition-row-actions .remove-condition.disabled,
+.condition-row-actions .remove-condition:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Conditions List Footer */
+.conditions-list-footer {
+    margin-top: 5px;
+    text-align: right;
+    padding: 10px;
+}
+
+.conditions-list-footer .add-condition {
+    font-size: 12px;
+}
+
+/* Inputs */
+.condition-row select,
+.condition-row input[type="text"],
+.condition-row input[type="number"],
+.condition-row input[type="date"],
+.condition-row input[type="time"] {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    height: 30px;
+}
+
+.condition-row select:disabled,
+.condition-row input:disabled {
+    background: #f6f7f7;
+    color: #a7aaad;
+}
+
+/* Number with Unit */
+.number-with-unit {
+    display: flex;
+    width: 100%;
+}
+
+.number-with-unit .number-input {
+    flex: 1;
+    border-radius: 4px 0 0 4px;
+    border-right: none;
+    min-width: 80px;
+}
+
+.number-with-unit .unit-select {
+    flex: 0 0 110px;
+    border-radius: 0 4px 4px 0;
+    background: #f6f7f7;
+}
+
+/* Group OR Connector */
+.group-connector {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #646970;
+    padding: 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Select2 Overrides */
+.conditions-builder .select2-container {
+    width: 100% !important;
+}
+
+.conditions-builder .select2-container--default .select2-selection--single,
+.conditions-builder .select2-container--default .select2-selection--multiple {
+    border-color: #8c8f94;
+    border-radius: 4px;
+    min-height: 30px;
+}
+
+.conditions-builder .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 28px;
+    padding-left: 8px;
+    padding-right: 28px;
+}
+
+.conditions-builder .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 28px;
+    right: 4px;
+}
+
+.conditions-builder .select2-container--default .select2-selection--single .select2-selection__clear {
+    margin-right: 20px;
+    font-size: 16px;
+}
+
+/* Multiple Select2 - Fixed tag styling */
+.conditions-builder .select2-container--default .select2-selection--multiple {
+    padding: 3px 24px 3px 4px;
+    min-height: 30px;
+    position: relative;
+}
+
+.conditions-builder .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/* Clear all button positioning */
+.conditions-builder .select2-container--default .select2-selection--multiple .select2-selection__clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #787c82;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.conditions-builder .select2-container--default .select2-selection--multiple .select2-selection__clear:hover {
+    color: #a00;
+}
+
+.conditions-builder .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+    padding: 2px 6px 2px 6px;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    order: 0;
+    max-width: 200px;
+}
+
+.conditions-builder .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+    order: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.conditions-builder .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    order: 2;
+    color: #787c82;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+    padding: 0 0 0 2px;
+    border: none;
+    cursor: pointer;
+    position: static;
+    flex-shrink: 0;
+}
+
+.conditions-builder .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #a00;
+    background: transparent;
+}
+
+.conditions-builder .select2-container--default .select2-selection--multiple .select2-search--inline {
+    order: 99;
+    flex: 1;
+    min-width: 60px;
+}
+
+.conditions-builder .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+    margin: 0;
+    height: 24px;
+}
+
+/* Focus States */
+.conditions-builder .select2-container--default.select2-container--focus .select2-selection--single,
+.conditions-builder .select2-container--default.select2-container--focus .select2-selection--multiple,
+.conditions-builder .select2-container--default.select2-container--open .select2-selection--single,
+.conditions-builder .select2-container--default.select2-container--open .select2-selection--multiple {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+/* Select2 Dropdown */
+.select2-dropdown {
+    border-color: #2271b1;
+}
+
+.select2-results__option--highlighted[aria-selected] {
+    background-color: #2271b1 !important;
+}
+
+.select2-search--dropdown .select2-search__field {
+    border-color: #8c8f94;
+    padding: 4px 8px;
+}
+
+.select2-search--dropdown .select2-search__field:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .condition-fields {
+        flex-wrap: wrap;
+    }
+
+    .condition-fields > .condition-select,
+    .condition-fields > .operator-select,
+    .condition-fields > .value-field-wrapper {
+        flex: none;
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .condition-row {
+        flex-wrap: wrap;
+    }
+
+    .condition-row-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 8px;
+    }
+}
+
+/* Tooltip */
+.condition-tooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: help;
+    position: relative;
+}
+
+.condition-tooltip .dashicons {
+    color: #787c82;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.condition-tooltip:hover .dashicons {
+    color: #2271b1;
+}
+
+.condition-tooltip[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1d2327;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: normal;
+    width: max-content;
+    max-width: 250px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+    margin-bottom: 6px;
+    text-align: left;
+    font-weight: normal;
+}
+
+.condition-tooltip[data-tip]::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #1d2327;
+    z-index: 101;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+}
+
+.condition-tooltip[data-tip]:hover::after,
+.condition-tooltip[data-tip]:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
