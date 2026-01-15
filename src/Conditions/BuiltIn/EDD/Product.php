@@ -172,4 +172,17 @@ class Product {
 				'description'   => __( 'Product sales within a time period.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
 					if ( ! isset( $args['product_id'] ) ) {
-						return 0
+						return 0;
+					}
+
+					$unit   = $args['_unit'] ?? 'day';
+					$number = (int) ( $args['_number'] ?? 1 );
+
+					return Stats::get_product_sales( $args['product_id'], null, $unit, $number );
+				},
+				'required_args' => [ 'product_id' ],
+			],
+		];
+	}
+
+}

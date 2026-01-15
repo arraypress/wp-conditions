@@ -62,18 +62,17 @@ class Comparator {
 	public function compare( string $operator, mixed $user_value, mixed $compare_value ): bool {
 		return match ( $this->type ) {
 			'number', 'number_unit' => $this->compare_numeric( $operator, $user_value, $compare_value ),
-			'text'                  => $this->compare_text( $operator, $user_value, $compare_value ),
-			'ip'                    => $this->compare_ip( $operator, $user_value, $compare_value ),
-			'email'                 => $this->compare_email( $operator, $user_value, $compare_value ),
-			'select'                => $this->multiple
+			'ip' => $this->compare_ip( $operator, $user_value, $compare_value ),
+			'email' => $this->compare_email( $operator, $user_value, $compare_value ),
+			'select' => $this->multiple
 				? $this->compare_array( $operator, $user_value, $compare_value )
 				: $this->compare_equals( $operator, $user_value, $compare_value ),
-			'post', 'term', 'user'  => $this->compare_array( $operator, $user_value, $compare_value ),
-			'tags'                  => $this->compare_tags( $operator, $user_value, $compare_value ),
-			'boolean'               => $this->compare_boolean( $operator, $compare_value ),
-			'date'                  => $this->compare_date( $operator, $user_value, $compare_value ),
-			'time'                  => $this->compare_time( $operator, $user_value, $compare_value ),
-			default                 => $this->compare_text( $operator, $user_value, $compare_value ),
+			'post', 'term', 'user' => $this->compare_array( $operator, $user_value, $compare_value ),
+			'tags' => $this->compare_tags( $operator, $user_value, $compare_value ),
+			'boolean' => $this->compare_boolean( $operator, $compare_value ),
+			'date' => $this->compare_date( $operator, $user_value, $compare_value ),
+			'time' => $this->compare_time( $operator, $user_value, $compare_value ),
+			default => $this->compare_text( $operator, $user_value, $compare_value ),
 		};
 	}
 
@@ -91,12 +90,12 @@ class Comparator {
 		$compare_value = (float) $compare_value;
 
 		return match ( $operator ) {
-			'=='    => $compare_value == $user_value,
-			'!='    => $compare_value != $user_value,
-			'>'     => $compare_value > $user_value,
-			'<'     => $compare_value < $user_value,
-			'>='    => $compare_value >= $user_value,
-			'<='    => $compare_value <= $user_value,
+			'==' => $compare_value == $user_value,
+			'!=' => $compare_value != $user_value,
+			'>' => $compare_value > $user_value,
+			'<' => $compare_value < $user_value,
+			'>=' => $compare_value >= $user_value,
+			'<=' => $compare_value <= $user_value,
 			default => false,
 		};
 	}
@@ -115,16 +114,16 @@ class Comparator {
 		$compare_value = (string) $compare_value;
 
 		return match ( $operator ) {
-			'=='           => $compare_value === $user_value,
-			'!='           => $compare_value !== $user_value,
-			'contains'     => str_contains( strtolower( $compare_value ), strtolower( $user_value ) ),
+			'==' => $compare_value === $user_value,
+			'!=' => $compare_value !== $user_value,
+			'contains' => str_contains( strtolower( $compare_value ), strtolower( $user_value ) ),
 			'not_contains' => ! str_contains( strtolower( $compare_value ), strtolower( $user_value ) ),
-			'starts_with'  => str_starts_with( strtolower( $compare_value ), strtolower( $user_value ) ),
-			'ends_with'    => str_ends_with( strtolower( $compare_value ), strtolower( $user_value ) ),
-			'empty'        => empty( $compare_value ),
-			'not_empty'    => ! empty( $compare_value ),
-			'regex'        => (bool) preg_match( $user_value, $compare_value ),
-			default        => false,
+			'starts_with' => str_starts_with( strtolower( $compare_value ), strtolower( $user_value ) ),
+			'ends_with' => str_ends_with( strtolower( $compare_value ), strtolower( $user_value ) ),
+			'empty' => empty( $compare_value ),
+			'not_empty' => ! empty( $compare_value ),
+			'regex' => (bool) preg_match( $user_value, $compare_value ),
+			default => false,
 		};
 	}
 
@@ -139,8 +138,8 @@ class Comparator {
 	 */
 	private function compare_equals( string $operator, mixed $user_value, mixed $compare_value ): bool {
 		return match ( $operator ) {
-			'=='    => $compare_value == $user_value,
-			'!='    => $compare_value != $user_value,
+			'==' => $compare_value == $user_value,
+			'!=' => $compare_value != $user_value,
 			default => false,
 		};
 	}
@@ -165,12 +164,12 @@ class Comparator {
 
 		return match ( $operator ) {
 			// Single selection operators
-			'=='    => ! empty( array_intersect( $user_values, $compare_values ) ),
-			'!='    => empty( array_intersect( $user_values, $compare_values ) ),
+			'==' => ! empty( array_intersect( $user_values, $compare_values ) ),
+			'!=' => empty( array_intersect( $user_values, $compare_values ) ),
 			// Multiple selection operators
-			'any'   => ! empty( array_intersect( $user_values, $compare_values ) ),
-			'none'  => empty( array_intersect( $user_values, $compare_values ) ),
-			'all'   => empty( array_diff( $user_values, $compare_values ) ),
+			'any' => ! empty( array_intersect( $user_values, $compare_values ) ),
+			'none' => empty( array_intersect( $user_values, $compare_values ) ),
+			'all' => empty( array_diff( $user_values, $compare_values ) ),
 			default => false,
 		};
 	}
@@ -202,9 +201,9 @@ class Comparator {
 			$matches  = in_array( $compare_value, $patterns, true );
 
 			return match ( $operator ) {
-				'ip_match'     => $matches,
+				'ip_match' => $matches,
 				'ip_not_match' => ! $matches,
-				default        => false,
+				default => false,
 			};
 		}
 
@@ -216,9 +215,9 @@ class Comparator {
 		$matches = IP::is_match( $compare_value, $patterns );
 
 		return match ( $operator ) {
-			'ip_match'     => $matches,
+			'ip_match' => $matches,
 			'ip_not_match' => ! $matches,
-			default        => false,
+			default => false,
 		};
 	}
 
@@ -288,9 +287,9 @@ class Comparator {
 			}
 
 			return match ( $operator ) {
-				'email_match'     => $matches,
+				'email_match' => $matches,
 				'email_not_match' => ! $matches,
-				default           => false,
+				default => false,
 			};
 		}
 
@@ -304,9 +303,9 @@ class Comparator {
 		$matches = $email->matches_any( $patterns );
 
 		return match ( $operator ) {
-			'email_match'     => $matches,
+			'email_match' => $matches,
 			'email_not_match' => ! $matches,
-			default           => false,
+			default => false,
 		};
 	}
 
@@ -315,7 +314,8 @@ class Comparator {
 	 *
 	 * Used for user-created tags with various matching modes.
 	 *
-	 * @param string $operator      The operator (any_ends/none_ends/any_starts/none_starts/any_contains/none_contains/any_exact/none_exact).
+	 * @param string $operator      The operator
+	 *                              (any_ends/none_ends/any_starts/none_starts/any_contains/none_contains/any_exact/none_exact).
 	 * @param mixed  $user_value    The tags entered by user (array of patterns).
 	 * @param mixed  $compare_value The actual value to check against.
 	 *
@@ -351,11 +351,11 @@ class Comparator {
 			}
 
 			$matched = match ( $match_type ) {
-				'starts'   => str_starts_with( $compare_value, $tag ),
-				'ends'     => str_ends_with( $compare_value, $tag ),
+				'starts' => str_starts_with( $compare_value, $tag ),
+				'ends' => str_ends_with( $compare_value, $tag ),
 				'contains' => str_contains( $compare_value, $tag ),
-				'exact'    => $compare_value === $tag,
-				default    => str_ends_with( $compare_value, $tag ),
+				'exact' => $compare_value === $tag,
+				default => str_ends_with( $compare_value, $tag ),
 			};
 
 			if ( $matched ) {
@@ -379,8 +379,8 @@ class Comparator {
 		$is_true = filter_var( $compare_value, FILTER_VALIDATE_BOOLEAN );
 
 		return match ( $operator ) {
-			'yes'   => $is_true === true,
-			'no'    => $is_true === false,
+			'yes' => $is_true === true,
+			'no' => $is_true === false,
 			default => false,
 		};
 	}
@@ -407,12 +407,12 @@ class Comparator {
 		$compare_date = strtotime( 'midnight', $compare_date );
 
 		return match ( $operator ) {
-			'=='    => $compare_date === $user_date,
-			'!='    => $compare_date !== $user_date,
-			'>'     => $compare_date > $user_date,
-			'<'     => $compare_date < $user_date,
-			'>='    => $compare_date >= $user_date,
-			'<='    => $compare_date <= $user_date,
+			'==' => $compare_date === $user_date,
+			'!=' => $compare_date !== $user_date,
+			'>' => $compare_date > $user_date,
+			'<' => $compare_date < $user_date,
+			'>=' => $compare_date >= $user_date,
+			'<=' => $compare_date <= $user_date,
 			default => false,
 		};
 	}
@@ -436,10 +436,10 @@ class Comparator {
 		}
 
 		return match ( $operator ) {
-			'=='    => $compare_time === $user_time,
-			'!='    => $compare_time !== $user_time,
-			'>'     => $compare_time > $user_time,
-			'<'     => $compare_time < $user_time,
+			'==' => $compare_time === $user_time,
+			'!=' => $compare_time !== $user_time,
+			'>' => $compare_time > $user_time,
+			'<' => $compare_time < $user_time,
 			default => false,
 		};
 	}

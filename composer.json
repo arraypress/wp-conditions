@@ -9,6 +9,10 @@
     {
       "name": "David Sherlock",
       "homepage": "https://arraypress.com/"
+    },
+    {
+      "name": "David Sherlock",
+      "homepage": "https://arraypress.com/"
     }
   ],
   "require": {
@@ -16,7 +20,8 @@
     "arraypress/wp-composer-assets": "dev-main",
     "arraypress/wp-countries": "dev-main",
     "arraypress/wp-ip-utils": "dev-main",
-    "arraypress/wp-useragent-utils": "dev-main"
+    "arraypress/wp-useragent-utils": "dev-main",
+    "arraypress/email-utils": "dev-main"
   },
   "autoload": {
     "psr-4": {
