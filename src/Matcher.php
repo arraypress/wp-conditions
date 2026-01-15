@@ -168,8 +168,9 @@ class Matcher {
 
 		// Handle number_unit type
 		if ( $condition['type'] === 'number_unit' && is_array( $user_value ) ) {
-			$this->args['_unit'] = $user_value['unit'] ?? null;
-			$user_value          = $user_value['number'] ?? null;
+			$this->args['_unit']   = $user_value['unit'] ?? null;
+			$this->args['_number'] = $user_value['number'] ?? null;
+			$user_value            = $user_value['number'] ?? null;
 
 			// Re-get compare value with unit in args
 			$compare_value = $this->get_compare_value( $condition );
