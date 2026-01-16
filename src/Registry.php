@@ -245,7 +245,6 @@ class Registry {
 			// Config-based: 'my_condition' => [...]
 			if ( is_string( $key ) && is_array( $value ) ) {
 				self::register_condition( $set_id, $key, $value );
-				continue;
 			}
 		}
 	}
