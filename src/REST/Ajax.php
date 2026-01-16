@@ -5,7 +5,7 @@
  * Handles custom AJAX search/hydrate requests for conditions.
  *
  * @package     ArrayPress\Conditions\REST
- * @copyright   Copyright (c) 2024, ArrayPress Limited
+ * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
  * @author      David Sherlock

@@ -5,7 +5,7 @@
  * Registry of pre-configured conditions that can be referenced by name.
  *
  * @package     ArrayPress\Conditions\Conditions
- * @copyright   Copyright (c) 2024, ArrayPress Limited
+ * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
  * @author      David Sherlock
@@ -81,27 +81,6 @@ class BuiltIn {
 			'edd'                             => function_exists( 'EDD' ) ? EDD::get_all() : [],
 			default                           => [],
 		};
-	}
-
-	/**
-	 * Get available groups.
-	 *
-	 * @return array
-	 */
-	public static function get_groups(): array {
-		$groups = [
-			'datetime'  => __( 'Date & Time', 'arraypress' ),
-			'user'      => __( 'User', 'arraypress' ),
-			'post'      => __( 'Post', 'arraypress' ),
-			'request'   => __( 'Request', 'arraypress' ),
-			'wordpress' => __( 'WordPress', 'arraypress' ),
-		];
-
-		if ( function_exists( 'EDD' ) || class_exists( 'Easy_Digital_Downloads' ) ) {
-			$groups['edd'] = __( 'Easy Digital Downloads', 'arraypress' );
-		}
-
-		return $groups;
 	}
 
 }

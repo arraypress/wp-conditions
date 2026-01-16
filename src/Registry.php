@@ -6,7 +6,7 @@
  * Handles registration, storage, and retrieval of conditions.
  *
  * @package     ArrayPress\Conditions
- * @copyright   Copyright (c) 2024, ArrayPress Limited
+ * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
  * @author      David Sherlock

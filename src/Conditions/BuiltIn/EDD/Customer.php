@@ -3,7 +3,7 @@
  * EDD Customer Conditions
  *
  * @package     ArrayPress\Conditions\Conditions\BuiltIn\EDD
- * @copyright   Copyright (c) 2024, ArrayPress Limited
+ * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
  * @author      David Sherlock
@@ -31,10 +31,23 @@ class Customer {
 	 * @return array<string, array>
 	 */
 	public static function get_all(): array {
+		return array_merge(
+			self::get_profile_conditions(),
+			self::get_history_conditions(),
+			self::get_activity_conditions()
+		);
+	}
+
+	/**
+	 * Get profile-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_profile_conditions(): array {
 		return [
-			'edd_customer_type'                 => [
-				'label'         => __( 'Customer Type', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
+			'edd_customer_type'         => [
+				'label'         => __( 'Type', 'arraypress' ),
+				'group'         => __( 'Customer: Profile', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => false,
 				'placeholder'   => __( 'Select type...', 'arraypress' ),
@@ -44,34 +57,82 @@ class Customer {
 					[ 'value' => 'returning', 'label' => __( 'Returning Customer', 'arraypress' ) ],
 				],
 				'compare_value' => function ( $args ) {
-					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
+					$customer = self::get_customer( $args );
 
-					if ( ! $customer_id || ! function_exists( 'edd_get_customer' ) ) {
+					if ( ! $customer ) {
 						return 'new';
 					}
 
-					$customer = edd_get_customer( $customer_id );
-
-					return $customer && $customer->purchase_count > 0 ? 'returning' : 'new';
+					return $customer->purchase_count > 0 ? 'returning' : 'new';
 				},
 				'required_args' => [],
 			],
+			'edd_customer_email'        => [
+				'label'         => __( 'Email', 'arraypress' ),
+				'group'         => __( 'Customer: Profile', 'arraypress' ),
+				'type'          => 'email',
+				'placeholder'   => __( 'e.g. @gmail.com, .edu', 'arraypress' ),
+				'description'   => __( 'Match customer email. Supports: full email, @domain.com, .edu, partial domain.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$customer = self::get_customer( $args );
+
+					return $customer ? $customer->email : '';
+				},
+				'required_args' => [],
+			],
+			'edd_customer_email_domain' => [
+				'label'         => __( 'Email Domain', 'arraypress' ),
+				'group'         => __( 'Customer: Profile', 'arraypress' ),
+				'type'          => 'tags',
+				'placeholder'   => __( 'Type domain, press Enter...', 'arraypress' ),
+				'description'   => __( 'Match if customer email ends with specified domains.', 'arraypress' ),
+				'operators'     => Operators::tags_ends(),
+				'compare_value' => function ( $args ) {
+					$customer = self::get_customer( $args );
+
+					return $customer ? $customer->email : '';
+				},
+				'required_args' => [],
+			],
+			'edd_customer_account_age'  => [
+				'label'         => __( 'Account Age', 'arraypress' ),
+				'group'         => __( 'Customer: Profile', 'arraypress' ),
+				'type'          => 'number_unit',
+				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
+				'min'           => 0,
+				'units'         => Periods::get_age_units(),
+				'description'   => __( 'How long the customer has been registered.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$customer = self::get_customer( $args );
+
+					if ( ! $customer || empty( $customer->date_created ) ) {
+						return 0;
+					}
+
+					return Periods::get_age( $customer->date_created, $args['_unit'] ?? 'day' );
+				},
+				'required_args' => [],
+			],
+		];
+	}
+
+	/**
+	 * Get purchase history conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_history_conditions(): array {
+		return [
 			'edd_customer_order_count'          => [
-				'label'         => __( 'Total Order Count', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
+				'label'         => __( 'Total Orders', 'arraypress' ),
+				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 5', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'The total number of orders placed by the customer.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
-
-					if ( ! $customer_id || ! function_exists( 'edd_get_customer' ) ) {
-						return 0;
-					}
-
-					$customer = edd_get_customer( $customer_id );
+					$customer = self::get_customer( $args );
 
 					return $customer ? (int) $customer->purchase_count : 0;
 				},
@@ -79,28 +140,99 @@ class Customer {
 			],
 			'edd_customer_total_spent'          => [
 				'label'         => __( 'Total Spent', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
+				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 500.00', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The total amount spent by the customer.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
-
-					if ( ! $customer_id || ! function_exists( 'edd_get_customer' ) ) {
-						return 0;
-					}
-
-					$customer = edd_get_customer( $customer_id );
+					$customer = self::get_customer( $args );
 
 					return $customer ? (float) $customer->purchase_value : 0;
 				},
 				'required_args' => [],
 			],
-			'edd_customer_order_count_period'   => [
+			'edd_customer_avg_order_value'      => [
+				'label'         => __( 'Average Order Value', 'arraypress' ),
+				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 50.00', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'The average value of customer orders.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$customer = self::get_customer( $args );
+
+					if ( ! $customer || ! $customer->purchase_count ) {
+						return 0;
+					}
+
+					return (float) $customer->purchase_value / (int) $customer->purchase_count;
+				},
+				'required_args' => [],
+			],
+			'edd_customer_purchased_products'   => [
+				'label'         => __( 'Purchased Products', 'arraypress' ),
+				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
+				'type'          => 'post',
+				'post_type'     => 'download',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search products...', 'arraypress' ),
+				'description'   => __( 'Check if the customer has purchased specific products.', 'arraypress' ),
+				'operators'     => Operators::array_multiple(),
+				'compare_value' => function ( $args ) {
+					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
+
+					return $customer_id ? CustomerHelper::get_product_ids( $customer_id ) : [];
+				},
+				'required_args' => [],
+			],
+			'edd_customer_purchased_categories' => [
+				'label'         => __( 'Purchased Categories', 'arraypress' ),
+				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
+				'type'          => 'term',
+				'taxonomy'      => 'download_category',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search categories...', 'arraypress' ),
+				'description'   => __( 'Check if the customer has purchased from specific categories.', 'arraypress' ),
+				'operators'     => Operators::array_multiple(),
+				'compare_value' => function ( $args ) {
+					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
+
+					return $customer_id ? CustomerHelper::get_term_ids( $customer_id, 'download_category' ) : [];
+				},
+				'required_args' => [],
+			],
+			'edd_customer_purchased_tags'       => [
+				'label'         => __( 'Purchased Tags', 'arraypress' ),
+				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
+				'type'          => 'term',
+				'taxonomy'      => 'download_tag',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search tags...', 'arraypress' ),
+				'description'   => __( 'Check if the customer has purchased products with specific tags.', 'arraypress' ),
+				'operators'     => Operators::array_multiple(),
+				'compare_value' => function ( $args ) {
+					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
+
+					return $customer_id ? CustomerHelper::get_term_ids( $customer_id, 'download_tag' ) : [];
+				},
+				'required_args' => [],
+			],
+		];
+	}
+
+	/**
+	 * Get activity-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_activity_conditions(): array {
+		return [
+			'edd_customer_orders_in_period' => [
 				'label'         => __( 'Orders in Period', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
+				'group'         => __( 'Customer: Activity', 'arraypress' ),
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
 				'min'           => 0,
@@ -121,9 +253,9 @@ class Customer {
 				},
 				'required_args' => [],
 			],
-			'edd_customer_spend_period'         => [
+			'edd_customer_spend_in_period'  => [
 				'label'         => __( 'Spend in Period', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
+				'group'         => __( 'Customer: Activity', 'arraypress' ),
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 100.00', 'arraypress' ),
 				'min'           => 0,
@@ -144,144 +276,9 @@ class Customer {
 				},
 				'required_args' => [],
 			],
-			'edd_customer_email_domain'         => [
-				'label'         => __( 'Email Domain', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
-				'type'          => 'tags',
-				'placeholder'   => __( 'Type domain, press Enter...', 'arraypress' ),
-				'description'   => __( 'Match if customer email ends with specified domains.', 'arraypress' ),
-				'operators'     => Operators::tags_ends(),
-				'compare_value' => function ( $args ) {
-					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
-
-					if ( ! $customer_id || ! function_exists( 'edd_get_customer' ) ) {
-						return '';
-					}
-
-					$customer = edd_get_customer( $customer_id );
-
-					return $customer ? $customer->email : '';
-				},
-				'required_args' => [],
-			],
-			'edd_customer_email'                => [
-				'label'         => __( 'Email', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
-				'type'          => 'email',
-				'placeholder'   => __( 'Enter pattern, press Enter...', 'arraypress' ),
-				'description'   => __( 'Match customer email. Supports: full email, @domain.com, .edu, partial domain.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
-
-					if ( ! $customer_id || ! function_exists( 'edd_get_customer' ) ) {
-						return '';
-					}
-
-					$customer = edd_get_customer( $customer_id );
-
-					return $customer ? $customer->email : '';
-				},
-				'required_args' => [],
-			],
-			'edd_customer_purchased_products'   => [
-				'label'         => __( 'Purchased Products', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
-				'type'          => 'post',
-				'post_type'     => 'download',
-				'multiple'      => true,
-				'placeholder'   => __( 'Search products...', 'arraypress' ),
-				'description'   => __( 'Check if the customer has purchased specific products.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
-				'compare_value' => function ( $args ) {
-					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
-
-					if ( ! $customer_id ) {
-						return [];
-					}
-
-					return CustomerHelper::get_product_ids( $customer_id );
-				},
-				'required_args' => [],
-			],
-			'edd_customer_purchased_categories' => [
-				'label'         => __( 'Purchased Categories', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
-				'type'          => 'term',
-				'taxonomy'      => 'download_category',
-				'multiple'      => true,
-				'placeholder'   => __( 'Search categories...', 'arraypress' ),
-				'description'   => __( 'Check if the customer has purchased from specific categories.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
-				'compare_value' => function ( $args ) {
-					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
-
-					if ( ! $customer_id ) {
-						return [];
-					}
-
-					return CustomerHelper::get_term_ids( $customer_id, 'download_category' );
-				},
-				'required_args' => [],
-			],
-			'edd_customer_purchased_tags'       => [
-				'label'         => __( 'Purchased Tags', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
-				'type'          => 'term',
-				'taxonomy'      => 'download_tag',
-				'multiple'      => true,
-				'placeholder'   => __( 'Search tags...', 'arraypress' ),
-				'description'   => __( 'Check if the customer has purchased products with specific tags.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
-				'compare_value' => function ( $args ) {
-					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
-
-					if ( ! $customer_id ) {
-						return [];
-					}
-
-					return CustomerHelper::get_term_ids( $customer_id, 'download_tag' );
-				},
-				'required_args' => [],
-			],
-			'edd_customer_age'                  => [
-				'label'         => __( 'Account Age', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
-				'type'          => 'number_unit',
-				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
-				'min'           => 0,
-				'units'         => Periods::get_age_units(),
-				'description'   => __( 'How long the customer has been registered.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
-
-					if ( ! $customer_id || ! function_exists( 'edd_get_customer' ) ) {
-						return 0;
-					}
-
-					$customer = edd_get_customer( $customer_id );
-
-					if ( ! $customer || empty( $customer->date_created ) ) {
-						return 0;
-					}
-
-					$created = strtotime( $customer->date_created );
-					$now     = current_time( 'timestamp' );
-					$diff    = $now - $created;
-
-					$unit = $args['_unit'] ?? 'day';
-
-					return match ( $unit ) {
-						'week'  => (int) floor( $diff / WEEK_IN_SECONDS ),
-						'month' => (int) floor( $diff / MONTH_IN_SECONDS ),
-						'year'  => (int) floor( $diff / YEAR_IN_SECONDS ),
-						default => (int) floor( $diff / DAY_IN_SECONDS ),
-					};
-				},
-				'required_args' => [],
-			],
-			'edd_customer_ip_count'             => [
+			'edd_customer_ip_count'         => [
 				'label'         => __( 'Unique IP Count', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
+				'group'         => __( 'Customer: Activity', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
 				'min'           => 0,
@@ -310,9 +307,31 @@ class Customer {
 				},
 				'required_args' => [],
 			],
-			'edd_customer_refund_rate'          => [
+			'edd_customer_refund_count'     => [
+				'label'         => __( 'Refund Count', 'arraypress' ),
+				'group'         => __( 'Customer: Activity', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 2', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'Total number of refunded orders.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
+
+					if ( ! $customer_id ) {
+						return 0;
+					}
+
+					return edd_count_orders( [
+						'customer_id' => $customer_id,
+						'status'      => 'refunded',
+					] );
+				},
+				'required_args' => [],
+			],
+			'edd_customer_refund_rate'      => [
 				'label'         => __( 'Refund Rate (%)', 'arraypress' ),
-				'group'         => __( 'EDD Customer', 'arraypress' ),
+				'group'         => __( 'Customer: Activity', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 10', 'arraypress' ),
 				'min'           => 0,
@@ -345,6 +364,27 @@ class Customer {
 				'required_args' => [],
 			],
 		];
+	}
+
+	/**
+	 * Get customer object from args or current user.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return \EDD_Customer|null
+	 */
+	private static function get_customer( array $args ): ?\EDD_Customer {
+		if ( ! function_exists( 'edd_get_customer' ) ) {
+			return null;
+		}
+
+		$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
+
+		if ( ! $customer_id ) {
+			return null;
+		}
+
+		return edd_get_customer( $customer_id );
 	}
 
 }

@@ -1,11 +1,11 @@
 <?php
 /**
- * EDD Formatting Helper
+ * EDD Options Helper
  *
- * Provides formatting utilities for EDD condition options.
+ * Provides utilities for EDD condition options.
  *
  * @package     ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers
- * @copyright   Copyright (c) 2024, ArrayPress Limited
+ * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
  * @author      David Sherlock
@@ -16,35 +16,11 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers;
 
 /**
- * Class Formatting
+ * Class Options
  *
- * Formatting utilities for EDD conditions.
+ * Option utilities for EDD conditions.
  */
-class Formatting {
-
-	/**
-	 * Format options array for select fields.
-	 *
-	 * @param array  $options   The raw options array.
-	 * @param string $label_key The key to use for the label (for nested arrays).
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function format_options( array $options, string $label_key = '' ): array {
-		$formatted = [];
-
-		foreach ( $options as $value => $label ) {
-			if ( is_array( $label ) && $label_key ) {
-				$label = $label[ $label_key ] ?? $value;
-			}
-			$formatted[] = [
-				'value' => (string) $value,
-				'label' => (string) $label,
-			];
-		}
-
-		return $formatted;
-	}
+class Options {
 
 	/**
 	 * Get discount options for AJAX select.
@@ -82,6 +58,44 @@ class Formatting {
 				'label' => $discount->code . ' (' . $discount->name . ')',
 			];
 		}, $discounts );
+	}
+
+	/**
+	 * Get customer options for AJAX select.
+	 *
+	 * @param string|null $search Search term.
+	 * @param array|null  $ids    Specific IDs to retrieve.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_customer_options( ?string $search, ?array $ids ): array {
+		if ( ! function_exists( 'edd_get_customers' ) ) {
+			return [];
+		}
+
+		$args = [
+			'number' => 20,
+		];
+
+		if ( $ids ) {
+			$args['id__in'] = array_map( 'intval', $ids );
+		} elseif ( $search ) {
+			$args['search']         = $search;
+			$args['search_columns'] = [ 'name', 'email' ];
+		}
+
+		$customers = edd_get_customers( $args );
+
+		if ( empty( $customers ) ) {
+			return [];
+		}
+
+		return array_map( function ( $customer ) {
+			return [
+				'value' => (string) $customer->id,
+				'label' => $customer->name . ' (' . $customer->email . ')',
+			];
+		}, $customers );
 	}
 
 }

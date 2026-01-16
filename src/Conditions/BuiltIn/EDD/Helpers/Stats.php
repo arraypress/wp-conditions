@@ -6,7 +6,7 @@
  * Uses EDD's date infrastructure for proper timezone handling.
  *
  * @package     ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers
- * @copyright   Copyright (c) 2024, ArrayPress Limited
+ * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
  * @author      David Sherlock
@@ -17,6 +17,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers;
 
 use EDD\Stats as EDD_Stats;
+use Exception;
 
 /**
  * Class Stats
@@ -32,13 +33,13 @@ class Stats {
 	 * @param int    $amount The number of units.
 	 *
 	 * @return array{start: string, end: string} Date range in MySQL format.
+	 * @throws Exception
 	 */
 	public static function get_date_range( string $unit, int $amount ): array {
 		$date = EDD()->utils->date( 'now', edd_get_timezone_id(), true );
 
 		$start = match ( $unit ) {
 			'hour' => $date->copy()->subHours( $amount )->startOfMinute(),
-			'day' => $date->copy()->subDays( $amount )->startOfDay(),
 			'week' => $date->copy()->subWeeks( $amount )->startOfDay(),
 			'month' => $date->copy()->subMonths( $amount )->startOfDay(),
 			'year' => $date->copy()->subYears( $amount )->startOfDay(),
