@@ -32,7 +32,7 @@ class Checkout {
 		return [
 			'edd_checkout_gateway' => [
 				'label'         => __( 'Selected Gateway', 'arraypress' ),
-				'group'         => __( 'EDD Checkout', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select gateway...', 'arraypress' ),
@@ -50,7 +50,7 @@ class Checkout {
 			],
 			'edd_checkout_country' => [
 				'label'         => __( 'Billing Country', 'arraypress' ),
-				'group'         => __( 'EDD Checkout', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
@@ -72,7 +72,7 @@ class Checkout {
 			],
 			'edd_checkout_region'  => [
 				'label'         => __( 'Billing Region/State', 'arraypress' ),
-				'group'         => __( 'EDD Checkout', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. CA, NY', 'arraypress' ),
 				'description'   => __( 'The billing region/state entered at checkout.', 'arraypress' ),

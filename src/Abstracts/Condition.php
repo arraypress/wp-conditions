@@ -14,7 +14,10 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions;
+namespace ArrayPress\Conditions\Abstracts;
+
+use ArrayPress\Conditions\Comparators\Comparator;
+use ArrayPress\Conditions\Operators;
 
 /**
  * Class Condition
@@ -209,7 +212,7 @@ abstract class Condition {
 	 * @return bool
 	 */
 	public function compare( string $operator, mixed $user_value, mixed $compare_value ): bool {
-		$comparator = new Comparators\Comparator( $this->type, $this->multiple );
+		$comparator = new Comparator( $this->type, $this->multiple );
 
 		return $comparator->compare( $operator, $user_value, $compare_value );
 	}

@@ -15,6 +15,9 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions;
 
+use ArrayPress\Conditions\Abstracts\Condition;
+use ArrayPress\Conditions\Models\MatchResult;
+use ArrayPress\Conditions\Models\MatchResultCollection;
 use WP_Post;
 
 /**

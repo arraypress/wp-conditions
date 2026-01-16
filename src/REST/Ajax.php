@@ -16,6 +16,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\REST;
 
 use ArrayPress\Conditions\Registry;
+use Exception;
 use WP_Error;
 use WP_REST_Request;
 
@@ -103,7 +104,7 @@ class Ajax {
 				];
 			}, $results );
 
-		} catch ( \Exception $e ) {
+		} catch ( Exception $e ) {
 			return new WP_Error(
 				'callback_error',
 				$e->getMessage(),

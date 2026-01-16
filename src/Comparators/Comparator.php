@@ -194,19 +194,6 @@ class Comparator {
 			return $operator === 'ip_not_match';
 		}
 
-		// Check if IP class exists
-		if ( ! class_exists( IP::class ) ) {
-			// Fallback to exact match only
-			$patterns = array_map( 'trim', (array) $user_value );
-			$matches  = in_array( $compare_value, $patterns, true );
-
-			return match ( $operator ) {
-				'ip_match' => $matches,
-				'ip_not_match' => ! $matches,
-				default => false,
-			};
-		}
-
 		// Normalize patterns to array
 		$patterns = array_map( 'trim', (array) $user_value );
 		$patterns = array_filter( $patterns );
@@ -247,50 +234,6 @@ class Comparator {
 
 		if ( empty( $patterns ) ) {
 			return $operator === 'email_not_match';
-		}
-
-		// Check if Email class exists
-		if ( ! class_exists( Email::class ) ) {
-			// Fallback to simple domain suffix matching
-			$compare_lower = strtolower( $compare_value );
-			$matches       = false;
-
-			foreach ( $patterns as $pattern ) {
-				$pattern = strtolower( $pattern );
-
-				// Exact match
-				if ( $compare_lower === $pattern ) {
-					$matches = true;
-					break;
-				}
-
-				// Domain match (@domain.com)
-				if ( str_starts_with( $pattern, '@' ) && str_ends_with( $compare_lower, $pattern ) ) {
-					$matches = true;
-					break;
-				}
-
-				// TLD match (.edu)
-				if ( str_starts_with( $pattern, '.' ) && str_ends_with( $compare_lower, $pattern ) ) {
-					$matches = true;
-					break;
-				}
-
-				// Partial domain (domain.com matches @domain.com and @sub.domain.com)
-				if ( ! str_contains( $pattern, '@' ) && str_contains( $compare_lower, '@' ) ) {
-					$domain = substr( $compare_lower, strpos( $compare_lower, '@' ) + 1 );
-					if ( $domain === $pattern || str_ends_with( $domain, '.' . $pattern ) ) {
-						$matches = true;
-						break;
-					}
-				}
-			}
-
-			return match ( $operator ) {
-				'email_match' => $matches,
-				'email_not_match' => ! $matches,
-				default => false,
-			};
 		}
 
 		// Use Email::matches_any() for full pattern matching

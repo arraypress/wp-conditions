@@ -16,6 +16,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions;
 
+use ArrayPress\Conditions\Abstracts\Condition;
 use ArrayPress\Conditions\Conditions\BuiltIn;
 use InvalidArgumentException;
 
@@ -179,7 +180,7 @@ class Registry {
 
 			if ( ! $instance instanceof Condition ) {
 				throw new InvalidArgumentException(
-					sprintf( 'Class "%s" must extend ArrayPress\\Conditions\\Condition.', $condition_id )
+					sprintf( 'Class "%s" must extend ArrayPress\\Conditions\\Abstracts\\Condition.', $condition_id )
 				);
 			}
 

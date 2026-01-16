@@ -87,29 +87,11 @@ class Users {
 		foreach ( $users as $user ) {
 			$results[] = [
 				'value' => (string) $user->ID,
-				'label' => self::get_user_label( $user ),
+				'label' => $user->display_name,
 			];
 		}
 
 		return new WP_REST_Response( $results, 200 );
-	}
-
-	/**
-	 * Get a label for a user.
-	 *
-	 * @param WP_User $user The user object.
-	 *
-	 * @return string
-	 */
-	private static function get_user_label( WP_User $user ): string {
-		$label = $user->display_name;
-
-		// Add email for clarity
-		if ( $user->user_email ) {
-			$label .= ' (' . $user->user_email . ')';
-		}
-
-		return $label;
 	}
 
 }

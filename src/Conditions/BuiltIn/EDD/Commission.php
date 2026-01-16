@@ -33,7 +33,7 @@ class Commission {
 		return [
 			'edd_commission_amount'     => [
 				'label'         => __( 'Amount', 'arraypress' ),
-				'group'         => __( 'EDD Commission', 'arraypress' ),
+				'group'         => __( 'Commission', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 50.00', 'arraypress' ),
 				'min'           => 0,
@@ -52,7 +52,7 @@ class Commission {
 			],
 			'edd_commission_rate'       => [
 				'label'         => __( 'Rate (%)', 'arraypress' ),
-				'group'         => __( 'EDD Commission', 'arraypress' ),
+				'group'         => __( 'Commission', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
 				'min'           => 0,
@@ -72,7 +72,7 @@ class Commission {
 			],
 			'edd_commission_status'     => [
 				'label'         => __( 'Status', 'arraypress' ),
-				'group'         => __( 'EDD Commission', 'arraypress' ),
+				'group'         => __( 'Commission', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select status...', 'arraypress' ),
@@ -96,7 +96,7 @@ class Commission {
 			],
 			'edd_commission_type'       => [
 				'label'         => __( 'Type', 'arraypress' ),
-				'group'         => __( 'EDD Commission', 'arraypress' ),
+				'group'         => __( 'Commission', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select type...', 'arraypress' ),
@@ -119,7 +119,7 @@ class Commission {
 			],
 			'edd_commission_product'    => [
 				'label'         => __( 'Product', 'arraypress' ),
-				'group'         => __( 'EDD Commission', 'arraypress' ),
+				'group'         => __( 'Commission', 'arraypress' ),
 				'type'          => 'post',
 				'post_type'     => 'download',
 				'multiple'      => true,
@@ -139,7 +139,7 @@ class Commission {
 			],
 			'edd_commission_categories' => [
 				'label'         => __( 'Product Categories', 'arraypress' ),
-				'group'         => __( 'EDD Commission', 'arraypress' ),
+				'group'         => __( 'Commission', 'arraypress' ),
 				'type'          => 'term',
 				'taxonomy'      => 'download_category',
 				'multiple'      => true,
@@ -165,7 +165,7 @@ class Commission {
 			],
 			'edd_commission_tags'       => [
 				'label'         => __( 'Product Tags', 'arraypress' ),
-				'group'         => __( 'EDD Commission', 'arraypress' ),
+				'group'         => __( 'Commission', 'arraypress' ),
 				'type'          => 'term',
 				'taxonomy'      => 'download_tag',
 				'multiple'      => true,
@@ -191,7 +191,7 @@ class Commission {
 			],
 			'edd_commission_user'       => [
 				'label'         => __( 'Recipient User', 'arraypress' ),
-				'group'         => __( 'EDD Commission', 'arraypress' ),
+				'group'         => __( 'Commission', 'arraypress' ),
 				'type'          => 'user',
 				'multiple'      => true,
 				'placeholder'   => __( 'Search users...', 'arraypress' ),

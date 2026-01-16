@@ -13,7 +13,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions;
+namespace ArrayPress\Conditions\Models;
 
 use WP_Post;
 

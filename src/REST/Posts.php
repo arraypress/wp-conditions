@@ -17,6 +17,7 @@ namespace ArrayPress\Conditions\REST;
 
 use ArrayPress\Conditions\Registry;
 use WP_Error;
+use WP_Query;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -72,38 +73,17 @@ class Posts {
 			$args['order']          = 'DESC';
 		}
 
-		$query = new \WP_Query( $args );
+		$query = new WP_Query( $args );
 
 		$results = [];
 		foreach ( $query->posts as $post ) {
 			$results[] = [
 				'value' => (string) $post->ID,
-				'label' => self::get_post_label( $post ),
+				'label' => $post->post_title,
 			];
 		}
 
 		return new WP_REST_Response( $results, 200 );
-	}
-
-	/**
-	 * Get a label for a post.
-	 *
-	 * @param \WP_Post $post The post object.
-	 *
-	 * @return string
-	 */
-	private static function get_post_label( \WP_Post $post ): string {
-		$label = $post->post_title;
-
-		// Add post type for clarity if needed
-		if ( $post->post_type !== 'post' && $post->post_type !== 'page' ) {
-			$post_type_obj = get_post_type_object( $post->post_type );
-			if ( $post_type_obj ) {
-				$label .= ' (' . $post_type_obj->labels->singular_name . ')';
-			}
-		}
-
-		return $label;
 	}
 
 }

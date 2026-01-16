@@ -248,7 +248,6 @@ class Operators {
 	 */
 	public static function for_type( string $type, bool $multiple = false ): array {
 		return match ( $type ) {
-			'text' => self::text(),
 			'number', 'number_unit' => self::numeric(),
 			'ip' => self::ip(),
 			'email' => self::email(),

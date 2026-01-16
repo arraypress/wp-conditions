@@ -343,6 +343,7 @@
 
 .select2-results__option--highlighted[aria-selected] {
     background-color: #2271b1 !important;
+    color: #ffffff;
 }
 
 .select2-search--dropdown .select2-search__field {
