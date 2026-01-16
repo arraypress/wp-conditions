@@ -13,6 +13,9 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\BuiltIn;
 
+use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
+use ArrayPress\Conditions\Helpers\Periods;
+
 /**
  * Class Post
  *
@@ -26,10 +29,22 @@ class Post {
 	 * @return array<string, array>
 	 */
 	public static function get_all(): array {
+		return array_merge(
+			self::get_detail_conditions(),
+			self::get_taxonomy_conditions()
+		);
+	}
+
+	/**
+	 * Get detail-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_detail_conditions(): array {
 		return [
-			'post_status'   => [
-				'label'         => __( 'Post Status', 'arraypress' ),
-				'group'         => __( 'Post', 'arraypress' ),
+			'post_status' => [
+				'label'         => __( 'Status', 'arraypress' ),
+				'group'         => __( 'Post: Details', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select statuses...', 'arraypress' ),
@@ -42,9 +57,9 @@ class Post {
 				'arg'           => 'post_status',
 				'required_args' => [ 'post_status' ],
 			],
-			'post_type'     => [
-				'label'         => __( 'Post Type', 'arraypress' ),
-				'group'         => __( 'Post', 'arraypress' ),
+			'post_type'   => [
+				'label'         => __( 'Type', 'arraypress' ),
+				'group'         => __( 'Post: Details', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select post types...', 'arraypress' ),
@@ -57,9 +72,9 @@ class Post {
 				'arg'           => 'post_type',
 				'required_args' => [ 'post_type' ],
 			],
-			'post_author'   => [
-				'label'         => __( 'Post Author', 'arraypress' ),
-				'group'         => __( 'Post', 'arraypress' ),
+			'post_author' => [
+				'label'         => __( 'Author', 'arraypress' ),
+				'group'         => __( 'Post: Details', 'arraypress' ),
 				'type'          => 'user',
 				'multiple'      => true,
 				'placeholder'   => __( 'Search authors...', 'arraypress' ),
@@ -67,26 +82,38 @@ class Post {
 				'arg'           => 'post_author',
 				'required_args' => [ 'post_author' ],
 			],
-			'post_age'      => [
-				'label'         => __( 'Post Age', 'arraypress' ),
-				'group'         => __( 'Post', 'arraypress' ),
+			'post_age'    => [
+				'label'         => __( 'Age', 'arraypress' ),
+				'group'         => __( 'Post: Details', 'arraypress' ),
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
 				'description'   => __( 'How long since the post was published.', 'arraypress' ),
 				'min'           => 0,
-				'units'         => [
-					[ 'value' => 'hours', 'label' => __( 'Hours', 'arraypress' ) ],
-					[ 'value' => 'days', 'label' => __( 'Days', 'arraypress' ) ],
-					[ 'value' => 'weeks', 'label' => __( 'Weeks', 'arraypress' ) ],
-					[ 'value' => 'months', 'label' => __( 'Months', 'arraypress' ) ],
-					[ 'value' => 'years', 'label' => __( 'Years', 'arraypress' ) ],
-				],
-				'compare_value' => fn( $args ) => self::get_post_age( $args ),
+				'units'         => Periods::get_age_units(),
+				'compare_value' => function ( $args ) {
+					$post = self::get_post( $args );
+
+					if ( ! $post ) {
+						return 0;
+					}
+
+					return DateTimeHelper::get_age( $post->post_date, $args['_unit'] ?? 'day' );
+				},
 				'required_args' => [ 'post_id' ],
 			],
+		];
+	}
+
+	/**
+	 * Get taxonomy-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_taxonomy_conditions(): array {
+		return [
 			'post_category' => [
-				'label'         => __( 'Post Category', 'arraypress' ),
-				'group'         => __( 'Post', 'arraypress' ),
+				'label'         => __( 'Category', 'arraypress' ),
+				'group'         => __( 'Post: Taxonomies', 'arraypress' ),
 				'type'          => 'term',
 				'taxonomy'      => 'category',
 				'multiple'      => true,
@@ -101,8 +128,8 @@ class Post {
 				'required_args' => [ 'post_id' ],
 			],
 			'post_tag'      => [
-				'label'         => __( 'Post Tag', 'arraypress' ),
-				'group'         => __( 'Post', 'arraypress' ),
+				'label'         => __( 'Tag', 'arraypress' ),
+				'group'         => __( 'Post: Taxonomies', 'arraypress' ),
 				'type'          => 'term',
 				'taxonomy'      => 'post_tag',
 				'multiple'      => true,
@@ -118,7 +145,7 @@ class Post {
 			],
 			'has_term'      => [
 				'label'         => __( 'Has Term', 'arraypress' ),
-				'group'         => __( 'Post', 'arraypress' ),
+				'group'         => __( 'Post: Taxonomies', 'arraypress' ),
 				'type'          => 'term',
 				'taxonomy'      => 'category',
 				'multiple'      => true,
@@ -131,9 +158,50 @@ class Post {
 	}
 
 	/**
+	 * Get post object from args.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return \WP_Post|null
+	 */
+	private static function get_post( array $args ): ?\WP_Post {
+		$post_id = $args['post_id'] ?? get_the_ID();
+
+		if ( ! $post_id ) {
+			return null;
+		}
+
+		return get_post( $post_id );
+	}
+
+	/**
+	 * Get post terms for a taxonomy.
+	 *
+	 * @param array  $args     The arguments including post_id.
+	 * @param string $taxonomy The taxonomy to get terms from.
+	 *
+	 * @return array<int>
+	 */
+	private static function get_post_terms( array $args, string $taxonomy ): array {
+		$post_id = $args['post_id'] ?? get_the_ID();
+
+		if ( ! $post_id ) {
+			return [];
+		}
+
+		$terms = wp_get_post_terms( $post_id, $taxonomy, [ 'fields' => 'ids' ] );
+
+		if ( is_wp_error( $terms ) ) {
+			return [];
+		}
+
+		return $terms;
+	}
+
+	/**
 	 * Get post status options.
 	 *
-	 * @return array
+	 * @return array<array{value: string, label: string}>
 	 */
 	private static function get_post_status_options(): array {
 		$statuses = get_post_stati( [ 'show_in_admin_status_list' => true ], 'objects' );
@@ -152,7 +220,7 @@ class Post {
 	/**
 	 * Get post type options.
 	 *
-	 * @return array
+	 * @return array<array{value: string, label: string}>
 	 */
 	private static function get_post_type_options(): array {
 		$types   = get_post_types( [ 'public' => true ], 'objects' );
@@ -166,66 +234,6 @@ class Post {
 		}
 
 		return $options;
-	}
-
-	/**
-	 * Get post age in specified unit.
-	 *
-	 * @param array $args The arguments including _unit and post_id.
-	 *
-	 * @return int
-	 */
-	private static function get_post_age( array $args ): int {
-		if ( isset( $args['post_age'] ) ) {
-			return (int) $args['post_age'];
-		}
-
-		$post_id = $args['post_id'] ?? get_the_ID();
-		if ( ! $post_id ) {
-			return 0;
-		}
-
-		$post = get_post( $post_id );
-		if ( ! $post ) {
-			return 0;
-		}
-
-		$published = strtotime( $post->post_date );
-		$now       = current_time( 'timestamp' );
-		$diff      = $now - $published;
-
-		$unit = $args['_unit'] ?? 'days';
-
-		return match ( $unit ) {
-			'hours' => (int) floor( $diff / HOUR_IN_SECONDS ),
-			'weeks' => (int) floor( $diff / WEEK_IN_SECONDS ),
-			'months' => (int) floor( $diff / MONTH_IN_SECONDS ),
-			'years' => (int) floor( $diff / YEAR_IN_SECONDS ),
-			default => (int) floor( $diff / DAY_IN_SECONDS ),
-		};
-	}
-
-	/**
-	 * Get post terms for a taxonomy.
-	 *
-	 * @param array  $args     The arguments including post_id.
-	 * @param string $taxonomy The taxonomy to get terms from.
-	 *
-	 * @return array
-	 */
-	private static function get_post_terms( array $args, string $taxonomy ): array {
-		$post_id = $args['post_id'] ?? get_the_ID();
-		if ( ! $post_id ) {
-			return [];
-		}
-
-		$terms = wp_get_post_terms( $post_id, $taxonomy, [ 'fields' => 'ids' ] );
-
-		if ( is_wp_error( $terms ) ) {
-			return [];
-		}
-
-		return $terms;
 	}
 
 }

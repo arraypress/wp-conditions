@@ -166,18 +166,15 @@ class Matcher {
 			}
 		}
 
-		// Get compare value
-		$compare_value = $this->get_compare_value( $condition );
-
-		// Handle number_unit type
+		// Handle number_unit type - extract unit and number into args
 		if ( $condition['type'] === 'number_unit' && is_array( $user_value ) ) {
 			$this->args['_unit']   = $user_value['unit'] ?? null;
 			$this->args['_number'] = $user_value['number'] ?? null;
 			$user_value            = $user_value['number'] ?? null;
-
-			// Re-get compare value with unit in args
-			$compare_value = $this->get_compare_value( $condition );
 		}
+
+		// Get compare value (passing user_value for conditions that need it)
+		$compare_value = $this->get_compare_value( $condition, $user_value );
 
 		// Perform comparison
 		return $this->compare( $condition, $operator, $user_value, $compare_value );
@@ -186,19 +183,20 @@ class Matcher {
 	/**
 	 * Get the compare value for a condition.
 	 *
-	 * @param array $condition The condition configuration.
+	 * @param array $condition  The condition configuration.
+	 * @param mixed $user_value The value configured by the user in the admin UI.
 	 *
 	 * @return mixed
 	 */
-	private function get_compare_value( array $condition ): mixed {
+	private function get_compare_value( array $condition, mixed $user_value = null ): mixed {
 		// If condition has an instance (class-based), use its method
 		if ( isset( $condition['instance'] ) && $condition['instance'] instanceof Condition ) {
-			return $condition['instance']->get_compare_value( $this->args );
+			return $condition['instance']->get_compare_value( $this->args, $user_value );
 		}
 
 		// If there's a compare_value callback
 		if ( isset( $condition['compare_value'] ) && is_callable( $condition['compare_value'] ) ) {
-			return call_user_func( $condition['compare_value'], $this->args );
+			return call_user_func( $condition['compare_value'], $this->args, $user_value );
 		}
 
 		// Simple arg reference

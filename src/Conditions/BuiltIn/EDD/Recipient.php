@@ -30,17 +30,31 @@ class Recipient {
 	 * @return array<string, array>
 	 */
 	public static function get_all(): array {
+		return array_merge(
+			self::get_earnings_conditions(),
+			self::get_commission_count_conditions(),
+			self::get_profile_conditions(),
+			self::get_settings_conditions()
+		);
+	}
+
+	/**
+	 * Get earnings-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_earnings_conditions(): array {
 		return [
-			'edd_recipient_total_earnings'    => [
+			'edd_recipient_total_earnings'  => [
 				'label'         => __( 'Total Earnings', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Earnings', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 1000.00', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'Total earnings for the recipient (all time).', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id || ! function_exists( 'eddc_get_unpaid_totals' ) ) {
 						return 0;
@@ -53,16 +67,16 @@ class Recipient {
 				},
 				'required_args' => [],
 			],
-			'edd_recipient_paid_earnings'     => [
+			'edd_recipient_paid_earnings'   => [
 				'label'         => __( 'Paid Earnings', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Earnings', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 500.00', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'Total paid earnings for the recipient.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id || ! function_exists( 'eddc_get_paid_totals' ) ) {
 						return 0;
@@ -72,16 +86,16 @@ class Recipient {
 				},
 				'required_args' => [],
 			],
-			'edd_recipient_unpaid_earnings'   => [
+			'edd_recipient_unpaid_earnings' => [
 				'label'         => __( 'Unpaid Earnings', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Earnings', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 250.00', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'Total unpaid earnings for the recipient.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id || ! function_exists( 'eddc_get_unpaid_totals' ) ) {
 						return 0;
@@ -91,16 +105,26 @@ class Recipient {
 				},
 				'required_args' => [],
 			],
-			'edd_recipient_total_sales'       => [
+		];
+	}
+
+	/**
+	 * Get commission count conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_commission_count_conditions(): array {
+		return [
+			'edd_recipient_total_sales'   => [
 				'label'         => __( 'Total Sales Count', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Commission Counts', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 50', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'Total number of sales for the recipient.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id || ! function_exists( 'eddc_count_user_commissions' ) ) {
 						return 0;
@@ -110,16 +134,16 @@ class Recipient {
 				},
 				'required_args' => [],
 			],
-			'edd_recipient_unpaid_count'      => [
+			'edd_recipient_unpaid_count'  => [
 				'label'         => __( 'Unpaid Commission Count', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Commission Counts', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 10', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'Number of unpaid commissions for the recipient.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id || ! function_exists( 'eddc_count_user_commissions' ) ) {
 						return 0;
@@ -129,16 +153,16 @@ class Recipient {
 				},
 				'required_args' => [],
 			],
-			'edd_recipient_paid_count'        => [
+			'edd_recipient_paid_count'    => [
 				'label'         => __( 'Paid Commission Count', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Commission Counts', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 40', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'Number of paid commissions for the recipient.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id || ! function_exists( 'eddc_count_user_commissions' ) ) {
 						return 0;
@@ -148,16 +172,16 @@ class Recipient {
 				},
 				'required_args' => [],
 			],
-			'edd_recipient_revoked_count'     => [
+			'edd_recipient_revoked_count' => [
 				'label'         => __( 'Revoked Commission Count', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Commission Counts', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 2', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'Number of revoked commissions for the recipient.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id || ! function_exists( 'eddc_count_user_commissions' ) ) {
 						return 0;
@@ -167,16 +191,26 @@ class Recipient {
 				},
 				'required_args' => [],
 			],
-			'edd_recipient_account_age'       => [
+		];
+	}
+
+	/**
+	 * Get profile-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_profile_conditions(): array {
+		return [
+			'edd_recipient_account_age' => [
 				'label'         => __( 'Account Age', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Profile', 'arraypress' ),
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
 				'min'           => 0,
 				'units'         => Periods::get_age_units(),
 				'description'   => __( 'How long the user has been a commission recipient.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id ) {
 						return 0;
@@ -188,28 +222,17 @@ class Recipient {
 						return 0;
 					}
 
-					$registered = strtotime( $user->user_registered );
-					$now        = current_time( 'timestamp' );
-					$diff       = $now - $registered;
-
-					$unit = $args['_unit'] ?? 'day';
-
-					return match ( $unit ) {
-						'week'  => (int) floor( $diff / WEEK_IN_SECONDS ),
-						'month' => (int) floor( $diff / MONTH_IN_SECONDS ),
-						'year'  => (int) floor( $diff / YEAR_IN_SECONDS ),
-						default => (int) floor( $diff / DAY_IN_SECONDS ),
-					};
+					return Periods::get_age( $user->user_registered, $args['_unit'] ?? 'day' );
 				},
 				'required_args' => [],
 			],
-			'edd_recipient_is_vendor'         => [
+			'edd_recipient_is_vendor'   => [
 				'label'         => __( 'Is Vendor', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Profile', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the user is a registered vendor/commission recipient.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id ) {
 						return false;
@@ -227,9 +250,19 @@ class Recipient {
 				},
 				'required_args' => [],
 			],
+		];
+	}
+
+	/**
+	 * Get settings-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_settings_conditions(): array {
+		return [
 			'edd_recipient_commission_rate'   => [
 				'label'         => __( 'Default Commission Rate (%)', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Settings', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
 				'min'           => 0,
@@ -237,7 +270,7 @@ class Recipient {
 				'step'          => 0.1,
 				'description'   => __( 'The default commission rate for this recipient.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id ) {
 						return 0;
@@ -251,12 +284,12 @@ class Recipient {
 			],
 			'edd_recipient_payout_method'     => [
 				'label'         => __( 'Payout Method', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Settings', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. paypal', 'arraypress' ),
 				'description'   => __( 'The payout method configured for this recipient.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id ) {
 						return '';
@@ -268,11 +301,11 @@ class Recipient {
 			],
 			'edd_recipient_has_payout_method' => [
 				'label'         => __( 'Has Payout Method', 'arraypress' ),
-				'group'         => __( 'EDD Recipient', 'arraypress' ),
+				'group'         => __( 'Recipient: Settings', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the recipient has a payout method configured.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$user_id = $args['user_id'] ?? get_current_user_id();
+					$user_id = self::get_user_id( $args );
 
 					if ( ! $user_id ) {
 						return false;
@@ -285,6 +318,17 @@ class Recipient {
 				'required_args' => [],
 			],
 		];
+	}
+
+	/**
+	 * Get user ID from args or current user.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	private static function get_user_id( array $args ): int {
+		return (int) ( $args['user_id'] ?? get_current_user_id() );
 	}
 
 }

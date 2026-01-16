@@ -188,11 +188,12 @@ abstract class Condition {
 	 *
 	 * Override in child class for computed values.
 	 *
-	 * @param array $args Arguments passed to the matcher.
+	 * @param array $args       Arguments passed to the matcher.
+	 * @param mixed $user_value The value configured by the user in the admin UI.
 	 *
 	 * @return mixed
 	 */
-	public function get_compare_value( array $args ): mixed {
+	public function get_compare_value( array $args, mixed $user_value = null ): mixed {
 		if ( $this->arg && isset( $args[ $this->arg ] ) ) {
 			return $args[ $this->arg ];
 		}

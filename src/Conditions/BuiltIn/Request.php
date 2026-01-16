@@ -77,7 +77,7 @@ class Request {
 					'!='       => __( 'Is not', 'arraypress' ),
 					'contains' => __( 'In range', 'arraypress' ),
 				],
-				'compare_value' => fn( $args ) => $args['ip_address'] ?? ( class_exists( IP::class ) ? IP::get() : self::get_ip_fallback() ),
+				'compare_value' => fn( $args ) => $args['ip_address'] ?? IP::get(),
 				'required_args' => [],
 			],
 			'country'          => [
@@ -92,7 +92,7 @@ class Request {
 					'none' => __( 'Is none of', 'arraypress' ),
 				],
 				'options'       => fn() => function_exists( 'get_country_options' ) ? get_country_options() : [],
-				'compare_value' => fn( $args ) => $args['country'] ?? ( class_exists( IP::class ) ? IP::get_country() : null ),
+				'compare_value' => fn( $args ) => $args['country'] ?? IP::get_country(),
 				'required_args' => [],
 			],
 			'device_type'      => [
@@ -111,7 +111,7 @@ class Request {
 					[ 'value' => 'desktop', 'label' => __( 'Desktop', 'arraypress' ) ],
 					[ 'value' => 'bot', 'label' => __( 'Bot/Crawler', 'arraypress' ) ],
 				],
-				'compare_value' => fn( $args ) => $args['device_type'] ?? ( class_exists( UserAgent::class ) ? UserAgent::get_device_type() : self::get_device_type_fallback() ),
+				'compare_value' => fn( $args ) => $args['device_type'] ?? UserAgent::get_device_type(),
 				'required_args' => [],
 			],
 			'browser'          => [
@@ -134,7 +134,7 @@ class Request {
 					[ 'value' => 'Internet Explorer', 'label' => 'Internet Explorer' ],
 					[ 'value' => 'Samsung Browser', 'label' => 'Samsung Browser' ],
 				],
-				'compare_value' => fn( $args ) => $args['browser'] ?? ( class_exists( UserAgent::class ) ? UserAgent::get_browser() : null ),
+				'compare_value' => fn( $args ) => $args['browser'] ?? UserAgent::get_browser(),
 				'required_args' => [],
 			],
 			'operating_system' => [
@@ -158,7 +158,7 @@ class Request {
 					[ 'value' => 'Android', 'label' => 'Android' ],
 					[ 'value' => 'Chrome OS', 'label' => 'Chrome OS' ],
 				],
-				'compare_value' => fn( $args ) => $args['operating_system'] ?? ( class_exists( UserAgent::class ) ? UserAgent::get_os() : null ),
+				'compare_value' => fn( $args ) => $args['operating_system'] ?? UserAgent::get_os(),
 				'required_args' => [],
 			],
 		];
@@ -201,49 +201,6 @@ class Request {
 		$primary = explode( ';', trim( $languages[0] ) )[0];
 
 		return trim( $primary );
-	}
-
-	/**
-	 * Fallback IP detection if IP utils library not available.
-	 *
-	 * @return string|null
-	 */
-	private static function get_ip_fallback(): ?string {
-		$headers = [
-			'HTTP_CF_CONNECTING_IP',
-			'HTTP_X_REAL_IP',
-			'HTTP_CLIENT_IP',
-			'HTTP_X_FORWARDED_FOR',
-			'REMOTE_ADDR',
-		];
-
-		foreach ( $headers as $header ) {
-			if ( ! empty( $_SERVER[ $header ] ) ) {
-				$ip = $_SERVER[ $header ];
-				if ( $header === 'HTTP_X_FORWARDED_FOR' ) {
-					$ips = explode( ',', $ip );
-					$ip  = trim( $ips[0] );
-				}
-				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-					return $ip;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Fallback device type detection if UserAgent library not available.
-	 *
-	 * @return string
-	 */
-	private static function get_device_type_fallback(): string {
-		if ( wp_is_mobile() ) {
-			return 'mobile';
-		}
-
-		return 'desktop';
 	}
 
 }
