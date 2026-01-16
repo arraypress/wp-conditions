@@ -16,7 +16,7 @@ namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
 use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Formatting;
 use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Stats;
 use ArrayPress\Conditions\Operators;
-use ArrayPress\Conditions\Periods;
+use ArrayPress\Conditions\Helpers\Periods;
 
 /**
  * Class Product

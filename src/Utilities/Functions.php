@@ -15,8 +15,8 @@ declare( strict_types=1 );
 
 use ArrayPress\Conditions\Registry;
 use ArrayPress\Conditions\Matcher;
-use ArrayPress\Conditions\MatchResult;
-use ArrayPress\Conditions\MatchResultCollection;
+use ArrayPress\Conditions\Models\MatchResult;
+use ArrayPress\Conditions\Models\MatchResultCollection;
 
 if ( ! function_exists( 'register_conditions' ) ) :
 	/**
