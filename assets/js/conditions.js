@@ -38,16 +38,45 @@ console.log('conditions.js loaded');
             return condition.operators;
         }
 
-        // Otherwise, get by type
-        let type = condition.type || 'text';
+        // Otherwise, get by type (matching PHP Operators::for_type())
+        const type = condition.type || 'text';
+        const multiple = condition.multiple || false;
 
-        if (condition.multiple && (type === 'select' || type === 'post' || type === 'term' || type === 'user')) {
-            type = type === 'select' ? 'select_multiple' : 'array_multiple';
-        } else if (type === 'post' || type === 'term' || type === 'user') {
-            type = 'array';
+        switch (type) {
+            case 'number':
+            case 'number_unit':
+                return operators.number || {};
+
+            case 'boolean':
+                return operators.boolean || {};
+
+            case 'date':
+                return operators.date || {};
+
+            case 'time':
+                return operators.time || {};
+
+            case 'ip':
+                return operators.ip || {};
+
+            case 'email':
+                return operators.email || {};
+
+            case 'tags':
+                return operators.tags || {};
+
+            case 'select':
+                return multiple ? (operators.collection || {}) : (operators.equality || {});
+
+            case 'post':
+            case 'term':
+            case 'user':
+            case 'ajax':
+                return multiple ? (operators.collection || {}) : (operators.equality || {});
+
+            default:
+                return operators.text || {};
         }
-
-        return operators[type] || operators.text || {};
     }
 
     /**

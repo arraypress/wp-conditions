@@ -26,10 +26,22 @@ class Context {
 	 * @return array<string, array>
 	 */
 	public static function get_all(): array {
+		return array_merge(
+			self::get_page_conditions(),
+			self::get_request_type_conditions()
+		);
+	}
+
+	/**
+	 * Get page context conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_page_conditions(): array {
 		return [
 			'is_front_page' => [
 				'label'         => __( 'Is Front Page', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Page Context', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on the site front page.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_front_page'] ?? is_front_page(),
@@ -37,7 +49,7 @@ class Context {
 			],
 			'is_home'       => [
 				'label'         => __( 'Is Blog Home', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Page Context', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on the blog posts index page.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_home'] ?? is_home(),
@@ -45,7 +57,7 @@ class Context {
 			],
 			'is_single'     => [
 				'label'         => __( 'Is Single Post', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Page Context', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a single post page.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_single'] ?? is_single(),
@@ -53,7 +65,7 @@ class Context {
 			],
 			'is_page'       => [
 				'label'         => __( 'Is Page', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Page Context', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a static page.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_page'] ?? is_page(),
@@ -61,7 +73,7 @@ class Context {
 			],
 			'is_archive'    => [
 				'label'         => __( 'Is Archive', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Page Context', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on an archive page (category, tag, date, author).', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_archive'] ?? is_archive(),
@@ -69,7 +81,7 @@ class Context {
 			],
 			'is_search'     => [
 				'label'         => __( 'Is Search Results', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Page Context', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on the search results page.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_search'] ?? is_search(),
@@ -77,39 +89,49 @@ class Context {
 			],
 			'is_404'        => [
 				'label'         => __( 'Is 404 Page', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Page Context', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a 404 error page.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_404'] ?? is_404(),
 				'required_args' => [],
 			],
-			'is_admin'      => [
+		];
+	}
+
+	/**
+	 * Get request type conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_request_type_conditions(): array {
+		return [
+			'is_admin' => [
 				'label'         => __( 'Is Admin Area', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Request Type', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if in the WordPress admin area.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_admin'] ?? is_admin(),
 				'required_args' => [],
 			],
-			'is_ajax'       => [
+			'is_ajax'  => [
 				'label'         => __( 'Is AJAX Request', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Request Type', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is an AJAX request.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_ajax'] ?? wp_doing_ajax(),
 				'required_args' => [],
 			],
-			'is_rest'       => [
+			'is_rest'  => [
 				'label'         => __( 'Is REST Request', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Request Type', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is a REST API request.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_rest'] ?? ( defined( 'REST_REQUEST' ) && REST_REQUEST ),
 				'required_args' => [],
 			],
-			'is_cron'       => [
+			'is_cron'  => [
 				'label'         => __( 'Is Cron Job', 'arraypress' ),
-				'group'         => __( 'WordPress', 'arraypress' ),
+				'group'         => __( 'WordPress: Request Type', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is a cron job execution.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_cron'] ?? wp_doing_cron(),

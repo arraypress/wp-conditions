@@ -20,7 +20,9 @@
     "arraypress/wp-composer-assets": "dev-main",
     "arraypress/wp-countries": "dev-main",
     "arraypress/wp-ip-utils": "dev-main",
-    "arraypress/wp-useragent-utils": "dev-main",
+    "arraypress/wp-user-agent-utils": "dev-main",
+    "arraypress/wp-accept-language-utils": "dev-main",
+    "arraypress/wp-referrer-utils": "dev-main",
     "arraypress/email-utils": "dev-main"
   },
   "autoload": {

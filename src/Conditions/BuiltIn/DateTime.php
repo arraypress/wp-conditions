@@ -14,6 +14,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\BuiltIn;
 
 use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
+use ArrayPress\Conditions\Helpers\Periods;
 use ArrayPress\Conditions\Operators;
 
 /**
@@ -72,20 +73,7 @@ class DateTime {
 				'placeholder'   => __( 'Select months...', 'arraypress' ),
 				'description'   => __( 'Match against the current month.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => [
-					[ 'value' => '1', 'label' => __( 'January', 'arraypress' ) ],
-					[ 'value' => '2', 'label' => __( 'February', 'arraypress' ) ],
-					[ 'value' => '3', 'label' => __( 'March', 'arraypress' ) ],
-					[ 'value' => '4', 'label' => __( 'April', 'arraypress' ) ],
-					[ 'value' => '5', 'label' => __( 'May', 'arraypress' ) ],
-					[ 'value' => '6', 'label' => __( 'June', 'arraypress' ) ],
-					[ 'value' => '7', 'label' => __( 'July', 'arraypress' ) ],
-					[ 'value' => '8', 'label' => __( 'August', 'arraypress' ) ],
-					[ 'value' => '9', 'label' => __( 'September', 'arraypress' ) ],
-					[ 'value' => '10', 'label' => __( 'October', 'arraypress' ) ],
-					[ 'value' => '11', 'label' => __( 'November', 'arraypress' ) ],
-					[ 'value' => '12', 'label' => __( 'December', 'arraypress' ) ],
-				],
+				'options'       => Periods::get_months(),
 				'compare_value' => fn( $args ) => $args['current_month'] ?? current_time( 'n' ),
 				'required_args' => [],
 			],
@@ -109,15 +97,7 @@ class DateTime {
 				'placeholder'   => __( 'Select days...', 'arraypress' ),
 				'description'   => __( 'Match against the current day of the week.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => [
-					[ 'value' => '1', 'label' => __( 'Monday', 'arraypress' ) ],
-					[ 'value' => '2', 'label' => __( 'Tuesday', 'arraypress' ) ],
-					[ 'value' => '3', 'label' => __( 'Wednesday', 'arraypress' ) ],
-					[ 'value' => '4', 'label' => __( 'Thursday', 'arraypress' ) ],
-					[ 'value' => '5', 'label' => __( 'Friday', 'arraypress' ) ],
-					[ 'value' => '6', 'label' => __( 'Saturday', 'arraypress' ) ],
-					[ 'value' => '7', 'label' => __( 'Sunday', 'arraypress' ) ],
-				],
+				'options'       => Periods::get_days_of_week(),
 				'compare_value' => fn( $args ) => $args['day_of_week'] ?? current_time( 'N' ),
 				'required_args' => [],
 			],
@@ -159,14 +139,7 @@ class DateTime {
 				'placeholder'   => __( 'Select time of day...', 'arraypress' ),
 				'description'   => __( 'Match against the current part of the day.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => [
-					[ 'value' => 'early_morning', 'label' => __( 'Early Morning (5am - 8am)', 'arraypress' ) ],
-					[ 'value' => 'morning', 'label' => __( 'Morning (8am - 12pm)', 'arraypress' ) ],
-					[ 'value' => 'afternoon', 'label' => __( 'Afternoon (12pm - 5pm)', 'arraypress' ) ],
-					[ 'value' => 'evening', 'label' => __( 'Evening (5pm - 9pm)', 'arraypress' ) ],
-					[ 'value' => 'night', 'label' => __( 'Night (9pm - 12am)', 'arraypress' ) ],
-					[ 'value' => 'late_night', 'label' => __( 'Late Night (12am - 5am)', 'arraypress' ) ],
-				],
+				'options'       => Periods::get_times_of_day(),
 				'compare_value' => fn( $args ) => $args['time_of_day'] ?? DateTimeHelper::get_time_of_day(),
 				'required_args' => [],
 			],
@@ -188,12 +161,7 @@ class DateTime {
 				'placeholder'   => __( 'Select quarters...', 'arraypress' ),
 				'description'   => __( 'Match against the current quarter.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => [
-					[ 'value' => '1', 'label' => __( 'Q1 (Jan - Mar)', 'arraypress' ) ],
-					[ 'value' => '2', 'label' => __( 'Q2 (Apr - Jun)', 'arraypress' ) ],
-					[ 'value' => '3', 'label' => __( 'Q3 (Jul - Sep)', 'arraypress' ) ],
-					[ 'value' => '4', 'label' => __( 'Q4 (Oct - Dec)', 'arraypress' ) ],
-				],
+				'options'       => Periods::get_quarters(),
 				'compare_value' => fn( $args ) => $args['quarter'] ?? (string) DateTimeHelper::get_quarter(),
 				'required_args' => [],
 			],
