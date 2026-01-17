@@ -102,8 +102,8 @@
 }
 
 .condition-fields > .operator-select {
-    flex: 0 0 140px;
-    min-width: 140px;
+    flex: 0 0 180px;
+    min-width: 180px;
 }
 
 .condition-fields > .value-field-wrapper {
