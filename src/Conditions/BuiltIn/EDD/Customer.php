@@ -180,7 +180,7 @@ class Customer {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search products...', 'arraypress' ),
 				'description'   => __( 'Check if the customer has purchased specific products.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
 
@@ -196,7 +196,7 @@ class Customer {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search categories...', 'arraypress' ),
 				'description'   => __( 'Check if the customer has purchased from specific categories.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
 
@@ -212,7 +212,7 @@ class Customer {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search tags...', 'arraypress' ),
 				'description'   => __( 'Check if the customer has purchased products with specific tags.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$customer_id = $args['customer_id'] ?? CustomerHelper::get_current_id();
 

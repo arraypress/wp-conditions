@@ -98,7 +98,7 @@ class Commission {
 					[ 'value' => 'paid', 'label' => __( 'Paid', 'arraypress' ) ],
 					[ 'value' => 'revoked', 'label' => __( 'Revoked', 'arraypress' ) ],
 				],
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$commission = self::get_commission( $args );
 
@@ -117,7 +117,7 @@ class Commission {
 					[ 'value' => 'percentage', 'label' => __( 'Percentage', 'arraypress' ) ],
 					[ 'value' => 'flat', 'label' => __( 'Flat Amount', 'arraypress' ) ],
 				],
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$commission = self::get_commission( $args );
 
@@ -143,7 +143,7 @@ class Commission {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search products...', 'arraypress' ),
 				'description'   => __( 'The product the commission is for.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$commission = self::get_commission( $args );
 
@@ -159,7 +159,7 @@ class Commission {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search categories...', 'arraypress' ),
 				'description'   => __( 'The categories of the commission product.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$commission = self::get_commission( $args );
 
@@ -181,7 +181,7 @@ class Commission {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search tags...', 'arraypress' ),
 				'description'   => __( 'The tags of the commission product.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$commission = self::get_commission( $args );
 
@@ -212,7 +212,7 @@ class Commission {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search users...', 'arraypress' ),
 				'description'   => __( 'The user receiving the commission.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$commission = self::get_commission( $args );
 
