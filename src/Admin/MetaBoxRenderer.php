@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin Meta Box
+ * Meta Box Renderer
  *
  * Renders the conditions meta box in the admin.
  *
@@ -19,11 +19,11 @@ use ArrayPress\Conditions\Registry;
 use WP_Post;
 
 /**
- * Class MetaBox
+ * Class MetaBoxRenderer
  *
  * Renders the conditions UI meta box.
  */
-class MetaBox {
+class MetaBoxRenderer {
 
     /**
      * Render the meta box.
@@ -63,6 +63,19 @@ class MetaBox {
             </button>
         </div>
 
+        <?php self::render_templates( $conditions ); ?>
+        <?php
+    }
+
+    /**
+     * Render JavaScript templates.
+     *
+     * @param array $conditions The conditions array.
+     *
+     * @return void
+     */
+    private static function render_templates( array $conditions ): void {
+        ?>
         <!-- Templates for JavaScript -->
         <script type="text/html" id="tmpl-condition-group">
             <div class="condition-group" data-group-id="{{ data.id }}">

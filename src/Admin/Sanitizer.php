@@ -23,7 +23,7 @@ namespace ArrayPress\Conditions\Admin;
 class Sanitizer {
 
 	/**
-	 * Condition configurations for custom sanitization.
+	 * Condition configurations for type-aware sanitization.
 	 *
 	 * @var array
 	 */
@@ -33,7 +33,7 @@ class Sanitizer {
 	 * Sanitize conditions data.
 	 *
 	 * @param array|mixed $conditions        Raw conditions data.
-	 * @param array       $condition_configs Optional condition configurations for custom sanitization.
+	 * @param array       $condition_configs Optional condition configurations for type-aware sanitization.
 	 *
 	 * @return array
 	 */
@@ -100,7 +100,7 @@ class Sanitizer {
 			$type   = $config['type'] ?? 'text';
 
 			// Skip if value is empty (but allow 0/'0' and skip check for boolean type)
-			if ( self::is_value_empty( $sanitized_rule['value'], $type ) ) {
+			if ( TypeSanitizer::is_empty( $sanitized_rule['value'], $type ) ) {
 				continue;
 			}
 
@@ -179,15 +179,11 @@ class Sanitizer {
 		$operator     = $rule['operator'] ?? '';
 		$value        = $rule['value'] ?? null;
 
-		// Get condition config if available
+		// Get condition config for type-aware sanitization
 		$config = self::$conditions[ $condition_id ] ?? [];
 
-		// Apply custom sanitize callback if defined
-		if ( ! empty( $config['sanitize'] ) && is_callable( $config['sanitize'] ) ) {
-			$value = call_user_func( $config['sanitize'], $value, $operator, $config );
-		} else {
-			$value = self::sanitize_value( $value );
-		}
+		// Use TypeSanitizer for type-aware value sanitization
+		$value = TypeSanitizer::sanitize( $value, $config );
 
 		return [
 			'id'        => sanitize_key( $rule_id ),
@@ -246,81 +242,6 @@ class Sanitizer {
 		];
 
 		return in_array( $operator, $allowed, true ) ? $operator : '';
-	}
-
-	/**
-	 * Sanitize a value.
-	 *
-	 * @param mixed $value The value to sanitize.
-	 *
-	 * @return mixed
-	 */
-	private static function sanitize_value( mixed $value ): mixed {
-		if ( is_null( $value ) ) {
-			return null;
-		}
-
-		// Handle number_unit type (array with number and unit)
-		if ( is_array( $value ) && isset( $value['number'] ) ) {
-			return [
-				'number' => sanitize_text_field( (string) $value['number'] ),
-				'unit'   => sanitize_key( $value['unit'] ?? '' ),
-			];
-		}
-
-		// Handle arrays (multi-select values)
-		if ( is_array( $value ) ) {
-			return array_values( array_unique( array_map( 'sanitize_text_field', $value ) ) );
-		}
-
-		// Handle scalar values
-		return sanitize_text_field( (string) $value );
-	}
-
-	/**
-	 * Check if a value should be considered empty.
-	 *
-	 * This allows 0 and '0' as valid values while rejecting truly empty values.
-	 * Boolean types don't require a value (they use operator only).
-	 *
-	 * @param mixed  $value The value to check.
-	 * @param string $type  The condition type.
-	 *
-	 * @return bool True if the value is empty and should be skipped.
-	 */
-	private static function is_value_empty( mixed $value, string $type = 'text' ): bool {
-		// Boolean types don't require a value - they use operator only (yes/no)
-		if ( $type === 'boolean' ) {
-			return false;
-		}
-
-		// Null is empty
-		if ( is_null( $value ) ) {
-			return true;
-		}
-
-		// Empty string is empty
-		if ( $value === '' ) {
-			return true;
-		}
-
-		// Empty array is empty
-		if ( is_array( $value ) && empty( $value ) ) {
-			return true;
-		}
-
-		// Handle number_unit type - check if number part is empty
-		if ( is_array( $value ) && isset( $value['number'] ) ) {
-			// Allow 0 as valid
-			if ( $value['number'] === '' || $value['number'] === null ) {
-				return true;
-			}
-
-			return false;
-		}
-
-		// 0, '0', false are NOT empty (valid values)
-		return false;
 	}
 
 }

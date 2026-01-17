@@ -13,8 +13,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\BuiltIn;
 
-use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
-use ArrayPress\Conditions\Helpers\Parse;
+use ArrayPress\Conditions\Helpers\Post as PostHelper;
+use ArrayPress\Conditions\Helpers\Options;
 use ArrayPress\Conditions\Helpers\Periods;
 use ArrayPress\Conditions\Operators;
 
@@ -53,7 +53,7 @@ class Post {
 				'placeholder'   => __( 'Select statuses...', 'arraypress' ),
 				'description'   => __( 'Match against the post status.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => self::get_post_status_options(),
+				'options'       => Options::get_post_statuses(),
 				'arg'           => 'post_status',
 				'required_args' => [ 'post_status' ],
 			],
@@ -65,7 +65,7 @@ class Post {
 				'placeholder'   => __( 'Select post types...', 'arraypress' ),
 				'description'   => __( 'Match against the post type.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => self::get_post_type_options(),
+				'options'       => Options::get_post_types(),
 				'arg'           => 'post_type',
 				'required_args' => [ 'post_type' ],
 			],
@@ -87,15 +87,7 @@ class Post {
 				'description'   => __( 'How long since the post was published.', 'arraypress' ),
 				'min'           => 0,
 				'units'         => Periods::get_age_units(),
-				'compare_value' => function ( $args ) {
-					$post = self::get_post( $args );
-
-					if ( ! $post ) {
-						return 0;
-					}
-
-					return DateTimeHelper::get_age( $post->post_date, $args['_unit'] ?? 'day' );
-				},
+				'compare_value' => fn( $args ) => PostHelper::get_age( $args ),
 				'required_args' => [ 'post_id' ],
 			],
 		];
@@ -117,7 +109,7 @@ class Post {
 				'placeholder'   => __( 'Search categories...', 'arraypress' ),
 				'description'   => __( 'Match against post categories.', 'arraypress' ),
 				'operators'     => Operators::collection(),
-				'compare_value' => fn( $args ) => self::get_post_terms( $args, 'category' ),
+				'compare_value' => fn( $args ) => PostHelper::get_terms( $args, 'category' ),
 				'required_args' => [ 'post_id' ],
 			],
 			'post_tag'      => [
@@ -129,7 +121,7 @@ class Post {
 				'placeholder'   => __( 'Search tags...', 'arraypress' ),
 				'description'   => __( 'Match against post tags.', 'arraypress' ),
 				'operators'     => Operators::collection(),
-				'compare_value' => fn( $args ) => self::get_post_terms( $args, 'post_tag' ),
+				'compare_value' => fn( $args ) => PostHelper::get_terms( $args, 'post_tag' ),
 				'required_args' => [ 'post_id' ],
 			],
 			'has_term'      => [
@@ -159,17 +151,7 @@ class Post {
 				'type'          => 'text',
 				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
 				'description'   => __( 'Format: meta_key:value_to_match', 'arraypress' ),
-				'compare_value' => function ( $args, $user_value ) {
-					$post = self::get_post( $args );
-
-					if ( ! $post ) {
-						return '';
-					}
-
-					$parsed = Parse::meta( $user_value ?? '' );
-
-					return get_post_meta( $post->ID, $parsed['key'], true );
-				},
+				'compare_value' => fn( $args, $user_value ) => PostHelper::get_meta_text( $args, $user_value ),
 				'required_args' => [ 'post_id' ],
 			],
 			'post_meta_number' => [
@@ -178,99 +160,10 @@ class Post {
 				'type'          => 'number',
 				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
 				'description'   => __( 'Match against a numeric post meta field. Format: meta_key:value', 'arraypress' ),
-				'compare_value' => function ( $args, $user_value ) {
-					$post = self::get_post( $args );
-
-					if ( ! $post ) {
-						return 0;
-					}
-
-					$parsed = Parse::meta_typed( $user_value ?? '', 'number' );
-
-					return (float) get_post_meta( $post->ID, $parsed['key'], true );
-				},
+				'compare_value' => fn( $args, $user_value ) => PostHelper::get_meta_number( $args, $user_value ),
 				'required_args' => [ 'post_id' ],
 			],
 		];
-	}
-
-	/**
-	 * Get post object from args.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return \WP_Post|null
-	 */
-	private static function get_post( array $args ): ?\WP_Post {
-		$post_id = $args['post_id'] ?? get_the_ID();
-
-		if ( ! $post_id ) {
-			return null;
-		}
-
-		return get_post( $post_id );
-	}
-
-	/**
-	 * Get post terms for a taxonomy.
-	 *
-	 * @param array  $args     The arguments including post_id.
-	 * @param string $taxonomy The taxonomy to get terms from.
-	 *
-	 * @return array<int>
-	 */
-	private static function get_post_terms( array $args, string $taxonomy ): array {
-		$post_id = $args['post_id'] ?? get_the_ID();
-
-		if ( ! $post_id ) {
-			return [];
-		}
-
-		$terms = wp_get_post_terms( $post_id, $taxonomy, [ 'fields' => 'ids' ] );
-
-		if ( is_wp_error( $terms ) ) {
-			return [];
-		}
-
-		return $terms;
-	}
-
-	/**
-	 * Get post status options.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	private static function get_post_status_options(): array {
-		$statuses = get_post_stati( [ 'show_in_admin_status_list' => true ], 'objects' );
-		$options  = [];
-
-		foreach ( $statuses as $status ) {
-			$options[] = [
-				'value' => $status->name,
-				'label' => $status->label,
-			];
-		}
-
-		return $options;
-	}
-
-	/**
-	 * Get post type options.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	private static function get_post_type_options(): array {
-		$types   = get_post_types( [ 'public' => true ], 'objects' );
-		$options = [];
-
-		foreach ( $types as $type ) {
-			$options[] = [
-				'value' => $type->name,
-				'label' => $type->labels->singular_name,
-			];
-		}
-
-		return $options;
 	}
 
 }

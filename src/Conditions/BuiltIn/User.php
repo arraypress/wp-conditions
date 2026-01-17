@@ -13,11 +13,10 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\BuiltIn;
 
-use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
-use ArrayPress\Conditions\Helpers\Parse;
+use ArrayPress\Conditions\Helpers\User as UserHelper;
+use ArrayPress\Conditions\Helpers\Options;
 use ArrayPress\Conditions\Helpers\Periods;
 use ArrayPress\Conditions\Operators;
-use WP_User;
 
 /**
  * Class User
@@ -72,7 +71,7 @@ class User {
 				'placeholder'   => __( 'Select roles...', 'arraypress' ),
 				'description'   => __( 'Match against the current user\'s role(s).', 'arraypress' ),
 				'operators'     => Operators::collection(),
-				'options'       => fn() => self::get_role_options(),
+				'options'       => Options::get_roles(),
 				'compare_value' => fn( $args ) => $args['user_roles'] ?? wp_get_current_user()->roles,
 				'required_args' => [],
 			],
@@ -122,15 +121,7 @@ class User {
 				'description'   => __( 'How long the user has been registered.', 'arraypress' ),
 				'min'           => 0,
 				'units'         => Periods::get_age_units(),
-				'compare_value' => function ( $args ) {
-					$user = self::get_user( $args );
-
-					if ( ! $user ) {
-						return 0;
-					}
-
-					return DateTimeHelper::get_age( $user->user_registered, $args['_unit'] ?? 'day' );
-				},
+				'compare_value' => fn( $args ) => UserHelper::get_age( $args ),
 				'required_args' => [],
 			],
 		];
@@ -149,17 +140,7 @@ class User {
 				'type'          => 'text',
 				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
 				'description'   => __( 'Format: meta_key:value_to_match', 'arraypress' ),
-				'compare_value' => function ( $args, $user_value ) {
-					$user = self::get_user( $args );
-
-					if ( ! $user ) {
-						return '';
-					}
-
-					$parsed = Parse::meta( $user_value ?? '' );
-
-					return get_user_meta( $user->ID, $parsed['key'], true );
-				},
+				'compare_value' => fn( $args, $user_value ) => UserHelper::get_meta_text( $args, $user_value ),
 				'required_args' => [],
 			],
 			'user_meta_number' => [
@@ -168,58 +149,10 @@ class User {
 				'type'          => 'number',
 				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
 				'description'   => __( 'Match against a numeric user meta field. Format: meta_key:value', 'arraypress' ),
-				'compare_value' => function ( $args, $user_value ) {
-					$user = self::get_user( $args );
-
-					if ( ! $user ) {
-						return 0;
-					}
-
-					$parsed = Parse::meta_typed( $user_value ?? '', 'number' );
-
-					return (float) get_user_meta( $user->ID, $parsed['key'], true );
-				},
+				'compare_value' => fn( $args, $user_value ) => UserHelper::get_meta_number( $args, $user_value ),
 				'required_args' => [],
 			],
 		];
-	}
-
-	/**
-	 * Get user object from args or current user.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return WP_User|null
-	 */
-	private static function get_user( array $args ): ?WP_User {
-		$user_id = $args['user_id'] ?? get_current_user_id();
-
-		if ( ! $user_id ) {
-			return null;
-		}
-
-		$user = get_userdata( $user_id );
-
-		return $user ?: null;
-	}
-
-	/**
-	 * Get role options for select field.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	private static function get_role_options(): array {
-		$roles   = wp_roles()->get_names();
-		$options = [];
-
-		foreach ( $roles as $value => $label ) {
-			$options[] = [
-				'value' => $value,
-				'label' => $label,
-			];
-		}
-
-		return $options;
 	}
 
 }

@@ -42,14 +42,35 @@ class Matcher {
 	private array $args;
 
 	/**
+	 * Query arguments for retrieving rules.
+	 *
+	 * @var array
+	 */
+	private array $query_args;
+
+	/**
+	 * Default query arguments for retrieving rules.
+	 *
+	 * @var array
+	 */
+	private const DEFAULT_QUERY_ARGS = [
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'orderby'        => 'menu_order',
+		'order'          => 'ASC',
+	];
+
+	/**
 	 * Constructor.
 	 *
-	 * @param string $set_id The condition set ID.
-	 * @param array  $args   Arguments to evaluate against.
+	 * @param string $set_id     The condition set ID.
+	 * @param array  $args       Arguments to evaluate against.
+	 * @param array  $query_args Optional. Query arguments for retrieving rules.
 	 */
-	public function __construct( string $set_id, array $args ) {
-		$this->set_id = $set_id;
-		$this->args   = $args;
+	public function __construct( string $set_id, array $args, array $query_args = [] ) {
+		$this->set_id     = $set_id;
+		$this->args       = $args;
+		$this->query_args = $query_args;
 	}
 
 	/**
@@ -235,16 +256,18 @@ class Matcher {
 	/**
 	 * Get rule posts for this condition set.
 	 *
+	 * Merges user-provided query arguments with defaults. The post_type
+	 * is always forced to the set_id and cannot be overridden.
+	 *
 	 * @return WP_Post[]
 	 */
 	private function get_rules(): array {
-		return get_posts( [
-			'post_type'      => $this->set_id,
-			'post_status'    => 'publish',
-			'posts_per_page' => - 1,
-			'orderby'        => 'menu_order',
-			'order'          => 'ASC',
-		] );
+		$args = wp_parse_args( $this->query_args, self::DEFAULT_QUERY_ARGS );
+
+		// Force post_type to the set_id (cannot be overridden)
+		$args['post_type'] = $this->set_id;
+
+		return get_posts( $args );
 	}
 
 }

@@ -13,8 +13,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
 
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Customer as CustomerHelper;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Stats;
+use ArrayPress\Conditions\Helpers\EDD\Customer as CustomerHelper;
+use ArrayPress\Conditions\Helpers\EDD\Stats;
 use ArrayPress\Conditions\Operators;
 use ArrayPress\Conditions\Helpers\Periods;
 
@@ -134,7 +134,7 @@ class Customer {
 				'compare_value' => function ( $args ) {
 					$customer = self::get_customer( $args );
 
-					return $customer ? (int) $customer->purchase_count : 0;
+					return (int) $customer?->purchase_count;
 				},
 				'required_args' => [],
 			],

@@ -112,10 +112,25 @@ if ( ! function_exists( 'check_conditions' ) ) :
 	 *
 	 * Example usage:
 	 * ```php
+	 * // Basic usage
 	 * $result = check_conditions( 'fraud_rule', [
 	 *     'order_total'     => 150.00,
 	 *     'billing_country' => 'US',
 	 *     'user_id'         => 123,
+	 * ] );
+	 *
+	 * // With custom query args (meta query, ordering, etc.)
+	 * $result = check_conditions( 'discount_rule', $args, [
+	 *     'orderby'    => 'meta_value_num',
+	 *     'meta_key'   => '_priority',
+	 *     'order'      => 'DESC',
+	 *     'meta_query' => [
+	 *         [
+	 *             'key'     => '_active',
+	 *             'value'   => '1',
+	 *             'compare' => '=',
+	 *         ],
+	 *     ],
 	 * ] );
 	 *
 	 * if ( $result->matched() ) {
@@ -124,13 +139,15 @@ if ( ! function_exists( 'check_conditions' ) ) :
 	 * }
 	 * ```
 	 *
-	 * @param string $set_id The condition set ID.
-	 * @param array  $args   Arguments to evaluate conditions against.
+	 * @param string $set_id     The condition set ID.
+	 * @param array  $args       Arguments to evaluate conditions against.
+	 * @param array  $query_args Optional. Query arguments for retrieving rules.
+	 *                           Supports all WP_Query arguments except 'post_type'.
 	 *
 	 * @return MatchResult
 	 */
-	function check_conditions( string $set_id, array $args = [] ): MatchResult {
-		$matcher = new Matcher( $set_id, $args );
+	function check_conditions( string $set_id, array $args = [], array $query_args = [] ): MatchResult {
+		$matcher = new Matcher( $set_id, $args, $query_args );
 
 		return $matcher->check();
 	}
@@ -145,9 +162,22 @@ if ( ! function_exists( 'check_all_conditions' ) ) :
 	 *
 	 * Example usage:
 	 * ```php
+	 * // Basic usage
 	 * $results = check_all_conditions( 'discount_rule', [
-	 *     'cart_total'  => 200.00,
-	 *     'user_role'   => 'wholesale',
+	 *     'cart_total' => 200.00,
+	 *     'user_role'  => 'wholesale',
+	 * ] );
+	 *
+	 * // With custom query args
+	 * $results = check_all_conditions( 'notification_rule', $args, [
+	 *     'posts_per_page' => 10,
+	 *     'meta_query'     => [
+	 *         [
+	 *             'key'     => '_enabled',
+	 *             'value'   => '1',
+	 *             'compare' => '=',
+	 *         ],
+	 *     ],
 	 * ] );
 	 *
 	 * if ( $results->has_matches() ) {
@@ -157,13 +187,15 @@ if ( ! function_exists( 'check_all_conditions' ) ) :
 	 * }
 	 * ```
 	 *
-	 * @param string $set_id The condition set ID.
-	 * @param array  $args   Arguments to evaluate conditions against.
+	 * @param string $set_id     The condition set ID.
+	 * @param array  $args       Arguments to evaluate conditions against.
+	 * @param array  $query_args Optional. Query arguments for retrieving rules.
+	 *                           Supports all WP_Query arguments except 'post_type'.
 	 *
 	 * @return MatchResultCollection
 	 */
-	function check_all_conditions( string $set_id, array $args = [] ): MatchResultCollection {
-		$matcher = new Matcher( $set_id, $args );
+	function check_all_conditions( string $set_id, array $args = [], array $query_args = [] ): MatchResultCollection {
+		$matcher = new Matcher( $set_id, $args, $query_args );
 
 		return $matcher->check_all();
 	}

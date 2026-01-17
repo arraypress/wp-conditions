@@ -17,7 +17,11 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions;
 
 use ArrayPress\Conditions\Abstracts\Condition;
+use ArrayPress\Conditions\Admin\Assets;
 use ArrayPress\Conditions\Conditions\BuiltIn;
+use ArrayPress\Conditions\Registration\MetaBox;
+use ArrayPress\Conditions\Registration\PostType;
+use ArrayPress\Conditions\Registration\RestApi;
 use InvalidArgumentException;
 
 /**
@@ -40,6 +44,34 @@ class Registry {
 	 * @var array<string, array<string, array>>
 	 */
 	private static array $conditions = [];
+
+	/**
+	 * PostType instances by set ID.
+	 *
+	 * @var array<string, PostType>
+	 */
+	private static array $post_types = [];
+
+	/**
+	 * MetaBox instances by set ID.
+	 *
+	 * @var array<string, MetaBox>
+	 */
+	private static array $meta_boxes = [];
+
+	/**
+	 * REST API instance.
+	 *
+	 * @var RestApi|null
+	 */
+	private static ?RestApi $rest_api = null;
+
+	/**
+	 * Assets instance.
+	 *
+	 * @var Assets|null
+	 */
+	private static ?Assets $assets = null;
 
 	/**
 	 * Allowed post types for REST queries.
@@ -83,17 +115,13 @@ class Registry {
 
 		self::$initialized = true;
 
-		// Register REST routes
-		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
+		// Initialize REST API
+		self::$rest_api = new RestApi();
+		self::$rest_api->register();
 
-		// Admin assets
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'register_admin_assets' ] );
-
-		// Meta boxes
-		add_action( 'add_meta_boxes', [ __CLASS__, 'register_meta_boxes' ] );
-
-		// Save meta
-		add_action( 'save_post', [ __CLASS__, 'save_conditions_meta' ], 10, 2 );
+		// Initialize Assets
+		self::$assets = new Assets();
+		self::$assets->register();
 	}
 
 	/**
@@ -101,16 +129,22 @@ class Registry {
 	 *
 	 * Creates a custom post type for storing rules with this condition set.
 	 *
-	 * @param string $set_id      Unique identifier for the condition set.
-	 * @param array  $args        {
-	 *                            Configuration arguments.
+	 * @param string $set_id        Unique identifier for the condition set.
+	 * @param array  $args          {
+	 *                              Configuration arguments.
 	 *
-	 * @type array   $labels      Labels for the CPT (singular, plural).
-	 * @type string  $menu_icon   Dashicon or URL for menu icon.
-	 * @type string  $menu_parent Parent menu slug to nest under.
-	 * @type string  $capability  Required capability to manage.
-	 * @type array   $conditions  Array of conditions to register.
-	 *                            }
+	 * @type array   $labels        Labels for the CPT (singular, plural).
+	 * @type string  $menu_icon     Dashicon or URL for menu icon.
+	 * @type string  $menu_parent   Parent menu slug to nest under.
+	 * @type string  $parent_file   Parent file for menu highlighting.
+	 * @type string  $submenu_file  Submenu file for menu highlighting.
+	 * @type string  $capability    Required capability to manage.
+	 * @type array   $conditions    Array of conditions to register.
+	 * @type array   $redirect      Redirect configuration (after_trash, show_undo).
+	 * @type string  $description   Meta box description text.
+	 * @type string  $metabox_title Custom meta box title.
+	 * @type array   $supports      Post type supports array.
+	 *                              }
 	 *
 	 * @return void
 	 * @throws InvalidArgumentException If set_id is empty or already registered.
@@ -129,16 +163,21 @@ class Registry {
 
 		// Parse defaults
 		$args = wp_parse_args( $args, [
-			'labels'       => [
+			'labels'        => [
 				'singular' => ucwords( str_replace( [ '_', '-' ], ' ', $set_id ) ),
 				'plural'   => ucwords( str_replace( [ '_', '-' ], ' ', $set_id ) ) . 's',
 			],
-			'menu_icon'    => 'dashicons-yes-alt',
-			'menu_parent'  => null,
-			'show_in_menu' => true,
-			'capability'   => 'manage_options',
-			'conditions'   => [],
-			'description'  => __( 'Configure when this rule should apply. Groups are connected with OR logic, conditions within a group use AND logic.', 'arraypress' ),
+			'menu_icon'     => 'dashicons-yes-alt',
+			'menu_parent'   => null,
+			'parent_file'   => null,
+			'submenu_file'  => null,
+			'show_in_menu'  => true,
+			'capability'    => 'manage_options',
+			'conditions'    => [],
+			'redirect'      => [],
+			'description'   => __( 'Configure when this rule should apply. Groups are connected with OR logic, conditions within a group use AND logic.', 'arraypress' ),
+			'metabox_title' => null,
+			'supports'      => [ 'title' ],
 		] );
 
 		self::$sets[ $set_id ] = $args;
@@ -153,8 +192,26 @@ class Registry {
 			self::register_conditions_array( $set_id, $args['conditions'] );
 		}
 
-		// Register the CPT immediately
-		self::register_single_post_type( $set_id );
+		// Register the post type
+		self::$post_types[ $set_id ] = new PostType( $set_id, $args );
+		self::$post_types[ $set_id ]->register();
+
+		// Register the meta box
+		self::$meta_boxes[ $set_id ] = new MetaBox( $set_id, $args );
+		self::$meta_boxes[ $set_id ]->register();
+
+		// Add to assets tracking
+		if ( self::$assets ) {
+			self::$assets->add_set_id( $set_id );
+		}
+
+		/**
+		 * Action fired after a condition set is registered.
+		 *
+		 * @param string $set_id The condition set ID.
+		 * @param array  $args   The condition set configuration.
+		 */
+		do_action( 'conditions_set_registered', $set_id, $args );
 	}
 
 	/**
@@ -266,7 +323,7 @@ class Registry {
 			'multiple'      => false,
 			'options'       => [],
 			'units'         => [],
-			'operators'     => null, // Will be set based on type
+			'operators'     => null,
 			'arg'           => null,
 			'compare_value' => null,
 			'required_args' => [],
@@ -364,8 +421,6 @@ class Registry {
 	}
 
 	/**
-	 * Get a condition set configuration.
-	 * /**
 	 * Get raw conditions without resolving callables.
 	 *
 	 * Used internally for AJAX callbacks that need access to closures.
@@ -417,340 +472,70 @@ class Registry {
 	}
 
 	/**
-	 * Register a single custom post type for a condition set.
+	 * Get the PostType instance for a set.
 	 *
 	 * @param string $set_id The condition set ID.
 	 *
-	 * @return void
+	 * @return PostType|null
 	 */
-	private static function register_single_post_type( string $set_id ): void {
-		if ( ! isset( self::$sets[ $set_id ] ) ) {
-			return;
-		}
-
-		// Don't register if already registered
-		if ( post_type_exists( $set_id ) ) {
-			return;
-		}
-
-		$config = self::$sets[ $set_id ];
-		$labels = $config['labels'];
-
-		$args = [
-			'labels'              => [
-				'name'               => $labels['plural'],
-				'singular_name'      => $labels['singular'],
-				'add_new'            => sprintf( 'Add New %s', $labels['singular'] ),
-				'add_new_item'       => sprintf( 'Add New %s', $labels['singular'] ),
-				'edit_item'          => sprintf( 'Edit %s', $labels['singular'] ),
-				'new_item'           => sprintf( 'New %s', $labels['singular'] ),
-				'view_item'          => sprintf( 'View %s', $labels['singular'] ),
-				'search_items'       => sprintf( 'Search %s', $labels['plural'] ),
-				'not_found'          => sprintf( 'No %s found', strtolower( $labels['plural'] ) ),
-				'not_found_in_trash' => sprintf( 'No %s found in trash', strtolower( $labels['plural'] ) ),
-			],
-			'public'              => false,
-			'show_ui'             => $config['show_in_menu'] !== false,
-			'show_in_menu'        => self::determine_menu_visibility( $config ),
-			'menu_icon'           => $config['menu_icon'],
-			'capability_type'     => 'post',
-			'map_meta_cap'        => true,
-			'hierarchical'        => false,
-			'supports'            => [ 'title' ],
-			'has_archive'         => false,
-			'rewrite'             => false,
-			'show_in_rest'        => false,
-			'exclude_from_search' => true,
-		];
-
-		register_post_type( $set_id, $args );
-
-		// Register the conditions meta for this post type
-		self::register_conditions_meta( $set_id );
+	public static function get_post_type_instance( string $set_id ): ?PostType {
+		return self::$post_types[ $set_id ] ?? null;
 	}
 
 	/**
-	 * Determine menu visibility for a condition set.
+	 * Get the MetaBox instance for a set.
 	 *
-	 * @param array $config The condition set configuration.
+	 * @param string $set_id The condition set ID.
 	 *
-	 * @return bool|string False to hide, true for top-level, or parent slug.
+	 * @return MetaBox|null
 	 */
-	private static function determine_menu_visibility( array $config ): bool|string {
-		// Explicitly hidden
-		if ( $config['show_in_menu'] === false ) {
-			return false;
-		}
-
-		// Nested under parent menu
-		if ( ! empty( $config['menu_parent'] ) ) {
-			return $config['menu_parent'];
-		}
-
-		// Top-level menu
-		return true;
+	public static function get_meta_box_instance( string $set_id ): ?MetaBox {
+		return self::$meta_boxes[ $set_id ] ?? null;
 	}
 
 	/**
-	 * Register REST API routes.
+	 * Get the REST API instance.
 	 *
-	 * @return void
+	 * @return RestApi|null
 	 */
-	public static function register_rest_routes(): void {
-		$namespace = 'conditions/v1';
-
-		// Posts endpoint
-		register_rest_route( $namespace, '/posts', [
-			'methods'             => 'GET',
-			'callback'            => [ REST\Posts::class, 'search' ],
-			'permission_callback' => [ __CLASS__, 'rest_permission_check' ],
-			'args'                => [
-				'post_type' => [
-					'required'          => true,
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_key',
-				],
-				'search'    => [
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_text_field',
-				],
-				'include'   => [
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_text_field',
-				],
-			],
-		] );
-
-		// Terms endpoint
-		register_rest_route( $namespace, '/terms', [
-			'methods'             => 'GET',
-			'callback'            => [ REST\Terms::class, 'search' ],
-			'permission_callback' => [ __CLASS__, 'rest_permission_check' ],
-			'args'                => [
-				'taxonomy' => [
-					'required'          => true,
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_key',
-				],
-				'search'   => [
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_text_field',
-				],
-				'include'  => [
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_text_field',
-				],
-			],
-		] );
-
-		// Users endpoint
-		register_rest_route( $namespace, '/users', [
-			'methods'             => 'GET',
-			'callback'            => [ REST\Users::class, 'search' ],
-			'permission_callback' => [ __CLASS__, 'rest_permission_check' ],
-			'args'                => [
-				'role'    => [
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_text_field',
-				],
-				'search'  => [
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_text_field',
-				],
-				'include' => [
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_text_field',
-				],
-			],
-		] );
-
-		// Custom AJAX endpoint for type => 'ajax' conditions
-		register_rest_route( $namespace, '/ajax', [
-			'methods'             => 'GET',
-			'callback'            => [ REST\Ajax::class, 'handle' ],
-			'permission_callback' => [ __CLASS__, 'rest_permission_check' ],
-			'args'                => [
-				'set_id'       => [
-					'required'          => true,
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_key',
-				],
-				'condition_id' => [
-					'required'          => true,
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_key',
-				],
-				'search'       => [
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_text_field',
-				],
-				'include'      => [
-					'type'              => 'string',
-					'sanitize_callback' => 'sanitize_text_field',
-				],
-			],
-		] );
+	public static function get_rest_api_instance(): ?RestApi {
+		return self::$rest_api;
 	}
 
 	/**
-	 * REST API permission check.
+	 * Get the Assets instance.
+	 *
+	 * @return Assets|null
+	 */
+	public static function get_assets_instance(): ?Assets {
+		return self::$assets;
+	}
+
+	/**
+	 * Check if the library has been initialized.
 	 *
 	 * @return bool
 	 */
-	public static function rest_permission_check(): bool {
-		return current_user_can( 'manage_options' );
+	public static function is_initialized(): bool {
+		return self::$initialized;
 	}
 
 	/**
-	 * Register admin assets.
-	 *
-	 * @param string $hook Current admin page hook.
+	 * Reset the registry (primarily for testing).
 	 *
 	 * @return void
 	 */
-	public static function register_admin_assets( string $hook ): void {
-		global $post_type;
-
-		// Only load on our CPT edit screens
-		if ( ! isset( self::$sets[ $post_type ] ) ) {
-			return;
-		}
-
-		if ( ! in_array( $hook, [ 'post.php', 'post-new.php' ], true ) ) {
-			return;
-		}
-
-		// Select2
-		wp_enqueue_composer_style(
-			'conditions-select2',
-			__FILE__,
-			'css/select2.min.css',
-			[],
-			'4.1.0'
-		);
-
-		wp_enqueue_composer_script(
-			'conditions-select2',
-			__FILE__,
-			'js/select2.min.js',
-			[ 'jquery' ],
-			'4.1.0',
-			true
-		);
-
-		// Conditions UI
-		wp_enqueue_composer_style(
-			'conditions-admin',
-			__FILE__,
-			'css/conditions.css',
-			[ 'conditions-select2' ],
-			'1.0.0'
-		);
-
-		wp_enqueue_composer_script(
-			'conditions-admin',
-			__FILE__,
-			'js/conditions.js',
-			[ 'jquery', 'conditions-select2', 'wp-util' ],
-			'1.0.0',
-			true
-		);
-
-		// Localize script
-		wp_localize_script( 'conditions-admin', 'conditionsData', [
-			'conditions' => self::get_conditions( $post_type ),
-			'operators'  => Operators::get_all(),
-			'restUrl'    => rest_url( 'conditions/v1' ),
-			'nonce'      => wp_create_nonce( 'wp_rest' ),
-			'i18n'       => [
-				'selectCondition' => __( 'Select condition...', 'arraypress' ),
-				'selectOperator'  => __( 'Select operator...', 'arraypress' ),
-				'selectValue'     => __( 'Select...', 'arraypress' ),
-				'search'          => __( 'Search...', 'arraypress' ),
-				'addCondition'    => __( 'Add Condition', 'arraypress' ),
-				'addGroup'        => __( 'Add "OR" Group', 'arraypress' ),
-				'remove'          => __( 'Remove', 'arraypress' ),
-				'and'             => __( 'AND', 'arraypress' ),
-				'or'              => __( 'OR', 'arraypress' ),
-			],
-		] );
-	}
-
-	/**
-	 * Register meta boxes.
-	 *
-	 * @return void
-	 */
-	public static function register_meta_boxes(): void {
-		foreach ( self::$sets as $set_id => $config ) {
-			add_meta_box(
-				$set_id . '_conditions',
-				__( 'Conditions', 'arraypress' ),
-				[ Admin\MetaBox::class, 'render' ],
-				$set_id,
-				'normal',
-				'high',
-				[ 'set_id' => $set_id ]
-			);
-		}
-	}
-
-	/**
-	 * Register post meta for conditions.
-	 *
-	 * @param string $post_type The post type to register meta for.
-	 *
-	 * @return void
-	 */
-	private static function register_conditions_meta( string $post_type ): void {
-		register_post_meta( $post_type, '_conditions', [
-			'type'          => 'array',
-			'single'        => true,
-			'show_in_rest'  => false,
-			'auth_callback' => function ( $allowed, $meta_key, $post_id ) use ( $post_type ) {
-				$capability = self::$sets[ $post_type ]['capability'] ?? 'manage_options';
-
-				return current_user_can( $capability, $post_id );
-			},
-		] );
-	}
-
-	/**
-	 * Save conditions meta from form submission.
-	 *
-	 * @param int      $post_id Post ID.
-	 * @param \WP_Post $post    Post object.
-	 *
-	 * @return void
-	 */
-	public static function save_conditions_meta( int $post_id, \WP_Post $post ): void {
-		// Check if this is one of our CPTs
-		if ( ! isset( self::$sets[ $post->post_type ] ) ) {
-			return;
-		}
-
-		// Verify nonce
-		if ( ! isset( $_POST['conditions_nonce'] ) ||
-		     ! wp_verify_nonce( $_POST['conditions_nonce'], 'save_conditions' ) ) {
-			return;
-		}
-
-		// Don't save on autosave
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			return;
-		}
-
-		// Get raw conditions from form
-		$raw_conditions = $_POST['_conditions'] ?? [];
-
-		// Get condition configurations for custom sanitization
-		$condition_configs = self::get_conditions_raw( $post->post_type );
-
-		// Sanitize with condition configs for custom sanitizers
-		$conditions = Admin\Sanitizer::sanitize_conditions( $raw_conditions, $condition_configs );
-
-		// Save
-		update_post_meta( $post_id, '_conditions', $conditions );
+	public static function reset(): void {
+		self::$sets               = [];
+		self::$conditions         = [];
+		self::$post_types         = [];
+		self::$meta_boxes         = [];
+		self::$rest_api           = null;
+		self::$assets             = null;
+		self::$allowed_post_types = [];
+		self::$allowed_taxonomies = [];
+		self::$allowed_roles      = [];
+		self::$initialized        = false;
 	}
 
 }

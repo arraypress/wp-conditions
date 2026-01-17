@@ -14,7 +14,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers;
+namespace ArrayPress\Conditions\Helpers\EDD;
 
 use EDD\Stats as EDD_Stats;
 use Exception;

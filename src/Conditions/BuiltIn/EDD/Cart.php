@@ -13,8 +13,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
 
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Cart as CartHelper;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Options;
+use ArrayPress\Conditions\Helpers\EDD\Cart as CartHelper;
+use ArrayPress\Conditions\Helpers\EDD\Options;
 use ArrayPress\Conditions\Operators;
 
 /**

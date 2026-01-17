@@ -15,7 +15,7 @@ namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
 
 use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
 use ArrayPress\Conditions\Helpers\Format;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Stats;
+use ArrayPress\Conditions\Helpers\EDD\Stats;
 use ArrayPress\Conditions\Helpers\Periods;
 use ArrayPress\Conditions\Operators;
 

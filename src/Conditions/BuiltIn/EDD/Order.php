@@ -13,8 +13,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
 
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Options;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Order as OrderHelper;
+use ArrayPress\Conditions\Helpers\EDD\Options;
+use ArrayPress\Conditions\Helpers\EDD\Order as OrderHelper;
 use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
 use ArrayPress\Conditions\Helpers\Periods;
 use ArrayPress\Conditions\Helpers\Format;
