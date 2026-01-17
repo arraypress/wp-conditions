@@ -14,6 +14,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\BuiltIn;
 
 use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
+use ArrayPress\Conditions\Operators;
 
 /**
  * Class DateTime
@@ -70,10 +71,7 @@ class DateTime {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select months...', 'arraypress' ),
 				'description'   => __( 'Match against the current month.', 'arraypress' ),
-				'operators'     => [
-					'any'  => __( 'Is any of', 'arraypress' ),
-					'none' => __( 'Is none of', 'arraypress' ),
-				],
+				'operators'     => Operators::collection_any_none(),
 				'options'       => [
 					[ 'value' => '1', 'label' => __( 'January', 'arraypress' ) ],
 					[ 'value' => '2', 'label' => __( 'February', 'arraypress' ) ],
@@ -110,10 +108,7 @@ class DateTime {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select days...', 'arraypress' ),
 				'description'   => __( 'Match against the current day of the week.', 'arraypress' ),
-				'operators'     => [
-					'any'  => __( 'Is any of', 'arraypress' ),
-					'none' => __( 'Is none of', 'arraypress' ),
-				],
+				'operators'     => Operators::collection_any_none(),
 				'options'       => [
 					[ 'value' => '1', 'label' => __( 'Monday', 'arraypress' ) ],
 					[ 'value' => '2', 'label' => __( 'Tuesday', 'arraypress' ) ],
@@ -163,10 +158,7 @@ class DateTime {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select time of day...', 'arraypress' ),
 				'description'   => __( 'Match against the current part of the day.', 'arraypress' ),
-				'operators'     => [
-					'any'  => __( 'Is any of', 'arraypress' ),
-					'none' => __( 'Is none of', 'arraypress' ),
-				],
+				'operators'     => Operators::collection_any_none(),
 				'options'       => [
 					[ 'value' => 'early_morning', 'label' => __( 'Early Morning (5am - 8am)', 'arraypress' ) ],
 					[ 'value' => 'morning', 'label' => __( 'Morning (8am - 12pm)', 'arraypress' ) ],
@@ -195,10 +187,7 @@ class DateTime {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select quarters...', 'arraypress' ),
 				'description'   => __( 'Match against the current quarter.', 'arraypress' ),
-				'operators'     => [
-					'any'  => __( 'Is any of', 'arraypress' ),
-					'none' => __( 'Is none of', 'arraypress' ),
-				],
+				'operators'     => Operators::collection_any_none(),
 				'options'       => [
 					[ 'value' => '1', 'label' => __( 'Q1 (Jan - Mar)', 'arraypress' ) ],
 					[ 'value' => '2', 'label' => __( 'Q2 (Apr - Jun)', 'arraypress' ) ],

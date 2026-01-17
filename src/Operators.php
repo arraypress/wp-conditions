@@ -22,6 +22,54 @@ namespace ArrayPress\Conditions;
  */
 class Operators {
 
+	/** -------------------------------------------------------------------------
+	 * Core Comparison Operators
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Equality operators (single value).
+	 *
+	 * @return array<string, string>
+	 */
+	public static function equality(): array {
+		return [
+			'==' => __( 'Is', 'arraypress' ),
+			'!=' => __( 'Is not', 'arraypress' ),
+		];
+	}
+
+	/**
+	 * Numeric comparison operators.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function numeric(): array {
+		return [
+			'==' => __( 'Equal to', 'arraypress' ),
+			'!=' => __( 'Not equal to', 'arraypress' ),
+			'>'  => __( 'Greater than', 'arraypress' ),
+			'<'  => __( 'Less than', 'arraypress' ),
+			'>=' => __( 'Greater than or equal to', 'arraypress' ),
+			'<=' => __( 'Less than or equal to', 'arraypress' ),
+		];
+	}
+
+	/**
+	 * Boolean operators.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function boolean(): array {
+		return [
+			'yes' => __( 'Yes', 'arraypress' ),
+			'no'  => __( 'No', 'arraypress' ),
+		];
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Text Operators
+	 * ------------------------------------------------------------------------ */
+
 	/**
 	 * Text comparison operators.
 	 *
@@ -41,39 +89,28 @@ class Operators {
 	}
 
 	/**
-	 * Numeric comparison operators.
+	 * Text comparison operators with regex support.
 	 *
 	 * @return array<string, string>
 	 */
-	public static function numeric(): array {
-		return [
-			'==' => __( 'Equal to', 'arraypress' ),
-			'!=' => __( 'Not equal to', 'arraypress' ),
-			'>'  => __( 'Greater than', 'arraypress' ),
-			'<'  => __( 'Less than', 'arraypress' ),
-			'>=' => __( 'Greater or equal to', 'arraypress' ),
-			'<=' => __( 'Less or equal to', 'arraypress' ),
-		];
+	public static function text_advanced(): array {
+		return array_merge( self::text(), [
+			'regex' => __( 'Matches pattern', 'arraypress' ),
+		] );
 	}
 
-	/**
-	 * Single select operators.
-	 *
-	 * @return array<string, string>
-	 */
-	public static function select(): array {
-		return [
-			'==' => __( 'Is', 'arraypress' ),
-			'!=' => __( 'Is not', 'arraypress' ),
-		];
-	}
+	/** -------------------------------------------------------------------------
+	 * Collection Operators (Arrays/Multi-select)
+	 * ------------------------------------------------------------------------ */
 
 	/**
-	 * Multiple select operators.
+	 * Collection operators for checking membership.
+	 *
+	 * Used for: select (multiple), post, term, user, ajax types.
 	 *
 	 * @return array<string, string>
 	 */
-	public static function select_multiple(): array {
+	public static function collection(): array {
 		return [
 			'any'  => __( 'Is any of', 'arraypress' ),
 			'none' => __( 'Is none of', 'arraypress' ),
@@ -82,41 +119,22 @@ class Operators {
 	}
 
 	/**
-	 * Array/multi-value operators (for post, term, user types).
+	 * Collection operators without "all" option.
+	 *
+	 * Used when "all" doesn't make logical sense.
 	 *
 	 * @return array<string, string>
 	 */
-	public static function array_single(): array {
+	public static function collection_any_none(): array {
 		return [
-			'==' => __( 'Is', 'arraypress' ),
-			'!=' => __( 'Is not', 'arraypress' ),
+			'any'  => __( 'Is any of', 'arraypress' ),
+			'none' => __( 'Is none of', 'arraypress' ),
 		];
 	}
 
-	/**
-	 * Array/multi-value operators for multiple selection.
-	 *
-	 * @return array<string, string>
-	 */
-	public static function array_multiple(): array {
-		return [
-			'any'  => __( 'Contains any of', 'arraypress' ),
-			'none' => __( 'Contains none of', 'arraypress' ),
-			'all'  => __( 'Contains all of', 'arraypress' ),
-		];
-	}
-
-	/**
-	 * Boolean operators.
-	 *
-	 * @return array<string, string>
-	 */
-	public static function boolean(): array {
-		return [
-			'yes' => __( 'Yes', 'arraypress' ),
-			'no'  => __( 'No', 'arraypress' ),
-		];
-	}
+	/** -------------------------------------------------------------------------
+	 * Date/Time Operators
+	 * ------------------------------------------------------------------------ */
 
 	/**
 	 * Date comparison operators.
@@ -148,10 +166,14 @@ class Operators {
 		];
 	}
 
+	/** -------------------------------------------------------------------------
+	 * Pattern Matching Operators
+	 * ------------------------------------------------------------------------ */
+
 	/**
 	 * IP address operators.
 	 *
-	 * Supports exact match, CIDR notation (192.168.1.0/24), and wildcards (192.168.1.*).
+	 * Supports exact match, CIDR notation, and wildcards.
 	 *
 	 * @return array<string, string>
 	 */
@@ -177,7 +199,27 @@ class Operators {
 	}
 
 	/**
-	 * Tags operators - suffix matching (ends with).
+	 * Tags/pattern operators - all matching modes.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function tags(): array {
+		return [
+			'any_exact'     => __( 'Is any of', 'arraypress' ),
+			'none_exact'    => __( 'Is none of', 'arraypress' ),
+			'any_contains'  => __( 'Contains any of', 'arraypress' ),
+			'none_contains' => __( 'Contains none of', 'arraypress' ),
+			'any_starts'    => __( 'Starts with any of', 'arraypress' ),
+			'none_starts'   => __( 'Starts with none of', 'arraypress' ),
+			'any_ends'      => __( 'Ends with any of', 'arraypress' ),
+			'none_ends'     => __( 'Ends with none of', 'arraypress' ),
+		];
+	}
+
+	/**
+	 * Tags operators - suffix matching only (ends with).
+	 *
+	 * Common use case for domain matching.
 	 *
 	 * @return array<string, string>
 	 */
@@ -188,58 +230,12 @@ class Operators {
 		];
 	}
 
-	/**
-	 * Tags operators - prefix matching (starts with).
-	 *
-	 * @return array<string, string>
-	 */
-	public static function tags_starts(): array {
-		return [
-			'any_starts'  => __( 'Starts with any of', 'arraypress' ),
-			'none_starts' => __( 'Starts with none of', 'arraypress' ),
-		];
-	}
+	/** -------------------------------------------------------------------------
+	 * Type Resolution
+	 * ------------------------------------------------------------------------ */
 
 	/**
-	 * Tags operators - contains matching.
-	 *
-	 * @return array<string, string>
-	 */
-	public static function tags_contains(): array {
-		return [
-			'any_contains'  => __( 'Contains any of', 'arraypress' ),
-			'none_contains' => __( 'Contains none of', 'arraypress' ),
-		];
-	}
-
-	/**
-	 * Tags operators - exact matching.
-	 *
-	 * @return array<string, string>
-	 */
-	public static function tags_exact(): array {
-		return [
-			'any_exact'  => __( 'Is any of', 'arraypress' ),
-			'none_exact' => __( 'Is none of', 'arraypress' ),
-		];
-	}
-
-	/**
-	 * Tags operators - all matching types combined.
-	 *
-	 * @return array<string, string>
-	 */
-	public static function tags(): array {
-		return array_merge(
-			self::tags_exact(),
-			self::tags_contains(),
-			self::tags_starts(),
-			self::tags_ends()
-		);
-	}
-
-	/**
-	 * Get operators for a specific type.
+	 * Get operators for a specific field type.
 	 *
 	 * @param string $type     The field type.
 	 * @param bool   $multiple Whether multiple selection is enabled.
@@ -249,14 +245,14 @@ class Operators {
 	public static function for_type( string $type, bool $multiple = false ): array {
 		return match ( $type ) {
 			'number', 'number_unit' => self::numeric(),
-			'ip' => self::ip(),
-			'email' => self::email(),
-			'select' => $multiple ? self::select_multiple() : self::select(),
-			'post', 'term', 'user' => $multiple ? self::array_multiple() : self::array_single(),
-			'tags' => self::tags(),
 			'boolean' => self::boolean(),
 			'date' => self::date(),
 			'time' => self::time(),
+			'ip' => self::ip(),
+			'email' => self::email(),
+			'tags' => self::tags(),
+			'select' => $multiple ? self::collection() : self::equality(),
+			'post', 'term', 'user', 'ajax' => $multiple ? self::collection() : self::equality(),
 			default => self::text(),
 		};
 	}
@@ -270,23 +266,20 @@ class Operators {
 	 */
 	public static function get_all(): array {
 		return [
-			'text'            => self::text(),
-			'number'          => self::numeric(),
-			'number_unit'     => self::numeric(),
-			'ip'              => self::ip(),
-			'email'           => self::email(),
-			'select'          => self::select(),
-			'select_multiple' => self::select_multiple(),
-			'array'           => self::array_single(),
-			'array_multiple'  => self::array_multiple(),
-			'tags'            => self::tags(),
-			'tags_ends'       => self::tags_ends(),
-			'tags_starts'     => self::tags_starts(),
-			'tags_contains'   => self::tags_contains(),
-			'tags_exact'      => self::tags_exact(),
-			'boolean'         => self::boolean(),
-			'date'            => self::date(),
-			'time'            => self::time(),
+			'text'             => self::text(),
+			'text_advanced'    => self::text_advanced(),
+			'number'           => self::numeric(),
+			'number_unit'      => self::numeric(),
+			'boolean'          => self::boolean(),
+			'date'             => self::date(),
+			'time'             => self::time(),
+			'ip'               => self::ip(),
+			'email'            => self::email(),
+			'tags'             => self::tags(),
+			'tags_ends'        => self::tags_ends(),
+			'equality'         => self::equality(),
+			'collection'       => self::collection(),
+			'collection_basic' => self::collection_any_none(),
 		];
 	}
 

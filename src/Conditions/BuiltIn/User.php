@@ -14,7 +14,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\BuiltIn;
 
 use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
-use ArrayPress\Conditions\Helpers\Parser;
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\Periods;
 use ArrayPress\Conditions\Operators;
 use WP_User;
@@ -71,11 +71,7 @@ class User {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select roles...', 'arraypress' ),
 				'description'   => __( 'Match against the current user\'s role(s).', 'arraypress' ),
-				'operators'     => [
-					'any'  => __( 'Has any of', 'arraypress' ),
-					'none' => __( 'Has none of', 'arraypress' ),
-					'all'  => __( 'Has all of', 'arraypress' ),
-				],
+				'operators'     => Operators::collection(),
 				'options'       => fn() => self::get_role_options(),
 				'compare_value' => fn( $args ) => $args['user_roles'] ?? wp_get_current_user()->roles,
 				'required_args' => [],
@@ -126,7 +122,7 @@ class User {
 				'description'   => __( 'How long the user has been registered.', 'arraypress' ),
 				'min'           => 0,
 				'units'         => Periods::get_age_units(),
-				'compare_value' => function ( $args, $value ) {
+				'compare_value' => function ( $args ) {
 					$user = self::get_user( $args );
 
 					if ( ! $user ) {
@@ -147,7 +143,7 @@ class User {
 	 */
 	private static function get_meta_conditions(): array {
 		return [
-			'user_meta_text' => [
+			'user_meta_text'   => [
 				'label'         => __( 'User Meta (Text)', 'arraypress' ),
 				'group'         => __( 'User: Meta', 'arraypress' ),
 				'type'          => 'text',
@@ -160,7 +156,7 @@ class User {
 						return '';
 					}
 
-					$parsed = Parser::parse_meta( $user_value ?? '' );
+					$parsed = Parse::meta( $user_value ?? '' );
 
 					return get_user_meta( $user->ID, $parsed['key'], true );
 				},
@@ -170,7 +166,7 @@ class User {
 				'label'         => __( 'User Meta (Number)', 'arraypress' ),
 				'group'         => __( 'User: Meta', 'arraypress' ),
 				'type'          => 'number',
-				'placeholder'   => __( 'meta_key:value to match...', 'arraypress' ),
+				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
 				'description'   => __( 'Match against a numeric user meta field. Format: meta_key:value', 'arraypress' ),
 				'compare_value' => function ( $args, $user_value ) {
 					$user = self::get_user( $args );
@@ -179,7 +175,7 @@ class User {
 						return 0;
 					}
 
-					$parsed = Parser::parse_meta_typed( $user_value ?? '', 'number' );
+					$parsed = Parse::meta_typed( $user_value ?? '', 'number' );
 
 					return (float) get_user_meta( $user->ID, $parsed['key'], true );
 				},

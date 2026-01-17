@@ -16,11 +16,11 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Helpers;
 
 /**
- * Class Parser
+ * Class Parse
  *
  * Utilities for parsing condition arguments.
  */
-class Parser {
+class Parse {
 
 	/**
 	 * Extract number_unit values from args.
@@ -34,7 +34,7 @@ class Parser {
 	 *
 	 * @return array{unit: string, number: int}
 	 */
-	public static function get_number_unit( array $args, string $default_unit = 'day', int $default_number = 1 ): array {
+	public static function number_unit( array $args, string $default_unit = 'day', int $default_number = 1 ): array {
 		return [
 			'unit'   => $args['_unit'] ?? $default_unit,
 			'number' => (int) ( $args['_number'] ?? $default_number ),
@@ -51,7 +51,7 @@ class Parser {
 	 *
 	 * @return array{key: string, value: string}
 	 */
-	public static function parse_meta( string $input, string $default_key = '' ): array {
+	public static function meta( string $input, string $default_key = '' ): array {
 		// Check for key:value format
 		if ( str_contains( $input, ':' ) ) {
 			$parts = explode( ':', $input, 2 );
@@ -77,8 +77,8 @@ class Parser {
 	 *
 	 * @return array{key: string, value: mixed}
 	 */
-	public static function parse_meta_typed( string $input, string $type = 'text' ): array {
-		$parsed = self::parse_meta( $input );
+	public static function meta_typed( string $input, string $type = 'text' ): array {
+		$parsed = self::meta( $input );
 
 		if ( $type === 'number' ) {
 			$parsed['value'] = is_numeric( $parsed['value'] ) ? (float) $parsed['value'] : 0;

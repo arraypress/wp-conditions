@@ -13,11 +13,11 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
 
-use ArrayPress\Conditions\Helpers\Formatting;
+use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
+use ArrayPress\Conditions\Helpers\Format;
 use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Stats;
 use ArrayPress\Conditions\Helpers\Periods;
 use ArrayPress\Conditions\Operators;
-use EDD_Download;
 
 /**
  * Class Product
@@ -71,7 +71,7 @@ class Product {
 					[ 'value' => 'bundle', 'label' => __( 'Bundle', 'arraypress' ) ],
 					[ 'value' => 'service', 'label' => __( 'Service', 'arraypress' ) ],
 				],
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => function ( $args ) {
 					$product_id = $args['product_id'] ?? 0;
 
@@ -90,8 +90,8 @@ class Product {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select status...', 'arraypress' ),
 				'description'   => __( 'The post status of the product.', 'arraypress' ),
-				'options'       => fn() => Formatting::format_options( get_post_statuses() ),
-				'operators'     => Operators::array_multiple(),
+				'options'       => fn() => Format::options( get_post_statuses() ),
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => isset( $args['product_id'] ) ? get_post_status( $args['product_id'] ) : '',
 				'required_args' => [ 'product_id' ],
 			],
@@ -102,7 +102,7 @@ class Product {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search users...', 'arraypress' ),
 				'description'   => __( 'The author of the product.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => function ( $args ) {
 					$product_id = $args['product_id'] ?? 0;
 
@@ -112,7 +112,7 @@ class Product {
 
 					$post = get_post( $product_id );
 
-					return $post ? (int) $post->post_author : 0;
+					return (int) $post?->post_author;
 				},
 				'required_args' => [ 'product_id' ],
 			],
@@ -137,7 +137,7 @@ class Product {
 						return 0;
 					}
 
-					return Periods::get_age( $post->post_date, $args['_unit'] ?? 'day' );
+					return DateTimeHelper::get_age( $post->post_date, $args['_unit'] ?? 'day' );
 				},
 				'required_args' => [ 'product_id' ],
 			],
@@ -159,7 +159,7 @@ class Product {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search categories...', 'arraypress' ),
 				'description'   => __( 'The categories assigned to the product.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$product_id = $args['product_id'] ?? 0;
 
@@ -181,7 +181,7 @@ class Product {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search tags...', 'arraypress' ),
 				'description'   => __( 'The tags assigned to the product.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => function ( $args ) {
 					$product_id = $args['product_id'] ?? 0;
 
@@ -463,7 +463,7 @@ class Product {
 					[ 'value' => 'semi-year', 'label' => __( 'Semi-Yearly', 'arraypress' ) ],
 					[ 'value' => 'year', 'label' => __( 'Yearly', 'arraypress' ) ],
 				],
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => function ( $args ) {
 					$product_id = $args['product_id'] ?? 0;
 

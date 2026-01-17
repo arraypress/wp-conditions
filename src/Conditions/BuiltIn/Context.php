@@ -32,7 +32,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on the site front page.', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_front_page'] ?? is_front_page(),
+				'compare_value' => fn( $args ) => $args['is_front_page'] ?? is_front_page(),
 				'required_args' => [],
 			],
 			'is_home'       => [
@@ -40,7 +40,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on the blog posts index page.', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_home'] ?? is_home(),
+				'compare_value' => fn( $args ) => $args['is_home'] ?? is_home(),
 				'required_args' => [],
 			],
 			'is_single'     => [
@@ -48,7 +48,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a single post page.', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_single'] ?? is_single(),
+				'compare_value' => fn( $args ) => $args['is_single'] ?? is_single(),
 				'required_args' => [],
 			],
 			'is_page'       => [
@@ -56,7 +56,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a static page.', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_page'] ?? is_page(),
+				'compare_value' => fn( $args ) => $args['is_page'] ?? is_page(),
 				'required_args' => [],
 			],
 			'is_archive'    => [
@@ -64,7 +64,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on an archive page (category, tag, date, author).', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_archive'] ?? is_archive(),
+				'compare_value' => fn( $args ) => $args['is_archive'] ?? is_archive(),
 				'required_args' => [],
 			],
 			'is_search'     => [
@@ -72,7 +72,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on the search results page.', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_search'] ?? is_search(),
+				'compare_value' => fn( $args ) => $args['is_search'] ?? is_search(),
 				'required_args' => [],
 			],
 			'is_404'        => [
@@ -80,7 +80,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a 404 error page.', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_404'] ?? is_404(),
+				'compare_value' => fn( $args ) => $args['is_404'] ?? is_404(),
 				'required_args' => [],
 			],
 			'is_admin'      => [
@@ -88,7 +88,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if in the WordPress admin area.', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_admin'] ?? is_admin(),
+				'compare_value' => fn( $args ) => $args['is_admin'] ?? is_admin(),
 				'required_args' => [],
 			],
 			'is_ajax'       => [
@@ -96,7 +96,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is an AJAX request.', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_ajax'] ?? wp_doing_ajax(),
+				'compare_value' => fn( $args ) => $args['is_ajax'] ?? wp_doing_ajax(),
 				'required_args' => [],
 			],
 			'is_rest'       => [
@@ -104,7 +104,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is a REST API request.', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_rest'] ?? ( defined( 'REST_REQUEST' ) && REST_REQUEST ),
+				'compare_value' => fn( $args ) => $args['is_rest'] ?? ( defined( 'REST_REQUEST' ) && REST_REQUEST ),
 				'required_args' => [],
 			],
 			'is_cron'       => [
@@ -112,7 +112,7 @@ class Context {
 				'group'         => __( 'WordPress', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is a cron job execution.', 'arraypress' ),
-				'compare_value' => fn( $args, $user_value ) => $args['is_cron'] ?? wp_doing_cron(),
+				'compare_value' => fn( $args ) => $args['is_cron'] ?? wp_doing_cron(),
 				'required_args' => [],
 			],
 		];

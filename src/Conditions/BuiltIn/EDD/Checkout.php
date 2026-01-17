@@ -13,7 +13,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
 
-use ArrayPress\Conditions\Helpers\Formatting;
+use ArrayPress\Conditions\Helpers\Format;
 use ArrayPress\Conditions\Helpers\PostedData;
 use ArrayPress\Conditions\Operators;
 
@@ -51,8 +51,8 @@ class Checkout {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select gateway...', 'arraypress' ),
 				'description'   => __( 'The payment gateway selected at checkout.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_payment_gateways' ) ? Formatting::format_options( edd_get_payment_gateways(), 'admin_label' ) : [],
-				'operators'     => Operators::array_multiple(),
+				'options'       => fn() => function_exists( 'edd_get_payment_gateways' ) ? Format::options( edd_get_payment_gateways(), 'admin_label' ) : [],
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => function ( $args ) {
 					$posted = $args['posted'] ?? [];
 
@@ -150,8 +150,8 @@ class Checkout {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'The billing country entered at checkout.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_country_list' ) ? Formatting::format_options( edd_get_country_list() ) : [],
-				'operators'     => Operators::array_multiple(),
+				'options'       => fn() => function_exists( 'edd_get_country_list' ) ? Format::options( edd_get_country_list() ) : [],
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => function ( $args ) {
 					return PostedData::get( $args['posted'] ?? [], [
 						'billing_country',

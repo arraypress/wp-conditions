@@ -15,8 +15,9 @@ namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
 
 use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Options;
 use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Order as OrderHelper;
+use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
 use ArrayPress\Conditions\Helpers\Periods;
-use ArrayPress\Conditions\Helpers\Formatting;
+use ArrayPress\Conditions\Helpers\Format;
 use ArrayPress\Conditions\Operators;
 use EDD\Orders\Order as EDD_Order;
 
@@ -134,8 +135,8 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select status...', 'arraypress' ),
 				'description'   => __( 'The order status.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_payment_statuses' ) ? Formatting::format_options( edd_get_payment_statuses() ) : [],
-				'operators'     => Operators::array_multiple(),
+				'options'       => fn() => function_exists( 'edd_get_payment_statuses' ) ? Format::options( edd_get_payment_statuses() ) : [],
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => function ( $args ) {
 					$order = self::get_order( $args );
 
@@ -150,8 +151,8 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select gateway...', 'arraypress' ),
 				'description'   => __( 'The payment gateway used for the order.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_payment_gateways' ) ? Formatting::format_options( edd_get_payment_gateways(), 'admin_label' ) : [],
-				'operators'     => Operators::array_multiple(),
+				'options'       => fn() => function_exists( 'edd_get_payment_gateways' ) ? Format::options( edd_get_payment_gateways(), 'admin_label' ) : [],
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => function ( $args ) {
 					$order = self::get_order( $args );
 
@@ -166,8 +167,8 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select currency...', 'arraypress' ),
 				'description'   => __( 'The order currency.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_currencies' ) ? Formatting::format_options( edd_get_currencies() ) : [],
-				'operators'     => Operators::array_multiple(),
+				'options'       => fn() => function_exists( 'edd_get_currencies' ) ? Format::options( edd_get_currencies() ) : [],
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => function ( $args ) {
 					$order = self::get_order( $args );
 
@@ -224,7 +225,7 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search products...', 'arraypress' ),
 				'description'   => __( 'Check if the order contains specific products.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => fn( $args ) => OrderHelper::get_product_ids( $args['order_id'] ?? 0 ),
 				'required_args' => [ 'order_id' ],
 			],
@@ -236,7 +237,7 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search categories...', 'arraypress' ),
 				'description'   => __( 'Check if the order contains products from specific categories.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => fn( $args ) => OrderHelper::get_term_ids( $args['order_id'] ?? 0, 'download_category' ),
 				'required_args' => [ 'order_id' ],
 			],
@@ -248,7 +249,7 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search tags...', 'arraypress' ),
 				'description'   => __( 'Check if the order contains products with specific tags.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection(),
 				'compare_value' => fn( $args ) => OrderHelper::get_term_ids( $args['order_id'] ?? 0, 'download_tag' ),
 				'required_args' => [ 'order_id' ],
 			],
@@ -293,8 +294,8 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'The billing country for the order.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_country_list' ) ? Formatting::format_options( edd_get_country_list() ) : [],
-				'operators'     => Operators::array_multiple(),
+				'options'       => fn() => function_exists( 'edd_get_country_list' ) ? Format::options( edd_get_country_list() ) : [],
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => function ( $args ) {
 					$order = self::get_order( $args );
 
@@ -409,7 +410,7 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search customers...', 'arraypress' ),
 				'description'   => __( 'The customer who placed the order.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection_any_none(),
 				'ajax'          => fn( ?string $search, ?array $ids ): array => Options::get_customer_options( $search, $ids ),
 				'compare_value' => function ( $args ) {
 					$order = self::get_order( $args );
@@ -425,7 +426,7 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search users...', 'arraypress' ),
 				'description'   => __( 'The WordPress user who placed the order.', 'arraypress' ),
-				'operators'     => Operators::array_multiple(),
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => function ( $args ) {
 					$order = self::get_order( $args );
 
@@ -482,7 +483,7 @@ class Order {
 						return 0;
 					}
 
-					return Periods::get_age( $order->date_created, $args['_unit'] ?? 'day' );
+					return DateTimeHelper::get_age( $order->date_created, $args['_unit'] ?? 'day' );
 				},
 				'required_args' => [ 'order_id' ],
 			],

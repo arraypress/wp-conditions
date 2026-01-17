@@ -64,20 +64,22 @@ class Comparator {
 			'number', 'number_unit' => $this->compare_numeric( $operator, $user_value, $compare_value ),
 			'ip' => $this->compare_ip( $operator, $user_value, $compare_value ),
 			'email' => $this->compare_email( $operator, $user_value, $compare_value ),
-			'select' => $this->multiple
-				? $this->compare_array( $operator, $user_value, $compare_value )
-				: $this->compare_equals( $operator, $user_value, $compare_value ),
-			'post', 'term', 'user' => $this->compare_array( $operator, $user_value, $compare_value ),
 			'tags' => $this->compare_tags( $operator, $user_value, $compare_value ),
 			'boolean' => $this->compare_boolean( $operator, $compare_value ),
 			'date' => $this->compare_date( $operator, $user_value, $compare_value ),
 			'time' => $this->compare_time( $operator, $user_value, $compare_value ),
+			'select' => $this->multiple
+				? $this->compare_collection( $operator, $user_value, $compare_value )
+				: $this->compare_equality( $operator, $user_value, $compare_value ),
+			'post', 'term', 'user', 'ajax' => $this->compare_collection( $operator, $user_value, $compare_value ),
 			default => $this->compare_text( $operator, $user_value, $compare_value ),
 		};
 	}
 
 	/**
 	 * Compare numeric values.
+	 *
+	 * Operators: ==, !=, >, <, >=, <=
 	 *
 	 * @param string $operator      The operator.
 	 * @param mixed  $user_value    The user value.
@@ -103,6 +105,8 @@ class Comparator {
 	/**
 	 * Compare text values.
 	 *
+	 * Operators: ==, !=, contains, not_contains, starts_with, ends_with, empty, not_empty, regex
+	 *
 	 * @param string $operator      The operator.
 	 * @param mixed  $user_value    The user value.
 	 * @param mixed  $compare_value The compare value.
@@ -122,7 +126,7 @@ class Comparator {
 			'ends_with' => str_ends_with( strtolower( $compare_value ), strtolower( $user_value ) ),
 			'empty' => empty( $compare_value ),
 			'not_empty' => ! empty( $compare_value ),
-			'regex' => (bool) preg_match( $user_value, $compare_value ),
+			'regex' => (bool) @preg_match( $user_value, $compare_value ),
 			default => false,
 		};
 	}
@@ -130,13 +134,15 @@ class Comparator {
 	/**
 	 * Compare with simple equals/not equals.
 	 *
+	 * Operators: ==, !=
+	 *
 	 * @param string $operator      The operator.
 	 * @param mixed  $user_value    The user value.
 	 * @param mixed  $compare_value The compare value.
 	 *
 	 * @return bool
 	 */
-	private function compare_equals( string $operator, mixed $user_value, mixed $compare_value ): bool {
+	private function compare_equality( string $operator, mixed $user_value, mixed $compare_value ): bool {
 		return match ( $operator ) {
 			'==' => $compare_value == $user_value,
 			'!=' => $compare_value != $user_value,
@@ -145,7 +151,9 @@ class Comparator {
 	}
 
 	/**
-	 * Compare array values.
+	 * Compare collection/array values.
+	 *
+	 * Operators: ==, !=, any, none, all
 	 *
 	 * @param string $operator      The operator.
 	 * @param mixed  $user_value    The user value (selected items).
@@ -153,7 +161,7 @@ class Comparator {
 	 *
 	 * @return bool
 	 */
-	private function compare_array( string $operator, mixed $user_value, mixed $compare_value ): bool {
+	private function compare_collection( string $operator, mixed $user_value, mixed $compare_value ): bool {
 		// Normalize to arrays
 		$user_values    = (array) $user_value;
 		$compare_values = (array) $compare_value;
@@ -163,12 +171,8 @@ class Comparator {
 		$compare_values = array_map( 'strval', $compare_values );
 
 		return match ( $operator ) {
-			// Single selection operators
-			'==' => ! empty( array_intersect( $user_values, $compare_values ) ),
-			'!=' => empty( array_intersect( $user_values, $compare_values ) ),
-			// Multiple selection operators
-			'any' => ! empty( array_intersect( $user_values, $compare_values ) ),
-			'none' => empty( array_intersect( $user_values, $compare_values ) ),
+			'==', 'any' => ! empty( array_intersect( $user_values, $compare_values ) ),
+			'!=', 'none' => empty( array_intersect( $user_values, $compare_values ) ),
 			'all' => empty( array_diff( $user_values, $compare_values ) ),
 			default => false,
 		};
@@ -177,10 +181,11 @@ class Comparator {
 	/**
 	 * Compare IP address values.
 	 *
-	 * Supports exact match, CIDR notation (192.168.1.0/24), and wildcards (192.168.1.*).
-	 * Uses ArrayPress\IPUtils\IP library for matching.
+	 * Operators: ip_match, ip_not_match
 	 *
-	 * @param string $operator      The operator (ip_match/ip_not_match).
+	 * Supports exact match, CIDR notation (192.168.1.0/24), and wildcards (192.168.1.*).
+	 *
+	 * @param string $operator      The operator.
 	 * @param mixed  $user_value    The IP pattern(s) entered by user.
 	 * @param mixed  $compare_value The actual IP address to check.
 	 *
@@ -211,10 +216,11 @@ class Comparator {
 	/**
 	 * Compare email address values.
 	 *
-	 * Supports full email, @domain.com, .tld, and partial domain matching.
-	 * Uses ArrayPress\EmailUtils\Email library for matching.
+	 * Operators: email_match, email_not_match
 	 *
-	 * @param string $operator      The operator (email_match/email_not_match).
+	 * Supports full email, @domain.com, .tld, and partial domain matching.
+	 *
+	 * @param string $operator      The operator.
 	 * @param mixed  $user_value    The email pattern(s) entered by user.
 	 * @param mixed  $compare_value The actual email address to check.
 	 *
@@ -255,10 +261,10 @@ class Comparator {
 	/**
 	 * Compare tags values.
 	 *
-	 * Used for user-created tags with various matching modes.
+	 * Operators: any_exact, none_exact, any_contains, none_contains,
+	 *            any_starts, none_starts, any_ends, none_ends
 	 *
-	 * @param string $operator      The operator
-	 *                              (any_ends/none_ends/any_starts/none_starts/any_contains/none_contains/any_exact/none_exact).
+	 * @param string $operator      The operator.
 	 * @param mixed  $user_value    The tags entered by user (array of patterns).
 	 * @param mixed  $compare_value The actual value to check against.
 	 *
@@ -313,7 +319,9 @@ class Comparator {
 	/**
 	 * Compare boolean values.
 	 *
-	 * @param string $operator      The operator (yes/no).
+	 * Operators: yes, no
+	 *
+	 * @param string $operator      The operator.
 	 * @param mixed  $compare_value The compare value.
 	 *
 	 * @return bool
@@ -330,6 +338,8 @@ class Comparator {
 
 	/**
 	 * Compare date values.
+	 *
+	 * Operators: ==, !=, >, <, >=, <=
 	 *
 	 * @param string $operator      The operator.
 	 * @param mixed  $user_value    The user value.
@@ -363,6 +373,8 @@ class Comparator {
 	/**
 	 * Compare time values.
 	 *
+	 * Operators: ==, !=, >,
+	 *
 	 * @param string $operator      The operator.
 	 * @param mixed  $user_value    The user value.
 	 * @param mixed  $compare_value The compare value.
@@ -370,7 +382,6 @@ class Comparator {
 	 * @return bool
 	 */
 	private function compare_time( string $operator, mixed $user_value, mixed $compare_value ): bool {
-		// Convert to seconds from midnight for comparison
 		$user_time    = strtotime( '1970-01-01 ' . $user_value );
 		$compare_time = strtotime( '1970-01-01 ' . $compare_value );
 

@@ -14,7 +14,9 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\BuiltIn;
 
 use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\Periods;
+use ArrayPress\Conditions\Operators;
 
 /**
  * Class Post
@@ -31,7 +33,8 @@ class Post {
 	public static function get_all(): array {
 		return array_merge(
 			self::get_detail_conditions(),
-			self::get_taxonomy_conditions()
+			self::get_taxonomy_conditions(),
+			self::get_meta_conditions()
 		);
 	}
 
@@ -49,10 +52,7 @@ class Post {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select statuses...', 'arraypress' ),
 				'description'   => __( 'Match against the post status.', 'arraypress' ),
-				'operators'     => [
-					'any'  => __( 'Is any of', 'arraypress' ),
-					'none' => __( 'Is none of', 'arraypress' ),
-				],
+				'operators'     => Operators::collection_any_none(),
 				'options'       => fn() => self::get_post_status_options(),
 				'arg'           => 'post_status',
 				'required_args' => [ 'post_status' ],
@@ -64,10 +64,7 @@ class Post {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select post types...', 'arraypress' ),
 				'description'   => __( 'Match against the post type.', 'arraypress' ),
-				'operators'     => [
-					'any'  => __( 'Is any of', 'arraypress' ),
-					'none' => __( 'Is none of', 'arraypress' ),
-				],
+				'operators'     => Operators::collection_any_none(),
 				'options'       => fn() => self::get_post_type_options(),
 				'arg'           => 'post_type',
 				'required_args' => [ 'post_type' ],
@@ -119,11 +116,7 @@ class Post {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search categories...', 'arraypress' ),
 				'description'   => __( 'Match against post categories.', 'arraypress' ),
-				'operators'     => [
-					'any'  => __( 'Has any of', 'arraypress' ),
-					'none' => __( 'Has none of', 'arraypress' ),
-					'all'  => __( 'Has all of', 'arraypress' ),
-				],
+				'operators'     => Operators::collection(),
 				'compare_value' => fn( $args ) => self::get_post_terms( $args, 'category' ),
 				'required_args' => [ 'post_id' ],
 			],
@@ -135,11 +128,7 @@ class Post {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search tags...', 'arraypress' ),
 				'description'   => __( 'Match against post tags.', 'arraypress' ),
-				'operators'     => [
-					'any'  => __( 'Has any of', 'arraypress' ),
-					'none' => __( 'Has none of', 'arraypress' ),
-					'all'  => __( 'Has all of', 'arraypress' ),
-				],
+				'operators'     => Operators::collection(),
 				'compare_value' => fn( $args ) => self::get_post_terms( $args, 'post_tag' ),
 				'required_args' => [ 'post_id' ],
 			],
@@ -153,6 +142,54 @@ class Post {
 				'description'   => __( 'Check if post has specific terms (specify taxonomy when registering).', 'arraypress' ),
 				'arg'           => 'post_terms',
 				'required_args' => [ 'post_id', 'post_terms' ],
+			],
+		];
+	}
+
+	/**
+	 * Get meta-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_meta_conditions(): array {
+		return [
+			'post_meta_text'   => [
+				'label'         => __( 'Post Meta (Text)', 'arraypress' ),
+				'group'         => __( 'Post: Meta', 'arraypress' ),
+				'type'          => 'text',
+				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
+				'description'   => __( 'Format: meta_key:value_to_match', 'arraypress' ),
+				'compare_value' => function ( $args, $user_value ) {
+					$post = self::get_post( $args );
+
+					if ( ! $post ) {
+						return '';
+					}
+
+					$parsed = Parse::meta( $user_value ?? '' );
+
+					return get_post_meta( $post->ID, $parsed['key'], true );
+				},
+				'required_args' => [ 'post_id' ],
+			],
+			'post_meta_number' => [
+				'label'         => __( 'Post Meta (Number)', 'arraypress' ),
+				'group'         => __( 'Post: Meta', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
+				'description'   => __( 'Match against a numeric post meta field. Format: meta_key:value', 'arraypress' ),
+				'compare_value' => function ( $args, $user_value ) {
+					$post = self::get_post( $args );
+
+					if ( ! $post ) {
+						return 0;
+					}
+
+					$parsed = Parse::meta_typed( $user_value ?? '', 'number' );
+
+					return (float) get_post_meta( $post->ID, $parsed['key'], true );
+				},
+				'required_args' => [ 'post_id' ],
 			],
 		];
 	}

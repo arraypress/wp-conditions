@@ -13,6 +13,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\BuiltIn;
 
+use ArrayPress\Conditions\Operators;
 use ArrayPress\IPUtils\IP;
 use ArrayPress\UserAgentUtils\UserAgent;
 
@@ -121,10 +122,7 @@ class Request {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select browsers...', 'arraypress' ),
 				'description'   => __( 'Match against the visitor browser.', 'arraypress' ),
-				'operators'     => [
-					'any'  => __( 'Is any of', 'arraypress' ),
-					'none' => __( 'Is none of', 'arraypress' ),
-				],
+				'operators'     => Operators::collection_any_none(),
 				'options'       => [
 					[ 'value' => 'Chrome', 'label' => 'Chrome' ],
 					[ 'value' => 'Firefox', 'label' => 'Firefox' ],

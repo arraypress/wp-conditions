@@ -16,11 +16,11 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Helpers;
 
 /**
- * Class Formatting
+ * Class Format
  *
  * Formatting utilities for conditions.
  */
-class Formatting {
+class Format {
 
 	/**
 	 * Format options array for select fields.
@@ -30,7 +30,7 @@ class Formatting {
 	 *
 	 * @return array<array{value: string, label: string}>
 	 */
-	public static function format_options( array $options, string $label_key = '' ): array {
+	public static function options( array $options, string $label_key = '' ): array {
 		$formatted = [];
 
 		foreach ( $options as $value => $label ) {

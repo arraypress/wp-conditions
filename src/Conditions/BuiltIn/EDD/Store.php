@@ -14,7 +14,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
 
 use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers\Stats;
-use ArrayPress\Conditions\Helpers\Parser;
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\Periods;
 
 /**
@@ -54,7 +54,7 @@ class Store {
 				'units'         => Periods::get_units(),
 				'description'   => __( 'Total store earnings within a time period.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$period = Parser::get_number_unit( $args );
+					$period = Parse::number_unit( $args );
 
 					return Stats::get_order_earnings( $period['unit'], $period['number'] );
 				},
@@ -70,7 +70,7 @@ class Store {
 				'units'         => Periods::get_units(),
 				'description'   => __( 'Total refund amount within a time period.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$period = Parser::get_number_unit( $args );
+					$period = Parse::number_unit( $args );
 
 					return Stats::get_refund_amount( $period['unit'], $period['number'] );
 				},
@@ -87,7 +87,7 @@ class Store {
 				'units'         => Periods::get_units(),
 				'description'   => __( 'Store refund rate percentage within a time period.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$period = Parser::get_number_unit( $args );
+					$period = Parse::number_unit( $args );
 
 					return Stats::get_refund_rate( $period['unit'], $period['number'] );
 				},
@@ -113,7 +113,7 @@ class Store {
 				'units'         => Periods::get_units(),
 				'description'   => __( 'Total store sales count within a time period.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$period = Parser::get_number_unit( $args );
+					$period = Parse::number_unit( $args );
 
 					return Stats::get_order_count( $period['unit'], $period['number'] );
 				},
@@ -139,7 +139,7 @@ class Store {
 				'units'         => Periods::get_units(),
 				'description'   => __( 'Total tax collected within a time period.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
-					$period = Parser::get_number_unit( $args );
+					$period = Parse::number_unit( $args );
 
 					return Stats::get_tax( $period['unit'], $period['number'] );
 				},

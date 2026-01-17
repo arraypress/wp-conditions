@@ -11,10 +11,6 @@ console.log('conditions.js loaded');
 (function ($) {
     'use strict';
 
-    console.log('conditions.js IIFE executing');
-    console.log('jQuery version:', $.fn.jquery);
-    console.log('Select2 available:', typeof $.fn.select2);
-
     // Configuration from PHP
     const config = window.conditionsData || {};
     const conditions = config.conditions || {};
@@ -396,7 +392,7 @@ console.log('conditions.js loaded');
                 }
                 // Basic validation - must look like an IP or CIDR
                 // Matches: 192.168.1.1, 192.168.1.0/24, 10.*, 2001:db8::1, etc.
-                if (!/^[\d\.\:\/\*a-fA-F]+$/.test(term)) {
+                if (!/^[\d.\:\/*a-fA-F]+$/.test(term)) {
                     return null;
                 }
                 return {
