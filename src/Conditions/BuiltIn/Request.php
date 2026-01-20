@@ -14,6 +14,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\BuiltIn;
 
 use ArrayPress\AcceptLanguageUtils\AcceptLanguage;
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\Request as RequestHelper;
 use ArrayPress\Conditions\Operators;
 use ArrayPress\IPUtils\IP;
@@ -317,10 +318,10 @@ class Request {
 					[ 'value' => 'content', 'label' => __( 'Content (utm_content)', 'arraypress' ) ],
 				],
 				'compare_value' => function ( $args ) {
-					$unit = $args['_unit'] ?? 'source';
-					$utm  = Referrer::get_utm_parameters();
+					$parsed = Parse::text_unit( $args, 'source' );
+					$utm    = Referrer::get_utm_parameters();
 
-					return $utm[ $unit ] ?? '';
+					return $utm[ $parsed['unit'] ] ?? '';
 				},
 				'required_args' => [],
 			],
