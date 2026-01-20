@@ -198,6 +198,7 @@ console.log('conditions.js loaded');
         const placeholder = condition.placeholder || '';
 
         let html = '<div class="text-with-unit">';
+        html += '<input type="text" class="text-input" name="' + name + '[text]" value="' + escapeHtml(textValue || '') + '" placeholder="' + escapeHtml(placeholder) + '">';
         html += '<select class="unit-select" name="' + name + '[unit]">';
 
         units.forEach(function (unit) {
@@ -206,7 +207,6 @@ console.log('conditions.js loaded');
         });
 
         html += '</select>';
-        html += '<input type="text" class="text-input" name="' + name + '[text]" value="' + escapeHtml(textValue || '') + '" placeholder="' + escapeHtml(placeholder) + '">';
         html += '</div>';
 
         return html;
