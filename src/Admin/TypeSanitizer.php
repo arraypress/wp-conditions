@@ -258,16 +258,37 @@ class TypeSanitizer {
 	}
 
 	/**
-	 * Sanitize an IP address or pattern.
+	 * Sanitize an IP address or pattern (single or multiple).
 	 *
 	 * Supports single IP addresses, CIDR notation (192.168.1.0/24),
 	 * and wildcard patterns (192.168.1.*).
+	 *
+	 * @param mixed $value The value to sanitize (string or array).
+	 *
+	 * @return array<string>|string The sanitized IP pattern(s).
+	 */
+	public static function ip( mixed $value ): array|string {
+		// Handle arrays (multiple patterns from tags input)
+		if ( is_array( $value ) ) {
+			return array_values(
+				array_filter(
+					array_map( [ self::class, 'sanitize_ip_pattern' ], $value )
+				)
+			);
+		}
+
+		// Handle single value
+		return self::sanitize_ip_pattern( $value );
+	}
+
+	/**
+	 * Sanitize a single IP pattern.
 	 *
 	 * @param mixed $value The value to sanitize.
 	 *
 	 * @return string The sanitized IP pattern, or empty string if invalid.
 	 */
-	public static function ip( mixed $value ): string {
+	private static function sanitize_ip_pattern( mixed $value ): string {
 		$value = sanitize_text_field( (string) $value );
 
 		if ( empty( $value ) ) {
@@ -275,30 +296,28 @@ class TypeSanitizer {
 		}
 
 		// Use IP library for validation
-		if ( class_exists( IP::class ) ) {
-			// Single IP address
-			if ( IP::is_valid( $value ) ) {
+		// Single IP address
+		if ( IP::is_valid( $value ) ) {
+			return $value;
+		}
+
+		// CIDR range
+		if ( IP::is_valid_range( $value ) ) {
+			return $value;
+		}
+
+		// Wildcard pattern - use library's wildcard validation
+		if ( str_contains( $value, '*' ) ) {
+			// The IP class has matches_wildcard which validates the pattern
+			// We can test against a known IP to see if pattern is valid
+			$test_ip = '192.168.1.1';
+			try {
+				IP::matches_wildcard( $test_ip, $value );
+
+				// If no exception, pattern syntax is valid
 				return $value;
-			}
-
-			// CIDR range
-			if ( IP::is_valid_range( $value ) ) {
-				return $value;
-			}
-
-			// Wildcard pattern - use library's wildcard validation
-			if ( str_contains( $value, '*' ) ) {
-				// The IP class has matches_wildcard which validates the pattern
-				// We can test against a known IP to see if pattern is valid
-				$test_ip = '192.168.1.1';
-				try {
-					IP::matches_wildcard( $test_ip, $value );
-
-					// If no exception, pattern syntax is valid
-					return $value;
-				} catch ( Exception $e ) {
-					// Invalid pattern
-				}
+			} catch ( Exception $e ) {
+				// Invalid pattern
 			}
 		}
 
@@ -351,11 +370,9 @@ class TypeSanitizer {
 		}
 
 		// Use Email library for full email validation
-		if ( class_exists( Email::class ) ) {
-			$email = Email::parse( $value );
-			if ( $email && $email->valid() ) {
-				return $email->normalized();
-			}
+		$email = Email::parse( $value );
+		if ( $email && $email->valid() ) {
+			return $email->normalized();
 		}
 
 		// Handle pattern formats (not full emails)
@@ -454,7 +471,7 @@ class TypeSanitizer {
 			return true;
 		}
 
-		// Empty array is empty (covers email, tags, multi-select)
+		// Empty array is empty (covers email, tags, ip, multi-select)
 		if ( is_array( $value ) && empty( $value ) ) {
 			return true;
 		}
@@ -464,6 +481,7 @@ class TypeSanitizer {
 			if ( $value['number'] === '' || $value['number'] === null ) {
 				return true;
 			}
+
 			return false;
 		}
 
@@ -472,6 +490,7 @@ class TypeSanitizer {
 			if ( $value['text'] === '' || $value['text'] === null ) {
 				return true;
 			}
+
 			return false;
 		}
 
