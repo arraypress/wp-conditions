@@ -36,6 +36,7 @@ class Request {
 	public static function get_all(): array {
 		return array_merge(
 			self::get_url_conditions(),
+			self::get_connection_conditions(),
 			self::get_visitor_conditions(),
 			self::get_device_conditions(),
 			self::get_referrer_conditions(),
@@ -67,6 +68,109 @@ class Request {
 				'description'   => __( 'Match against a URL query parameter value.', 'arraypress' ),
 				'arg'           => 'query_var_value',
 				'required_args' => [ 'query_var_name', 'query_var_value' ],
+			],
+		];
+	}
+
+	/**
+	 * Get connection-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_connection_conditions(): array {
+		return [
+			'is_ssl'         => [
+				'label'         => __( 'Is SSL/HTTPS', 'arraypress' ),
+				'group'         => __( 'Request: Connection', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the connection is using HTTPS.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_ssl'] ?? is_ssl(),
+				'required_args' => [],
+			],
+			'request_method' => [
+				'label'         => __( 'Request Method', 'arraypress' ),
+				'group'         => __( 'Request: Connection', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select methods...', 'arraypress' ),
+				'description'   => __( 'The HTTP request method.', 'arraypress' ),
+				'operators'     => Operators::collection_any_none(),
+				'options'       => [
+					[ 'value' => 'GET', 'label' => 'GET' ],
+					[ 'value' => 'POST', 'label' => 'POST' ],
+					[ 'value' => 'PUT', 'label' => 'PUT' ],
+					[ 'value' => 'PATCH', 'label' => 'PATCH' ],
+					[ 'value' => 'DELETE', 'label' => 'DELETE' ],
+					[ 'value' => 'HEAD', 'label' => 'HEAD' ],
+					[ 'value' => 'OPTIONS', 'label' => 'OPTIONS' ],
+				],
+				'compare_value' => fn( $args ) => $args['request_method'] ?? ( $_SERVER['REQUEST_METHOD'] ?? 'GET' ),
+				'required_args' => [],
+			],
+			'cookie_exists'  => [
+				'label'         => __( 'Cookie Exists', 'arraypress' ),
+				'group'         => __( 'Request: Connection', 'arraypress' ),
+				'type'          => 'text',
+				'placeholder'   => __( 'e.g. my_cookie_name', 'arraypress' ),
+				'description'   => __( 'Check if a specific cookie exists.', 'arraypress' ),
+				'operators'     => [
+					'==' => __( 'Exists', 'arraypress' ),
+					'!=' => __( 'Does not exist', 'arraypress' ),
+				],
+				'compare_value' => function ( $args, $user_value ) {
+					if ( empty( $user_value ) ) {
+						return '';
+					}
+
+					return isset( $_COOKIE[ $user_value ] ) ? $user_value : '';
+				},
+				'required_args' => [],
+			],
+			'cookie_value'   => [
+				'label'         => __( 'Cookie Value', 'arraypress' ),
+				'group'         => __( 'Request: Connection', 'arraypress' ),
+				'type'          => 'text',
+				'placeholder'   => __( 'cookie_name:expected_value', 'arraypress' ),
+				'description'   => __( 'Match against a cookie value. Format: cookie_name:value', 'arraypress' ),
+				'compare_value' => function ( $args, $user_value ) {
+					if ( empty( $user_value ) || ! str_contains( $user_value, ':' ) ) {
+						return '';
+					}
+
+					$parts       = explode( ':', $user_value, 2 );
+					$cookie_name = trim( $parts[0] );
+
+					return $_COOKIE[ $cookie_name ] ?? '';
+				},
+				'required_args' => [],
+			],
+			'header_value'   => [
+				'label'         => __( 'HTTP Header', 'arraypress' ),
+				'group'         => __( 'Request: Connection', 'arraypress' ),
+				'type'          => 'text',
+				'placeholder'   => __( 'Header-Name:expected_value', 'arraypress' ),
+				'description'   => __( 'Match against an HTTP header value. Format: Header-Name:value', 'arraypress' ),
+				'compare_value' => function ( $args, $user_value ) {
+					if ( empty( $user_value ) || ! str_contains( $user_value, ':' ) ) {
+						return '';
+					}
+
+					$parts       = explode( ':', $user_value, 2 );
+					$header_name = trim( $parts[0] );
+
+					// Convert header name to $_SERVER format (e.g., Content-Type -> HTTP_CONTENT_TYPE)
+					$server_key = 'HTTP_' . strtoupper( str_replace( '-', '_', $header_name ) );
+
+					// Some headers don't have HTTP_ prefix
+					if ( $header_name === 'Content-Type' ) {
+						$server_key = 'CONTENT_TYPE';
+					} elseif ( $header_name === 'Content-Length' ) {
+						$server_key = 'CONTENT_LENGTH';
+					}
+
+					return $_SERVER[ $server_key ] ?? '';
+				},
+				'required_args' => [],
 			],
 		];
 	}

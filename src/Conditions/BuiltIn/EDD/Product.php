@@ -36,6 +36,7 @@ class Product {
 			self::get_detail_conditions(),
 			self::get_taxonomy_conditions(),
 			self::get_pricing_conditions(),
+			self::get_file_conditions(),
 			self::get_stats_conditions()
 		);
 
@@ -59,7 +60,7 @@ class Product {
 	 */
 	private static function get_detail_conditions(): array {
 		return [
-			'edd_product_type'   => [
+			'edd_product_type'          => [
 				'label'         => __( 'Type', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'select',
@@ -83,7 +84,7 @@ class Product {
 				},
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_status' => [
+			'edd_product_status'        => [
 				'label'         => __( 'Status', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'select',
@@ -95,7 +96,7 @@ class Product {
 				'compare_value' => fn( $args ) => isset( $args['product_id'] ) ? get_post_status( $args['product_id'] ) : '',
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_author' => [
+			'edd_product_author'        => [
 				'label'         => __( 'Author', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'user',
@@ -116,7 +117,7 @@ class Product {
 				},
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_age'    => [
+			'edd_product_age'           => [
 				'label'         => __( 'Product Age', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'number_unit',
@@ -138,6 +139,61 @@ class Product {
 					}
 
 					return DateTimeHelper::get_age( $post->post_date, $args['_unit'] ?? 'day' );
+				},
+				'required_args' => [ 'product_id' ],
+			],
+			'edd_product_has_notes'     => [
+				'label'         => __( 'Has Purchase Notes', 'arraypress' ),
+				'group'         => __( 'Product: Details', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the product has purchase notes configured.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$product_id = $args['product_id'] ?? 0;
+
+					if ( ! $product_id || ! function_exists( 'edd_get_product_notes' ) ) {
+						return false;
+					}
+
+					$notes = edd_get_product_notes( $product_id );
+
+					return ! empty( $notes );
+				},
+				'required_args' => [ 'product_id' ],
+			],
+			'edd_product_is_bundle'     => [
+				'label'         => __( 'Is Bundle', 'arraypress' ),
+				'group'         => __( 'Product: Details', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the product is a bundle.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$product_id = $args['product_id'] ?? 0;
+
+					if ( ! $product_id || ! function_exists( 'edd_is_bundled_product' ) ) {
+						return false;
+					}
+
+					return edd_is_bundled_product( $product_id );
+				},
+				'required_args' => [ 'product_id' ],
+			],
+			'edd_product_bundle_count'  => [
+				'label'         => __( 'Bundle Product Count', 'arraypress' ),
+				'group'         => __( 'Product: Details', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 5', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'Number of products in the bundle.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$product_id = $args['product_id'] ?? 0;
+
+					if ( ! $product_id || ! function_exists( 'edd_get_bundled_products' ) ) {
+						return 0;
+					}
+
+					$bundled = edd_get_bundled_products( $product_id );
+
+					return is_array( $bundled ) ? count( $bundled ) : 0;
 				},
 				'required_args' => [ 'product_id' ],
 			],
@@ -253,6 +309,113 @@ class Product {
 					}
 
 					return edd_is_free_download( $product_id );
+				},
+				'required_args' => [ 'product_id' ],
+			],
+			'edd_product_price_option_count'  => [
+				'label'         => __( 'Price Option Count', 'arraypress' ),
+				'group'         => __( 'Product: Pricing', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'Number of price options for variable priced products.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$product_id = $args['product_id'] ?? 0;
+
+					if ( ! $product_id || ! function_exists( 'edd_get_variable_prices' ) ) {
+						return 0;
+					}
+
+					$prices = edd_get_variable_prices( $product_id );
+
+					return is_array( $prices ) ? count( $prices ) : 0;
+				},
+				'required_args' => [ 'product_id' ],
+			],
+		];
+	}
+
+	/**
+	 * Get file-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_file_conditions(): array {
+		return [
+			'edd_product_file_count'       => [
+				'label'         => __( 'File Count', 'arraypress' ),
+				'group'         => __( 'Product: Files', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'Number of downloadable files attached to the product.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$product_id = $args['product_id'] ?? 0;
+
+					if ( ! $product_id || ! function_exists( 'edd_get_download_files' ) ) {
+						return 0;
+					}
+
+					$files = edd_get_download_files( $product_id );
+
+					return is_array( $files ) ? count( $files ) : 0;
+				},
+				'required_args' => [ 'product_id' ],
+			],
+			'edd_product_has_files'        => [
+				'label'         => __( 'Has Files', 'arraypress' ),
+				'group'         => __( 'Product: Files', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the product has downloadable files.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$product_id = $args['product_id'] ?? 0;
+
+					if ( ! $product_id || ! function_exists( 'edd_get_download_files' ) ) {
+						return false;
+					}
+
+					$files = edd_get_download_files( $product_id );
+
+					return ! empty( $files );
+				},
+				'required_args' => [ 'product_id' ],
+			],
+			'edd_product_download_limit'   => [
+				'label'         => __( 'Download Limit', 'arraypress' ),
+				'group'         => __( 'Product: Files', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 5', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'The file download limit for this product (0 = unlimited).', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$product_id = $args['product_id'] ?? 0;
+
+					if ( ! $product_id || ! function_exists( 'edd_get_file_download_limit' ) ) {
+						return 0;
+					}
+
+					return (int) edd_get_file_download_limit( $product_id );
+				},
+				'required_args' => [ 'product_id' ],
+			],
+			'edd_product_has_download_limit' => [
+				'label'         => __( 'Has Download Limit', 'arraypress' ),
+				'group'         => __( 'Product: Files', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the product has a download limit set.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$product_id = $args['product_id'] ?? 0;
+
+					if ( ! $product_id || ! function_exists( 'edd_get_file_download_limit' ) ) {
+						return false;
+					}
+
+					$limit = edd_get_file_download_limit( $product_id );
+
+					return $limit > 0;
 				},
 				'required_args' => [ 'product_id' ],
 			],

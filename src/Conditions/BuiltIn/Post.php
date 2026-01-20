@@ -265,7 +265,7 @@ class Post {
 				'compare_value' => function ( $args ) {
 					$post = PostHelper::get( $args );
 
-					return $post ? has_excerpt( $post->ID ) : false;
+					return $post && has_excerpt( $post->ID );
 				},
 				'required_args' => [ 'post_id' ],
 			],
