@@ -14,7 +14,6 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\BuiltIn;
 
 use ArrayPress\AcceptLanguageUtils\AcceptLanguage;
-use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\Request as RequestHelper;
 use ArrayPress\Conditions\Operators;
 use ArrayPress\IPUtils\IP;
@@ -57,7 +56,7 @@ class Request {
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. /checkout/', 'arraypress' ),
 				'description'   => __( 'Match against the current URL.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['current_url'] ?? RequestHelper::get_current_url(),
+				'compare_value' => fn( $args ) => RequestHelper::get_current_url( $args ),
 				'required_args' => [],
 			],
 			'query_var'   => [
@@ -84,7 +83,7 @@ class Request {
 				'group'         => __( 'Request: Connection', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the connection is using HTTPS.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['is_ssl'] ?? is_ssl(),
+				'compare_value' => fn( $args ) => RequestHelper::is_ssl( $args ),
 				'required_args' => [],
 			],
 			'request_method' => [
@@ -104,7 +103,7 @@ class Request {
 					[ 'value' => 'HEAD', 'label' => 'HEAD' ],
 					[ 'value' => 'OPTIONS', 'label' => 'OPTIONS' ],
 				],
-				'compare_value' => fn( $args ) => $args['request_method'] ?? ( $_SERVER['REQUEST_METHOD'] ?? 'GET' ),
+				'compare_value' => fn( $args ) => RequestHelper::get_method( $args ),
 				'required_args' => [],
 			],
 			'cookie_exists'  => [
@@ -113,17 +112,8 @@ class Request {
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. my_cookie_name', 'arraypress' ),
 				'description'   => __( 'Check if a specific cookie exists.', 'arraypress' ),
-				'operators'     => [
-					'==' => __( 'Exists', 'arraypress' ),
-					'!=' => __( 'Does not exist', 'arraypress' ),
-				],
-				'compare_value' => function ( $args, $user_value ) {
-					if ( empty( $user_value ) ) {
-						return '';
-					}
-
-					return isset( $_COOKIE[ $user_value ] ) ? $user_value : '';
-				},
+				'operators'     => Operators::contains(),
+				'compare_value' => fn( $args, $user_value ) => RequestHelper::cookie_exists( $args, $user_value ),
 				'required_args' => [],
 			],
 			'cookie_value'   => [
@@ -132,16 +122,7 @@ class Request {
 				'type'          => 'text',
 				'placeholder'   => __( 'cookie_name:expected_value', 'arraypress' ),
 				'description'   => __( 'Match against a cookie value. Format: cookie_name:value', 'arraypress' ),
-				'compare_value' => function ( $args, $user_value ) {
-					if ( empty( $user_value ) || ! str_contains( $user_value, ':' ) ) {
-						return '';
-					}
-
-					$parts       = explode( ':', $user_value, 2 );
-					$cookie_name = trim( $parts[0] );
-
-					return $_COOKIE[ $cookie_name ] ?? '';
-				},
+				'compare_value' => fn( $args, $user_value ) => RequestHelper::get_cookie_value( $args, $user_value ),
 				'required_args' => [],
 			],
 			'header_value'   => [
@@ -150,26 +131,7 @@ class Request {
 				'type'          => 'text',
 				'placeholder'   => __( 'Header-Name:expected_value', 'arraypress' ),
 				'description'   => __( 'Match against an HTTP header value. Format: Header-Name:value', 'arraypress' ),
-				'compare_value' => function ( $args, $user_value ) {
-					if ( empty( $user_value ) || ! str_contains( $user_value, ':' ) ) {
-						return '';
-					}
-
-					$parts       = explode( ':', $user_value, 2 );
-					$header_name = trim( $parts[0] );
-
-					// Convert header name to $_SERVER format (e.g., Content-Type -> HTTP_CONTENT_TYPE)
-					$server_key = 'HTTP_' . strtoupper( str_replace( '-', '_', $header_name ) );
-
-					// Some headers don't have HTTP_ prefix
-					if ( $header_name === 'Content-Type' ) {
-						$server_key = 'CONTENT_TYPE';
-					} elseif ( $header_name === 'Content-Length' ) {
-						$server_key = 'CONTENT_LENGTH';
-					}
-
-					return $_SERVER[ $server_key ] ?? '';
-				},
+				'compare_value' => fn( $args, $user_value ) => RequestHelper::get_header_value( $args, $user_value ),
 				'required_args' => [],
 			],
 		];
@@ -421,12 +383,7 @@ class Request {
 					[ 'value' => 'term', 'label' => __( 'Term (utm_term)', 'arraypress' ) ],
 					[ 'value' => 'content', 'label' => __( 'Content (utm_content)', 'arraypress' ) ],
 				],
-				'compare_value' => function ( $args ) {
-					$parsed = Parse::text_unit( $args, 'source' );
-					$utm    = Referrer::get_utm_parameters();
-
-					return $utm[ $parsed['unit'] ] ?? '';
-				},
+				'compare_value' => fn( $args ) => RequestHelper::get_utm_parameter( $args ),
 				'required_args' => [],
 			],
 		];

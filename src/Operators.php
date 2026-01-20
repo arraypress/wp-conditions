@@ -231,6 +231,24 @@ class Operators {
 	}
 
 	/** -------------------------------------------------------------------------
+	 * Content Operators
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Content presence operators.
+	 *
+	 * Used for checking if content contains something (shortcodes, blocks, etc.).
+	 *
+	 * @return array<string, string>
+	 */
+	public static function contains(): array {
+		return [
+			'==' => __( 'Contains', 'arraypress' ),
+			'!=' => __( 'Does not contain', 'arraypress' ),
+		];
+	}
+
+	/** -------------------------------------------------------------------------
 	 * Type Resolution
 	 * ------------------------------------------------------------------------ */
 
@@ -280,6 +298,7 @@ class Operators {
 			'tags'             => self::tags(),
 			'tags_ends'        => self::tags_ends(),
 			'equality'         => self::equality(),
+			'contains'         => self::contains(),
 			'collection'       => self::collection(),
 			'collection_basic' => self::collection_any_none(),
 		];

@@ -85,10 +85,179 @@ class Post {
 	}
 
 	/**
+	 * Get the parent post ID.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int The parent post ID, or 0 if no parent.
+	 */
+	public static function get_parent( array $args ): int {
+		$post = self::get( $args );
+
+		return (int) ( $post?->post_parent ?? 0 );
+	}
+
+	/**
+	 * Get the page template slug.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string The template slug, or empty string if not found.
+	 */
+	public static function get_template( array $args ): string {
+		$post = self::get( $args );
+
+		if ( ! $post ) {
+			return '';
+		}
+
+		return get_page_template_slug( $post->ID ) ?: '';
+	}
+
+	/**
+	 * Get the post format.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string The post format, or 'standard' if none set.
+	 */
+	public static function get_format( array $args ): string {
+		$post = self::get( $args );
+
+		if ( ! $post ) {
+			return '';
+		}
+
+		$format = get_post_format( $post->ID );
+
+		return $format ?: 'standard';
+	}
+
+	/**
+	 * Check if post has a featured image.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool True if post has featured image.
+	 */
+	public static function has_featured_image( array $args ): bool {
+		$post = self::get( $args );
+
+		return $post && has_post_thumbnail( $post->ID );
+	}
+
+	/**
+	 * Get the comment count for a post.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int The comment count.
+	 */
+	public static function get_comment_count( array $args ): int {
+		$post = self::get( $args );
+
+		return (int) $post?->comment_count;
+	}
+
+	/**
+	 * Get the comment status for a post.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string The comment status ('open' or 'closed').
+	 */
+	public static function get_comment_status( array $args ): string {
+		$post = self::get( $args );
+
+		return $post ? $post->comment_status : '';
+	}
+
+	/**
+	 * Check if post is sticky.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool True if post is sticky.
+	 */
+	public static function is_sticky( array $args ): bool {
+		$post = self::get( $args );
+
+		return $post && is_sticky( $post->ID );
+	}
+
+	/**
+	 * Check if post has a manual excerpt.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool True if post has an excerpt.
+	 */
+	public static function has_excerpt( array $args ): bool {
+		$post = self::get( $args );
+
+		return $post && has_excerpt( $post->ID );
+	}
+
+	/**
+	 * Get the word count of post content.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int The word count.
+	 */
+	public static function get_word_count( array $args ): int {
+		$post = self::get( $args );
+
+		if ( ! $post ) {
+			return 0;
+		}
+
+		$content = wp_strip_all_tags( $post->post_content );
+
+		return str_word_count( $content );
+	}
+
+	/**
+	 * Check if post contains a specific shortcode.
+	 *
+	 * @param array       $args       The condition arguments.
+	 * @param string|null $user_value The shortcode tag to check for.
+	 *
+	 * @return string The shortcode tag if found, empty string otherwise.
+	 */
+	public static function has_shortcode( array $args, ?string $user_value ): string {
+		$post = self::get( $args );
+
+		if ( ! $post || empty( $user_value ) ) {
+			return '';
+		}
+
+		return has_shortcode( $post->post_content, $user_value ) ? $user_value : '';
+	}
+
+	/**
+	 * Check if post contains a specific Gutenberg block.
+	 *
+	 * @param array       $args       The condition arguments.
+	 * @param string|null $user_value The block name to check for (e.g., 'core/image').
+	 *
+	 * @return string The block name if found, empty string otherwise.
+	 */
+	public static function has_block( array $args, ?string $user_value ): string {
+		$post = self::get( $args );
+
+		if ( ! $post || empty( $user_value ) ) {
+			return '';
+		}
+
+		return has_block( $user_value, $post ) ? $user_value : '';
+	}
+
+	/**
 	 * Get post meta value as text.
 	 *
-	 * @param array  $args       The condition arguments.
-	 * @param null|string $user_value The user value in format "meta_key:value".
+	 * @param array       $args       The condition arguments.
+	 * @param string|null $user_value The user value in format "meta_key:value".
 	 *
 	 * @return string The meta value or empty string if not found.
 	 */
@@ -107,8 +276,8 @@ class Post {
 	/**
 	 * Get post meta value as number.
 	 *
-	 * @param array  $args       The condition arguments.
-	 * @param null|string $user_value The user value in format "meta_key:value".
+	 * @param array       $args       The condition arguments.
+	 * @param string|null $user_value The user value in format "meta_key:value".
 	 *
 	 * @return float The meta value or 0 if not found.
 	 */

@@ -15,6 +15,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Helpers\EDD;
 
+use ArrayPress\Conditions\Helpers\DateTime;
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\Post;
 use WP_Post;
 
@@ -96,7 +98,15 @@ class Product {
 	 * @return int
 	 */
 	public static function get_age( array $args ): int {
-		return Post::get_age( self::normalize_args( $args ) );
+		$post = self::get( $args );
+
+		if ( ! $post || empty( $post->post_date ) ) {
+			return 0;
+		}
+
+		$parsed = Parse::number_unit( $args );
+
+		return DateTime::get_age( $post->post_date, $parsed['unit'] );
 	}
 
 	/**
@@ -108,7 +118,15 @@ class Product {
 	 * @return array<int>
 	 */
 	public static function get_terms( array $args, string $taxonomy ): array {
-		return Post::get_terms( self::normalize_args( $args ), $taxonomy );
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id ) {
+			return [];
+		}
+
+		$terms = wp_get_object_terms( $product_id, $taxonomy, [ 'fields' => 'ids' ] );
+
+		return is_array( $terms ) && ! is_wp_error( $terms ) ? $terms : [];
 	}
 
 	/**
@@ -392,12 +410,9 @@ class Product {
 			return 0;
 		}
 
-		$parsed = Parse::numb
+		$parsed = Parse::number_unit( $args );
 
-		$unit   = $args['_unit'] ?? 'day';
-		$number = (int) ( $args['_number'] ?? 1 );
-
-		return Stats::get_product_sales( $product_id, null, $unit, $number );
+		return Stats::get_product_sales( $product_id, null, $parsed['unit'], $parsed['number'] );
 	}
 
 	/**
@@ -414,10 +429,9 @@ class Product {
 			return 0.0;
 		}
 
-		$unit   = $args['_unit'] ?? 'day';
-		$number = (int) ( $args['_number'] ?? 1 );
+		$parsed = Parse::number_unit( $args );
 
-		return Stats::get_product_earnings( $product_id, null, $unit, $number );
+		return Stats::get_product_earnings( $product_id, null, $parsed['unit'], $parsed['number'] );
 	}
 
 	/**
@@ -537,6 +551,196 @@ class Product {
 		$fee = EDD_Recurring()->get_signup_fee_single( $product_id );
 
 		return $fee > 0;
+	}
+
+	/**
+	 * Get signup fee amount (requires EDD Recurring).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 */
+	public static function get_signup_fee( array $args ): float {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
+			return 0.0;
+		}
+
+		return (float) EDD_Recurring()->get_signup_fee_single( $product_id );
+	}
+
+	/**
+	 * Get trial period duration (requires EDD Recurring).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array{quantity: int, unit: string}
+	 */
+	public static function get_trial_period( array $args ): array {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
+			return [ 'quantity' => 0, 'unit' => '' ];
+		}
+
+		return [
+			'quantity' => (int) EDD_Recurring()->get_trial_quantity_single( $product_id ),
+			'unit'     => EDD_Recurring()->get_trial_unit_single( $product_id ),
+		];
+	}
+
+	/**
+	 * Get billing times/limit (requires EDD Recurring).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int 0 for unlimited, otherwise the number of times.
+	 */
+	public static function get_billing_times( array $args ): int {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
+			return 0;
+		}
+
+		return (int) EDD_Recurring()->get_times_single( $product_id );
+	}
+
+	/**
+	 * Check if product has unlimited billing (requires EDD Recurring).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function has_unlimited_billing( array $args ): bool {
+		return self::get_billing_times( $args ) === 0;
+	}
+
+	/**
+	 * Get product categories.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array<int>
+	 */
+	public static function get_categories( array $args ): array {
+		return self::get_terms( $args, 'download_category' );
+	}
+
+	/**
+	 * Get product tags.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array<int>
+	 */
+	public static function get_tags( array $args ): array {
+		return self::get_terms( $args, 'download_tag' );
+	}
+
+	/**
+	 * Check if product has specific category.
+	 *
+	 * @param array    $args        The condition arguments.
+	 * @param int|string $category_id The category ID or slug.
+	 *
+	 * @return bool
+	 */
+	public static function has_category( array $args, int|string $category_id ): bool {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id ) {
+			return false;
+		}
+
+		return has_term( $category_id, 'download_category', $product_id );
+	}
+
+	/**
+	 * Check if product has specific tag.
+	 *
+	 * @param array    $args   The condition arguments.
+	 * @param int|string $tag_id The tag ID or slug.
+	 *
+	 * @return bool
+	 */
+	public static function has_tag( array $args, int|string $tag_id ): bool {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id ) {
+			return false;
+		}
+
+		return has_term( $tag_id, 'download_tag', $product_id );
+	}
+
+	/**
+	 * Get product SKU (if using an SKU extension).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_sku( array $args ): string {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id ) {
+			return '';
+		}
+
+		// Check common SKU meta keys
+		$sku = get_post_meta( $product_id, 'edd_sku', true );
+
+		if ( empty( $sku ) ) {
+			$sku = get_post_meta( $product_id, '_edd_sku', true );
+		}
+
+		return (string) $sku;
+	}
+
+	/**
+	 * Check if product is featured.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_featured( array $args ): bool {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id ) {
+			return false;
+		}
+
+		// Check common featured meta keys
+		$featured = get_post_meta( $product_id, 'edd_feature_download', true );
+
+		if ( empty( $featured ) ) {
+			$featured = get_post_meta( $product_id, '_edd_feature_download', true );
+		}
+
+		return ! empty( $featured );
+	}
+
+	/**
+	 * Get product meta value.
+	 *
+	 * @param array  $args     The condition arguments.
+	 * @param string $meta_key The meta key.
+	 * @param bool   $single   Whether to return a single value.
+	 *
+	 * @return mixed
+	 */
+	public static function get_meta( array $args, string $meta_key, bool $single = true ): mixed {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id ) {
+			return $single ? '' : [];
+		}
+
+		return get_post_meta( $product_id, $meta_key, $single );
 	}
 
 }

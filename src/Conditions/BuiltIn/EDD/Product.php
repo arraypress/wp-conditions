@@ -13,9 +13,10 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
 
-use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
-use ArrayPress\Conditions\Helpers\Format;
+use ArrayPress\Conditions\Helpers\EDD\Product as ProductHelper;
 use ArrayPress\Conditions\Helpers\EDD\Stats;
+use ArrayPress\Conditions\Helpers\Format;
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\Periods;
 use ArrayPress\Conditions\Operators;
 
@@ -60,7 +61,7 @@ class Product {
 	 */
 	private static function get_detail_conditions(): array {
 		return [
-			'edd_product_type'          => [
+			'edd_product_type'         => [
 				'label'         => __( 'Type', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'select',
@@ -73,18 +74,10 @@ class Product {
 					[ 'value' => 'service', 'label' => __( 'Service', 'arraypress' ) ],
 				],
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_download_type' ) ) {
-						return '';
-					}
-
-					return edd_get_download_type( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_type( $args ),
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_status'        => [
+			'edd_product_status'       => [
 				'label'         => __( 'Status', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'select',
@@ -93,10 +86,10 @@ class Product {
 				'description'   => __( 'The post status of the product.', 'arraypress' ),
 				'options'       => fn() => Format::options( get_post_statuses() ),
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => fn( $args ) => isset( $args['product_id'] ) ? get_post_status( $args['product_id'] ) : '',
+				'compare_value' => fn( $args ) => ProductHelper::get_status( $args ),
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_author'        => [
+			'edd_product_author'       => [
 				'label'         => __( 'Author', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'user',
@@ -104,20 +97,10 @@ class Product {
 				'placeholder'   => __( 'Search users...', 'arraypress' ),
 				'description'   => __( 'The author of the product.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id ) {
-						return 0;
-					}
-
-					$post = get_post( $product_id );
-
-					return (int) $post?->post_author;
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_author( $args ),
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_age'           => [
+			'edd_product_age'          => [
 				'label'         => __( 'Product Age', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'number_unit',
@@ -125,58 +108,26 @@ class Product {
 				'min'           => 0,
 				'units'         => Periods::get_age_units(),
 				'description'   => __( 'How long ago the product was published.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id ) {
-						return 0;
-					}
-
-					$post = get_post( $product_id );
-
-					if ( ! $post || empty( $post->post_date ) ) {
-						return 0;
-					}
-
-					return DateTimeHelper::get_age( $post->post_date, $args['_unit'] ?? 'day' );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_age( $args ),
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_has_notes'     => [
+			'edd_product_has_notes'    => [
 				'label'         => __( 'Has Purchase Notes', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has purchase notes configured.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_product_notes' ) ) {
-						return false;
-					}
-
-					$notes = edd_get_product_notes( $product_id );
-
-					return ! empty( $notes );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::has_notes( $args ),
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_is_bundle'     => [
+			'edd_product_is_bundle'    => [
 				'label'         => __( 'Is Bundle', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product is a bundle.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_is_bundled_product' ) ) {
-						return false;
-					}
-
-					return edd_is_bundled_product( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::is_bundle( $args ),
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_bundle_count'  => [
+			'edd_product_bundle_count' => [
 				'label'         => __( 'Bundle Product Count', 'arraypress' ),
 				'group'         => __( 'Product: Details', 'arraypress' ),
 				'type'          => 'number',
@@ -184,17 +135,7 @@ class Product {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'Number of products in the bundle.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_bundled_products' ) ) {
-						return 0;
-					}
-
-					$bundled = edd_get_bundled_products( $product_id );
-
-					return is_array( $bundled ) ? count( $bundled ) : 0;
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_bundle_count( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 		];
@@ -216,17 +157,7 @@ class Product {
 				'placeholder'   => __( 'Search categories...', 'arraypress' ),
 				'description'   => __( 'The categories assigned to the product.', 'arraypress' ),
 				'operators'     => Operators::collection(),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id ) {
-						return [];
-					}
-
-					$terms = wp_get_object_terms( $product_id, 'download_category', [ 'fields' => 'ids' ] );
-
-					return is_array( $terms ) && ! is_wp_error( $terms ) ? $terms : [];
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_categories( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_tags'       => [
@@ -238,17 +169,7 @@ class Product {
 				'placeholder'   => __( 'Search tags...', 'arraypress' ),
 				'description'   => __( 'The tags assigned to the product.', 'arraypress' ),
 				'operators'     => Operators::collection(),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id ) {
-						return [];
-					}
-
-					$terms = wp_get_object_terms( $product_id, 'download_tag', [ 'fields' => 'ids' ] );
-
-					return is_array( $terms ) && ! is_wp_error( $terms ) ? $terms : [];
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_tags( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 		];
@@ -269,15 +190,7 @@ class Product {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The product price (or lowest price for variable pricing).', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_download_price' ) ) {
-						return 0;
-					}
-
-					return (float) edd_get_download_price( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_price( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_variable_prices' => [
@@ -285,15 +198,7 @@ class Product {
 				'group'         => __( 'Product: Pricing', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has variable pricing enabled.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_has_variable_prices' ) ) {
-						return false;
-					}
-
-					return edd_has_variable_prices( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::has_variable_prices( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_is_free'             => [
@@ -301,15 +206,7 @@ class Product {
 				'group'         => __( 'Product: Pricing', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product is free.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_is_free_download' ) ) {
-						return false;
-					}
-
-					return edd_is_free_download( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::is_free( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_price_option_count'  => [
@@ -320,17 +217,7 @@ class Product {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'Number of price options for variable priced products.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_variable_prices' ) ) {
-						return 0;
-					}
-
-					$prices = edd_get_variable_prices( $product_id );
-
-					return is_array( $prices ) ? count( $prices ) : 0;
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_price_option_count( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 		];
@@ -343,7 +230,7 @@ class Product {
 	 */
 	private static function get_file_conditions(): array {
 		return [
-			'edd_product_file_count'       => [
+			'edd_product_file_count'         => [
 				'label'         => __( 'File Count', 'arraypress' ),
 				'group'         => __( 'Product: Files', 'arraypress' ),
 				'type'          => 'number',
@@ -351,38 +238,18 @@ class Product {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'Number of downloadable files attached to the product.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_download_files' ) ) {
-						return 0;
-					}
-
-					$files = edd_get_download_files( $product_id );
-
-					return is_array( $files ) ? count( $files ) : 0;
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_file_count( $args ),
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_has_files'        => [
+			'edd_product_has_files'          => [
 				'label'         => __( 'Has Files', 'arraypress' ),
 				'group'         => __( 'Product: Files', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has downloadable files.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_download_files' ) ) {
-						return false;
-					}
-
-					$files = edd_get_download_files( $product_id );
-
-					return ! empty( $files );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::has_files( $args ),
 				'required_args' => [ 'product_id' ],
 			],
-			'edd_product_download_limit'   => [
+			'edd_product_download_limit'     => [
 				'label'         => __( 'Download Limit', 'arraypress' ),
 				'group'         => __( 'Product: Files', 'arraypress' ),
 				'type'          => 'number',
@@ -390,15 +257,7 @@ class Product {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'The file download limit for this product (0 = unlimited).', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_file_download_limit' ) ) {
-						return 0;
-					}
-
-					return (int) edd_get_file_download_limit( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_download_limit( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_download_limit' => [
@@ -406,17 +265,7 @@ class Product {
 				'group'         => __( 'Product: Files', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has a download limit set.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_file_download_limit' ) ) {
-						return false;
-					}
-
-					$limit = edd_get_file_download_limit( $product_id );
-
-					return $limit > 0;
-				},
+				'compare_value' => fn( $args ) => ProductHelper::has_download_limit( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 		];
@@ -437,15 +286,7 @@ class Product {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'The total number of sales for this product.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_download_sales_stats' ) ) {
-						return 0;
-					}
-
-					return (int) edd_get_download_sales_stats( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_sales( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_earnings'           => [
@@ -456,15 +297,7 @@ class Product {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The total earnings for this product.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'edd_get_download_earnings_stats' ) ) {
-						return 0;
-					}
-
-					return (float) edd_get_download_earnings_stats( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_earnings( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_sales_in_period'    => [
@@ -476,18 +309,7 @@ class Product {
 				'step'          => 1,
 				'units'         => Periods::get_units(),
 				'description'   => __( 'Product sales within a time period.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id ) {
-						return 0;
-					}
-
-					$unit   = $args['_unit'] ?? 'day';
-					$number = (int) ( $args['_number'] ?? 1 );
-
-					return Stats::get_product_sales( $product_id, null, $unit, $number );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_sales_in_period( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_earnings_in_period' => [
@@ -499,18 +321,7 @@ class Product {
 				'step'          => 0.01,
 				'units'         => Periods::get_units(),
 				'description'   => __( 'Product earnings within a time period.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id ) {
-						return 0;
-					}
-
-					$unit   = $args['_unit'] ?? 'day';
-					$number = (int) ( $args['_number'] ?? 1 );
-
-					return Stats::get_product_earnings( $product_id, null, $unit, $number );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_earnings_in_period( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 		];
@@ -530,17 +341,7 @@ class Product {
 				'group'         => __( 'Product: Licensing', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if licensing is enabled for this product.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
-						return false;
-					}
-
-					$download = new \EDD_SL_Download( $product_id );
-
-					return $download->licensing_enabled();
-				},
+				'compare_value' => fn( $args ) => ProductHelper::has_licensing( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_license_limit'     => [
@@ -551,17 +352,7 @@ class Product {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'The license activation limit for this product.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
-						return 0;
-					}
-
-					$download = new \EDD_SL_Download( $product_id );
-
-					return (int) $download->get_activation_limit();
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_license_limit( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_license_limit' => [
@@ -569,18 +360,7 @@ class Product {
 				'group'         => __( 'Product: Licensing', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has a license activation limit (not unlimited).', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
-						return false;
-					}
-
-					$download = new \EDD_SL_Download( $product_id );
-					$limit    = $download->get_activation_limit();
-
-					return $limit > 0;
-				},
+				'compare_value' => fn( $args ) => ProductHelper::has_license_limit( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 		];
@@ -600,15 +380,7 @@ class Product {
 				'group'         => __( 'Product: Subscriptions', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product is a recurring/subscription product.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-						return false;
-					}
-
-					return EDD_Recurring()->is_recurring( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::is_recurring( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_recurring_period' => [
@@ -627,15 +399,7 @@ class Product {
 					[ 'value' => 'year', 'label' => __( 'Yearly', 'arraypress' ) ],
 				],
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-						return '';
-					}
-
-					return EDD_Recurring()->get_period_single( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::get_billing_period( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_free_trial'   => [
@@ -643,15 +407,7 @@ class Product {
 				'group'         => __( 'Product: Subscriptions', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product offers a free trial.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-						return false;
-					}
-
-					return EDD_Recurring()->has_free_trial( $product_id );
-				},
+				'compare_value' => fn( $args ) => ProductHelper::has_free_trial( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_signup_fee'   => [
@@ -659,17 +415,29 @@ class Product {
 				'group'         => __( 'Product: Subscriptions', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has a signup fee.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$product_id = $args['product_id'] ?? 0;
-
-					if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-						return false;
-					}
-
-					$fee = EDD_Recurring()->get_signup_fee_single( $product_id );
-
-					return $fee > 0;
-				},
+				'compare_value' => fn( $args ) => ProductHelper::has_signup_fee( $args ),
+				'required_args' => [ 'product_id' ],
+			],
+			'edd_product_signup_fee'       => [
+				'label'         => __( 'Signup Fee Amount', 'arraypress' ),
+				'group'         => __( 'Product: Subscriptions', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 10.00', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'The signup fee amount for recurring products.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProductHelper::get_signup_fee( $args ),
+				'required_args' => [ 'product_id' ],
+			],
+			'edd_product_billing_times'    => [
+				'label'         => __( 'Billing Times', 'arraypress' ),
+				'group'         => __( 'Product: Subscriptions', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 12 (0 = unlimited)', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'The number of billing cycles (0 for unlimited).', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProductHelper::get_billing_times( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 		];

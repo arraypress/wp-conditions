@@ -63,10 +63,85 @@ class User {
 	}
 
 	/**
+	 * Get all capabilities the user has.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array<string> Array of capability names.
+	 */
+	public static function get_capabilities( array $args ): array {
+		$user = self::get( $args );
+
+		if ( ! $user ) {
+			return [];
+		}
+
+		return array_keys( array_filter( $user->allcaps ) );
+	}
+
+	/**
+	 * Get the user's locale/language.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string The user's locale, or site locale if not set.
+	 */
+	public static function get_locale( array $args ): string {
+		$user = self::get( $args );
+
+		if ( ! $user ) {
+			return '';
+		}
+
+		$locale = get_user_locale( $user->ID );
+
+		return $locale ?: get_locale();
+	}
+
+	/**
+	 * Get the number of posts authored by the user.
+	 *
+	 * @param array  $args      The condition arguments.
+	 * @param string $post_type The post type to count.
+	 *
+	 * @return int The post count.
+	 */
+	public static function get_post_count( array $args, string $post_type = 'post' ): int {
+		$user = self::get( $args );
+
+		if ( ! $user ) {
+			return 0;
+		}
+
+		return (int) count_user_posts( $user->ID, $post_type, true );
+	}
+
+	/**
+	 * Get the number of approved comments by the user.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int The comment count.
+	 */
+	public static function get_comment_count( array $args ): int {
+		$user = self::get( $args );
+
+		if ( ! $user ) {
+			return 0;
+		}
+
+		return (int) get_comments( [
+			'user_id' => $user->ID,
+			'status'  => 'approve',
+			'count'   => true,
+		] );
+	}
+
+	/**
 	 * Get user meta value as text.
 	 *
-	 * @param array  $args       The condition arguments.
-	 * @param null|string $user_value The user value in format "meta_key:value".
+	 * @param array       $args       The condition arguments.
+	 * @param string|null $user_value The user value in format "meta_key:value".
 	 *
 	 * @return string The meta value or empty string if not found.
 	 */
@@ -85,8 +160,8 @@ class User {
 	/**
 	 * Get user meta value as number.
 	 *
-	 * @param array  $args       The condition arguments.
-	 * @param null|string $user_value The user value in format "meta_key:value".
+	 * @param array       $args       The condition arguments.
+	 * @param string|null $user_value The user value in format "meta_key:value".
 	 *
 	 * @return float The meta value or 0 if not found.
 	 */

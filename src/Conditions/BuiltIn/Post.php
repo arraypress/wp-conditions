@@ -100,11 +100,7 @@ class Post {
 				'placeholder'   => __( 'Search parent pages...', 'arraypress' ),
 				'description'   => __( 'Match against the parent post/page.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					$post = PostHelper::get( $args );
-
-					return (int) $post?->post_parent;
-				},
+				'compare_value' => fn( $args ) => PostHelper::get_parent( $args ),
 				'required_args' => [ 'post_id' ],
 			],
 			'post_template' => [
@@ -116,11 +112,7 @@ class Post {
 				'description'   => __( 'Match against the page template.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => fn() => Options::get_page_templates(),
-				'compare_value' => function ( $args ) {
-					$post = PostHelper::get( $args );
-
-					return $post ? get_page_template_slug( $post->ID ) : '';
-				},
+				'compare_value' => fn( $args ) => PostHelper::get_template( $args ),
 				'required_args' => [ 'post_id' ],
 			],
 			'post_format'   => [
@@ -132,17 +124,7 @@ class Post {
 				'description'   => __( 'Match against the post format.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => fn() => Options::get_post_formats(),
-				'compare_value' => function ( $args ) {
-					$post = PostHelper::get( $args );
-
-					if ( ! $post ) {
-						return '';
-					}
-
-					$format = get_post_format( $post->ID );
-
-					return $format ?: 'standard';
-				},
+				'compare_value' => fn( $args ) => PostHelper::get_format( $args ),
 				'required_args' => [ 'post_id' ],
 			],
 		];
@@ -200,19 +182,15 @@ class Post {
 	 */
 	private static function get_content_conditions(): array {
 		return [
-			'has_featured_image'    => [
+			'has_featured_image'  => [
 				'label'         => __( 'Has Featured Image', 'arraypress' ),
 				'group'         => __( 'Post: Content', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the post has a featured image.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$post = PostHelper::get( $args );
-
-					return $post ? has_post_thumbnail( $post->ID ) : false;
-				},
+				'compare_value' => fn( $args ) => PostHelper::has_featured_image( $args ),
 				'required_args' => [ 'post_id' ],
 			],
-			'post_comment_count'    => [
+			'post_comment_count'  => [
 				'label'         => __( 'Comment Count', 'arraypress' ),
 				'group'         => __( 'Post: Content', 'arraypress' ),
 				'type'          => 'number',
@@ -220,14 +198,10 @@ class Post {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'The number of comments on the post.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$post = PostHelper::get( $args );
-
-					return $post ? (int) $post->comment_count : 0;
-				},
+				'compare_value' => fn( $args ) => PostHelper::get_comment_count( $args ),
 				'required_args' => [ 'post_id' ],
 			],
-			'post_comment_status'   => [
+			'post_comment_status' => [
 				'label'         => __( 'Comment Status', 'arraypress' ),
 				'group'         => __( 'Post: Content', 'arraypress' ),
 				'type'          => 'select',
@@ -238,38 +212,26 @@ class Post {
 					[ 'value' => 'open', 'label' => __( 'Open', 'arraypress' ) ],
 					[ 'value' => 'closed', 'label' => __( 'Closed', 'arraypress' ) ],
 				],
-				'compare_value' => function ( $args ) {
-					$post = PostHelper::get( $args );
-
-					return $post ? $post->comment_status : '';
-				},
+				'compare_value' => fn( $args ) => PostHelper::get_comment_status( $args ),
 				'required_args' => [ 'post_id' ],
 			],
-			'is_sticky'             => [
+			'is_sticky'           => [
 				'label'         => __( 'Is Sticky', 'arraypress' ),
 				'group'         => __( 'Post: Content', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the post is sticky.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$post = PostHelper::get( $args );
-
-					return $post ? is_sticky( $post->ID ) : false;
-				},
+				'compare_value' => fn( $args ) => PostHelper::is_sticky( $args ),
 				'required_args' => [ 'post_id' ],
 			],
-			'has_excerpt'           => [
+			'has_excerpt'         => [
 				'label'         => __( 'Has Excerpt', 'arraypress' ),
 				'group'         => __( 'Post: Content', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the post has a manual excerpt.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$post = PostHelper::get( $args );
-
-					return $post && has_excerpt( $post->ID );
-				},
+				'compare_value' => fn( $args ) => PostHelper::has_excerpt( $args ),
 				'required_args' => [ 'post_id' ],
 			],
-			'post_word_count'       => [
+			'post_word_count'     => [
 				'label'         => __( 'Word Count', 'arraypress' ),
 				'group'         => __( 'Post: Content', 'arraypress' ),
 				'type'          => 'number',
@@ -277,59 +239,27 @@ class Post {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'The approximate word count of the post content.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$post = PostHelper::get( $args );
-
-					if ( ! $post ) {
-						return 0;
-					}
-
-					$content = wp_strip_all_tags( $post->post_content );
-
-					return str_word_count( $content );
-				},
+				'compare_value' => fn( $args ) => PostHelper::get_word_count( $args ),
 				'required_args' => [ 'post_id' ],
 			],
-			'has_shortcode'         => [
+			'has_shortcode'       => [
 				'label'         => __( 'Has Shortcode', 'arraypress' ),
 				'group'         => __( 'Post: Content', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. gallery', 'arraypress' ),
 				'description'   => __( 'Check if the post contains a specific shortcode.', 'arraypress' ),
-				'operators'     => [
-					'==' => __( 'Contains', 'arraypress' ),
-					'!=' => __( 'Does not contain', 'arraypress' ),
-				],
-				'compare_value' => function ( $args, $user_value ) {
-					$post = PostHelper::get( $args );
-
-					if ( ! $post || empty( $user_value ) ) {
-						return '';
-					}
-
-					return has_shortcode( $post->post_content, $user_value ) ? $user_value : '';
-				},
+				'operators'     => Operators::contains(),
+				'compare_value' => fn( $args, $user_value ) => PostHelper::has_shortcode( $args, $user_value ),
 				'required_args' => [ 'post_id' ],
 			],
-			'has_block'             => [
+			'has_block'           => [
 				'label'         => __( 'Has Block', 'arraypress' ),
 				'group'         => __( 'Post: Content', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. core/image', 'arraypress' ),
 				'description'   => __( 'Check if the post contains a specific Gutenberg block.', 'arraypress' ),
-				'operators'     => [
-					'==' => __( 'Contains', 'arraypress' ),
-					'!=' => __( 'Does not contain', 'arraypress' ),
-				],
-				'compare_value' => function ( $args, $user_value ) {
-					$post = PostHelper::get( $args );
-
-					if ( ! $post || empty( $user_value ) ) {
-						return '';
-					}
-
-					return has_block( $user_value, $post ) ? $user_value : '';
-				},
+				'operators'     => Operators::contains(),
+				'compare_value' => fn( $args, $user_value ) => PostHelper::has_block( $args, $user_value ),
 				'required_args' => [ 'post_id' ],
 			],
 		];

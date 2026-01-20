@@ -85,15 +85,7 @@ class User {
 				'description'   => __( 'Check if the user has specific capabilities.', 'arraypress' ),
 				'operators'     => Operators::collection(),
 				'options'       => fn() => Options::get_capabilities(),
-				'compare_value' => function ( $args ) {
-					$user = UserHelper::get( $args );
-
-					if ( ! $user ) {
-						return [];
-					}
-
-					return array_keys( array_filter( $user->allcaps ) );
-				},
+				'compare_value' => fn( $args ) => UserHelper::get_capabilities( $args ),
 				'required_args' => [],
 			],
 		];
@@ -144,17 +136,7 @@ class User {
 				'description'   => __( 'The user\'s configured locale/language.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => fn() => Options::get_available_locales(),
-				'compare_value' => function ( $args ) {
-					$user = UserHelper::get( $args );
-
-					if ( ! $user ) {
-						return '';
-					}
-
-					$locale = get_user_locale( $user->ID );
-
-					return $locale ?: get_locale();
-				},
+				'compare_value' => fn( $args ) => UserHelper::get_locale( $args ),
 				'required_args' => [],
 			],
 		];
@@ -175,15 +157,7 @@ class User {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'The number of posts authored by the user.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$user = UserHelper::get( $args );
-
-					if ( ! $user ) {
-						return 0;
-					}
-
-					return (int) count_user_posts( $user->ID, 'post', true );
-				},
+				'compare_value' => fn( $args ) => UserHelper::get_post_count( $args ),
 				'required_args' => [],
 			],
 			'user_comment_count' => [
@@ -194,21 +168,7 @@ class User {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'The number of approved comments by the user.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$user = UserHelper::get( $args );
-
-					if ( ! $user ) {
-						return 0;
-					}
-
-					$comments = get_comments( [
-						'user_id' => $user->ID,
-						'status'  => 'approve',
-						'count'   => true,
-					] );
-
-					return (int) $comments;
-				},
+				'compare_value' => fn( $args ) => UserHelper::get_comment_count( $args ),
 				'required_args' => [],
 			],
 		];
