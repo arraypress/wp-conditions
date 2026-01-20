@@ -59,7 +59,7 @@ class TypeSanitizer {
 			'email' => self::email( $value ),
 			'ip' => self::ip( $value ),
 			'tags' => self::tags( $value ),
-			'boolean' => null, // Boolean uses operator only, no value needed
+			'boolean' => null,
 			'select' => self::selection( $value, $config ),
 			'post', 'term', 'user', 'ajax' => self::selection( $value, $config ),
 			default => self::text( $value ),
@@ -277,16 +277,39 @@ class TypeSanitizer {
 	}
 
 	/**
-	 * Sanitize an email address or pattern.
+	 * Sanitize an email address or pattern (single or multiple).
 	 *
 	 * Supports full email addresses, domain patterns (@domain.com),
 	 * TLD patterns (.edu), and partial domain matching using the Email class.
 	 *
+	 * @param mixed $value The value to sanitize (string or array).
+	 *
+	 * @return array<string> The sanitized email patterns as an array.
+	 */
+	public static function email( mixed $value ): array {
+		// Handle arrays (multiple patterns)
+		if ( is_array( $value ) ) {
+			return array_values(
+				array_filter(
+					array_map( [ self::class, 'sanitize_email_pattern' ], $value )
+				)
+			);
+		}
+
+		// Handle single value
+		$sanitized = self::sanitize_email_pattern( $value );
+
+		return $sanitized !== '' ? [ $sanitized ] : [];
+	}
+
+	/**
+	 * Sanitize a single email pattern.
+	 *
 	 * @param mixed $value The value to sanitize.
 	 *
-	 * @return string The sanitized email pattern, or empty string if invalid.
+	 * @return string The sanitized pattern, or empty string if invalid.
 	 */
-	public static function email( mixed $value ): string {
+	private static function sanitize_email_pattern( mixed $value ): string {
 		$value = sanitize_text_field( (string) $value );
 
 		if ( empty( $value ) ) {
@@ -294,9 +317,11 @@ class TypeSanitizer {
 		}
 
 		// Use Email library for full email validation
-		$email = Email::parse( $value );
-		if ( $email && $email->valid() ) {
-			return $email->normalized();
+		if ( class_exists( Email::class ) ) {
+			$email = Email::parse( $value );
+			if ( $email && $email->valid() ) {
+				return $email->normalized();
+			}
 		}
 
 		// Handle pattern formats (not full emails)
@@ -382,36 +407,32 @@ class TypeSanitizer {
 	 * @return bool True if the value is empty and should be skipped.
 	 */
 	public static function is_empty( mixed $value, string $type = 'text' ): bool {
-		// Boolean types don't require a value - they use operator only (yes/no)
+		// Boolean types don't require a value
 		if ( $type === 'boolean' ) {
 			return false;
 		}
 
-		// Null is empty
 		if ( is_null( $value ) ) {
 			return true;
 		}
 
-		// Empty string is empty
 		if ( $value === '' ) {
 			return true;
 		}
 
-		// Empty array is empty
+		// Empty array is empty (covers email, tags, multi-select)
 		if ( is_array( $value ) && empty( $value ) ) {
 			return true;
 		}
 
-		// Handle number_unit type - check if number part is empty
+		// Handle number_unit type
 		if ( is_array( $value ) && array_key_exists( 'number', $value ) ) {
 			if ( $value['number'] === '' || $value['number'] === null ) {
 				return true;
 			}
-
 			return false;
 		}
 
-		// 0, '0', false are NOT empty (valid values)
 		return false;
 	}
 

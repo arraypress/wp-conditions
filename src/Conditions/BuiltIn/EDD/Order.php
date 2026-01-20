@@ -376,29 +376,14 @@ class Order {
 	 */
 	private static function get_customer_conditions(): array {
 		return [
-			'edd_order_email'        => [
+			'edd_order_email' => [
 				'label'         => __( 'Email', 'arraypress' ),
 				'group'         => __( 'Order: Customer', 'arraypress' ),
 				'type'          => 'email',
-				'placeholder'   => __( 'e.g. @gmail.com, .edu', 'arraypress' ),
-				'description'   => __( 'Match order email. Supports: full email, @domain.com, .edu, partial domain.', 'arraypress' ),
+				'placeholder'   => __( 'e.g. john@test.com, @gmail.com, .edu', 'arraypress' ),
+				'description'   => __( 'Match order email against patterns. Supports: full email, @domain, .tld, or domain.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
 					$order = self::get_order( $args );
-
-					return $order ? $order->email : '';
-				},
-				'required_args' => [ 'order_id' ],
-			],
-			'edd_order_email_domain' => [
-				'label'         => __( 'Email Domain', 'arraypress' ),
-				'group'         => __( 'Order: Customer', 'arraypress' ),
-				'type'          => 'tags',
-				'placeholder'   => __( 'Type domain, press Enter...', 'arraypress' ),
-				'description'   => __( 'Match if order email ends with specified domains.', 'arraypress' ),
-				'operators'     => Operators::tags_ends(),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
 					return $order ? $order->email : '';
 				},
 				'required_args' => [ 'order_id' ],

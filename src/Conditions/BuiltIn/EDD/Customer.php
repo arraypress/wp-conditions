@@ -67,29 +67,14 @@ class Customer {
 				},
 				'required_args' => [],
 			],
-			'edd_customer_email'        => [
+			'edd_customer_email' => [
 				'label'         => __( 'Email', 'arraypress' ),
 				'group'         => __( 'Customer: Profile', 'arraypress' ),
 				'type'          => 'email',
-				'placeholder'   => __( 'e.g. @gmail.com, .edu', 'arraypress' ),
-				'description'   => __( 'Match customer email. Supports: full email, @domain.com, .edu, partial domain.', 'arraypress' ),
+				'placeholder'   => __( 'e.g. john@test.com, @gmail.com, .edu', 'arraypress' ),
+				'description'   => __( 'Match customer email against patterns. Supports: full email, @domain, .tld, or domain.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
 					$customer = self::get_customer( $args );
-
-					return $customer ? $customer->email : '';
-				},
-				'required_args' => [],
-			],
-			'edd_customer_email_domain' => [
-				'label'         => __( 'Email Domain', 'arraypress' ),
-				'group'         => __( 'Customer: Profile', 'arraypress' ),
-				'type'          => 'tags',
-				'placeholder'   => __( 'Type domain, press Enter...', 'arraypress' ),
-				'description'   => __( 'Match if customer email ends with specified domains.', 'arraypress' ),
-				'operators'     => Operators::tags_ends(),
-				'compare_value' => function ( $args ) {
-					$customer = self::get_customer( $args );
-
 					return $customer ? $customer->email : '';
 				},
 				'required_args' => [],

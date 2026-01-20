@@ -76,27 +76,12 @@ class Checkout {
 	 */
 	private static function get_customer_conditions(): array {
 		return [
-			'edd_checkout_email'        => [
+			'edd_checkout_email' => [
 				'label'         => __( 'Email', 'arraypress' ),
 				'group'         => __( 'Checkout: Customer', 'arraypress' ),
 				'type'          => 'email',
-				'placeholder'   => __( 'e.g. @gmail.com, .edu', 'arraypress' ),
-				'description'   => __( 'The email address entered at checkout. Supports: full email, @domain.com, .edu, partial domain.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					return PostedData::get( $args['posted'] ?? [], [
-						'edd_email',
-						'edd-email',
-					] );
-				},
-				'required_args' => [],
-			],
-			'edd_checkout_email_domain' => [
-				'label'         => __( 'Email Domain', 'arraypress' ),
-				'group'         => __( 'Checkout: Customer', 'arraypress' ),
-				'type'          => 'tags',
-				'placeholder'   => __( 'Type domain, press Enter...', 'arraypress' ),
-				'description'   => __( 'Match if checkout email ends with specified domains.', 'arraypress' ),
-				'operators'     => Operators::tags_ends(),
+				'placeholder'   => __( 'e.g. john@test.com, @gmail.com, .edu', 'arraypress' ),
+				'description'   => __( 'Match checkout email against patterns. Supports: full email, @domain, .tld, or domain.', 'arraypress' ),
 				'compare_value' => function ( $args ) {
 					return PostedData::get( $args['posted'] ?? [], [
 						'edd_email',

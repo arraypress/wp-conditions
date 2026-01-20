@@ -60,10 +60,18 @@ class Comparator {
 	 * @return bool
 	 */
 	public function compare( string $operator, mixed $user_value, mixed $compare_value ): bool {
+		// Operator-based routing (allows flexible input types)
+		if ( str_starts_with( $operator, 'email_' ) ) {
+			return $this->compare_email( $operator, $user_value, $compare_value );
+		}
+
+		if ( str_starts_with( $operator, 'ip_' ) ) {
+			return $this->compare_ip( $operator, $user_value, $compare_value );
+		}
+
+		// Type-based routing
 		return match ( $this->type ) {
 			'number', 'number_unit' => $this->compare_numeric( $operator, $user_value, $compare_value ),
-			'ip' => $this->compare_ip( $operator, $user_value, $compare_value ),
-			'email' => $this->compare_email( $operator, $user_value, $compare_value ),
 			'tags' => $this->compare_tags( $operator, $user_value, $compare_value ),
 			'boolean' => $this->compare_boolean( $operator, $compare_value ),
 			'date' => $this->compare_date( $operator, $user_value, $compare_value ),
