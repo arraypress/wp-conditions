@@ -47,6 +47,9 @@ console.log('conditions.js loaded');
             case 'number_unit':
                 return operators.number || {};
 
+            case 'text_unit':
+                return operators.text || {};
+
             case 'boolean':
                 return operators.boolean || {};
 
@@ -100,6 +103,9 @@ console.log('conditions.js loaded');
 
             case 'number_unit':
                 return renderNumberUnitInput(name, condition, currentValue);
+
+            case 'text_unit':
+                return renderTextUnitInput(name, condition, currentValue);
 
             case 'select':
                 return renderSelectInput(name, condition, currentValue);
@@ -177,6 +183,30 @@ console.log('conditions.js loaded');
         });
 
         html += '</select>';
+        html += '</div>';
+
+        return html;
+    }
+
+    /**
+     * Render text with unit input
+     */
+    function renderTextUnitInput(name, condition, value) {
+        const textValue = (value && typeof value === 'object') ? value.text : (typeof value === 'string' ? value : '');
+        const unitValue = (value && typeof value === 'object') ? value.unit : '';
+        const units = condition.units || [];
+        const placeholder = condition.placeholder || '';
+
+        let html = '<div class="text-with-unit">';
+        html += '<select class="unit-select" name="' + name + '[unit]">';
+
+        units.forEach(function (unit) {
+            const selected = unit.value === unitValue ? ' selected' : '';
+            html += '<option value="' + escapeHtml(unit.value) + '"' + selected + '>' + escapeHtml(unit.label) + '</option>';
+        });
+
+        html += '</select>';
+        html += '<input type="text" class="text-input" name="' + name + '[text]" value="' + escapeHtml(textValue || '') + '" placeholder="' + escapeHtml(placeholder) + '">';
         html += '</div>';
 
         return html;
@@ -889,6 +919,15 @@ console.log('conditions.js loaded');
             return {
                 number: $numberUnit.find('.number-input').val(),
                 unit: $numberUnit.find('.unit-select').val()
+            };
+        }
+
+        // Text with unit
+        const $textUnit = $wrapper.find('.text-with-unit');
+        if ($textUnit.length) {
+            return {
+                text: $textUnit.find('.text-input').val(),
+                unit: $textUnit.find('.unit-select').val()
             };
         }
 

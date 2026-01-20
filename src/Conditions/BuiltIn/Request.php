@@ -303,49 +303,25 @@ class Request {
 	 */
 	private static function get_utm_conditions(): array {
 		return [
-			'utm_source'   => [
-				'label'         => __( 'UTM Source', 'arraypress' ),
+			'utm_parameter' => [
+				'label'         => __( 'UTM Parameter', 'arraypress' ),
 				'group'         => __( 'Request: UTM', 'arraypress' ),
-				'type'          => 'text',
-				'placeholder'   => __( 'e.g. newsletter, google', 'arraypress' ),
-				'description'   => __( 'Match against the utm_source parameter.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['utm_source'] ?? Referrer::get_utm_parameters()['source'],
-				'required_args' => [],
-			],
-			'utm_medium'   => [
-				'label'         => __( 'UTM Medium', 'arraypress' ),
-				'group'         => __( 'Request: UTM', 'arraypress' ),
-				'type'          => 'text',
-				'placeholder'   => __( 'e.g. email, cpc, social', 'arraypress' ),
-				'description'   => __( 'Match against the utm_medium parameter.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['utm_medium'] ?? Referrer::get_utm_parameters()['medium'],
-				'required_args' => [],
-			],
-			'utm_campaign' => [
-				'label'         => __( 'UTM Campaign', 'arraypress' ),
-				'group'         => __( 'Request: UTM', 'arraypress' ),
-				'type'          => 'text',
-				'placeholder'   => __( 'e.g. spring_sale, product_launch', 'arraypress' ),
-				'description'   => __( 'Match against the utm_campaign parameter.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['utm_campaign'] ?? Referrer::get_utm_parameters()['campaign'],
-				'required_args' => [],
-			],
-			'utm_term'     => [
-				'label'         => __( 'UTM Term', 'arraypress' ),
-				'group'         => __( 'Request: UTM', 'arraypress' ),
-				'type'          => 'text',
-				'placeholder'   => __( 'e.g. running+shoes', 'arraypress' ),
-				'description'   => __( 'Match against the utm_term parameter.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['utm_term'] ?? Referrer::get_utm_parameters()['term'],
-				'required_args' => [],
-			],
-			'utm_content'  => [
-				'label'         => __( 'UTM Content', 'arraypress' ),
-				'group'         => __( 'Request: UTM', 'arraypress' ),
-				'type'          => 'text',
-				'placeholder'   => __( 'e.g. logolink, textlink', 'arraypress' ),
-				'description'   => __( 'Match against the utm_content parameter.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['utm_content'] ?? Referrer::get_utm_parameters()['content'],
+				'type'          => 'text_unit',
+				'placeholder'   => __( 'e.g. newsletter, google, spring_sale', 'arraypress' ),
+				'description'   => __( 'Match against a UTM parameter value.', 'arraypress' ),
+				'units'         => [
+					[ 'value' => 'source', 'label' => __( 'Source (utm_source)', 'arraypress' ) ],
+					[ 'value' => 'medium', 'label' => __( 'Medium (utm_medium)', 'arraypress' ) ],
+					[ 'value' => 'campaign', 'label' => __( 'Campaign (utm_campaign)', 'arraypress' ) ],
+					[ 'value' => 'term', 'label' => __( 'Term (utm_term)', 'arraypress' ) ],
+					[ 'value' => 'content', 'label' => __( 'Content (utm_content)', 'arraypress' ) ],
+				],
+				'compare_value' => function ( $args ) {
+					$unit = $args['_unit'] ?? 'source';
+					$utm  = Referrer::get_utm_parameters();
+
+					return $utm[ $unit ] ?? '';
+				},
 				'required_args' => [],
 			],
 		];

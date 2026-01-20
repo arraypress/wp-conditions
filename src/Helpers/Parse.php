@@ -42,6 +42,21 @@ class Parse {
 	}
 
 	/**
+	 * Extract text_unit values from args.
+	 *
+	 * @param array  $args         The condition arguments.
+	 * @param string $default_unit Default unit if not specified.
+	 *
+	 * @return array{unit: string, text: string}
+	 */
+	public static function text_unit( array $args, string $default_unit = '' ): array {
+		return [
+			'unit' => $args['_unit'] ?? $default_unit,
+			'text' => $args['_text'] ?? '',
+		];
+	}
+
+	/**
 	 * Parse a meta field value string.
 	 *
 	 * Extracts meta key and value from format "meta_key:value".

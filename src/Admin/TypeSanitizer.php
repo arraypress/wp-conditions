@@ -54,6 +54,7 @@ class TypeSanitizer {
 		return match ( $type ) {
 			'number' => self::number( $value, $config ),
 			'number_unit' => self::number_unit( $value, $config ),
+			'text_unit' => self::text_unit( $value, $config ),
 			'date' => self::date( $value ),
 			'time' => self::time( $value ),
 			'email' => self::email( $value ),
@@ -148,6 +149,39 @@ class TypeSanitizer {
 		return [
 			'number' => $number,
 			'unit'   => $unit,
+		];
+	}
+
+	/**
+	 * Sanitize a text with unit value.
+	 *
+	 * Validates the text portion and ensures the unit is from
+	 * the allowed units list defined in the configuration.
+	 *
+	 * @param mixed $value  The value to sanitize (expected array with 'text' and 'unit').
+	 * @param array $config The condition configuration with optional units array.
+	 *
+	 * @return array{text: string, unit: string} The sanitized text_unit value.
+	 */
+	public static function text_unit( mixed $value, array $config = [] ): array {
+		if ( ! is_array( $value ) ) {
+			return [ 'text' => '', 'unit' => '' ];
+		}
+
+		// Sanitize the text part
+		$text = self::text( $value['text'] ?? '' );
+
+		// Sanitize the unit - must be from allowed units
+		$unit          = sanitize_key( $value['unit'] ?? '' );
+		$allowed_units = array_column( $config['units'] ?? [], 'value' );
+
+		if ( ! empty( $allowed_units ) && ! in_array( $unit, $allowed_units, true ) ) {
+			$unit = $allowed_units[0] ?? '';
+		}
+
+		return [
+			'text' => $text,
+			'unit' => $unit,
 		];
 	}
 
@@ -425,9 +459,17 @@ class TypeSanitizer {
 			return true;
 		}
 
-		// Handle number_unit type
+		// Handle number_unit type - check if number part is empty
 		if ( is_array( $value ) && array_key_exists( 'number', $value ) ) {
 			if ( $value['number'] === '' || $value['number'] === null ) {
+				return true;
+			}
+			return false;
+		}
+
+		// Handle text_unit type - check if text part is empty
+		if ( is_array( $value ) && array_key_exists( 'text', $value ) ) {
+			if ( $value['text'] === '' || $value['text'] === null ) {
 				return true;
 			}
 			return false;

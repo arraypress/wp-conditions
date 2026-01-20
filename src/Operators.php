@@ -245,6 +245,7 @@ class Operators {
 	public static function for_type( string $type, bool $multiple = false ): array {
 		return match ( $type ) {
 			'number', 'number_unit' => self::numeric(),
+			'text_unit' => self::text(),
 			'boolean' => self::boolean(),
 			'date' => self::date(),
 			'time' => self::time(),
@@ -268,6 +269,7 @@ class Operators {
 		return [
 			'text'             => self::text(),
 			'text_advanced'    => self::text_advanced(),
+			'text_unit'        => self::text(),
 			'number'           => self::numeric(),
 			'number_unit'      => self::numeric(),
 			'boolean'          => self::boolean(),

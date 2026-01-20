@@ -155,7 +155,7 @@ class Matcher {
 
 		return true;
 	}
-
+	
 	/**
 	 * Check a single rule.
 	 *
@@ -192,6 +192,13 @@ class Matcher {
 			$this->args['_unit']   = $user_value['unit'] ?? null;
 			$this->args['_number'] = $user_value['number'] ?? null;
 			$user_value            = $user_value['number'] ?? null;
+		}
+
+		// Handle text_unit type - extract unit and text into args
+		if ( $condition['type'] === 'text_unit' && is_array( $user_value ) ) {
+			$this->args['_unit'] = $user_value['unit'] ?? null;
+			$this->args['_text'] = $user_value['text'] ?? null;
+			$user_value          = $user_value['text'] ?? null;
 		}
 
 		// Get compare value (passing user_value for conditions that need it)

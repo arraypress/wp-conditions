@@ -72,6 +72,7 @@ class Comparator {
 		// Type-based routing
 		return match ( $this->type ) {
 			'number', 'number_unit' => $this->compare_numeric( $operator, $user_value, $compare_value ),
+			'text_unit' => $this->compare_text( $operator, $user_value, $compare_value ),
 			'tags' => $this->compare_tags( $operator, $user_value, $compare_value ),
 			'boolean' => $this->compare_boolean( $operator, $compare_value ),
 			'date' => $this->compare_date( $operator, $user_value, $compare_value ),
