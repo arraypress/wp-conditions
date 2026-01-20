@@ -34,6 +34,7 @@ class User {
 		return array_merge(
 			self::get_identity_conditions(),
 			self::get_profile_conditions(),
+			self::get_activity_conditions(),
 			self::get_meta_conditions()
 		);
 	}
@@ -45,7 +46,7 @@ class User {
 	 */
 	private static function get_identity_conditions(): array {
 		return [
-			'is_logged_in' => [
+			'is_logged_in'   => [
 				'label'         => __( 'Is Logged In', 'arraypress' ),
 				'group'         => __( 'User: Identity', 'arraypress' ),
 				'type'          => 'boolean',
@@ -53,7 +54,7 @@ class User {
 				'compare_value' => fn( $args ) => $args['is_logged_in'] ?? is_user_logged_in(),
 				'required_args' => [],
 			],
-			'user_id'      => [
+			'user_id'        => [
 				'label'         => __( 'Specific User', 'arraypress' ),
 				'group'         => __( 'User: Identity', 'arraypress' ),
 				'type'          => 'user',
@@ -63,7 +64,7 @@ class User {
 				'compare_value' => fn( $args ) => $args['user_id'] ?? get_current_user_id(),
 				'required_args' => [],
 			],
-			'user_role'    => [
+			'user_role'      => [
 				'label'         => __( 'User Role', 'arraypress' ),
 				'group'         => __( 'User: Identity', 'arraypress' ),
 				'type'          => 'select',
@@ -73,6 +74,26 @@ class User {
 				'operators'     => Operators::collection(),
 				'options'       => Options::get_roles(),
 				'compare_value' => fn( $args ) => $args['user_roles'] ?? wp_get_current_user()->roles,
+				'required_args' => [],
+			],
+			'has_capability' => [
+				'label'         => __( 'Has Capability', 'arraypress' ),
+				'group'         => __( 'User: Identity', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select capabilities...', 'arraypress' ),
+				'description'   => __( 'Check if the user has specific capabilities.', 'arraypress' ),
+				'operators'     => Operators::collection(),
+				'options'       => fn() => Options::get_capabilities(),
+				'compare_value' => function ( $args ) {
+					$user = UserHelper::get( $args );
+
+					if ( ! $user ) {
+						return [];
+					}
+
+					return array_keys( array_filter( $user->allcaps ) );
+				},
 				'required_args' => [],
 			],
 		];
@@ -112,6 +133,82 @@ class User {
 				'min'           => 0,
 				'units'         => Periods::get_age_units(),
 				'compare_value' => fn( $args ) => UserHelper::get_age( $args ),
+				'required_args' => [],
+			],
+			'user_locale'     => [
+				'label'         => __( 'User Locale', 'arraypress' ),
+				'group'         => __( 'User: Profile', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select locale...', 'arraypress' ),
+				'description'   => __( 'The user\'s configured locale/language.', 'arraypress' ),
+				'operators'     => Operators::collection_any_none(),
+				'options'       => fn() => Options::get_available_locales(),
+				'compare_value' => function ( $args ) {
+					$user = UserHelper::get( $args );
+
+					if ( ! $user ) {
+						return '';
+					}
+
+					$locale = get_user_locale( $user->ID );
+
+					return $locale ?: get_locale();
+				},
+				'required_args' => [],
+			],
+		];
+	}
+
+	/**
+	 * Get activity-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_activity_conditions(): array {
+		return [
+			'user_post_count'    => [
+				'label'         => __( 'Post Count', 'arraypress' ),
+				'group'         => __( 'User: Activity', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 10', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'The number of posts authored by the user.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$user = UserHelper::get( $args );
+
+					if ( ! $user ) {
+						return 0;
+					}
+
+					return (int) count_user_posts( $user->ID, 'post', true );
+				},
+				'required_args' => [],
+			],
+			'user_comment_count' => [
+				'label'         => __( 'Comment Count', 'arraypress' ),
+				'group'         => __( 'User: Activity', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 25', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'The number of approved comments by the user.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$user = UserHelper::get( $args );
+
+					if ( ! $user ) {
+						return 0;
+					}
+
+					$comments = get_comments( [
+						'user_id' => $user->ID,
+						'status'  => 'approve',
+						'count'   => true,
+					] );
+
+					return (int) $comments;
+				},
 				'required_args' => [],
 			],
 		];

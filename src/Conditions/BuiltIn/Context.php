@@ -80,6 +80,14 @@ class Context {
 				'compare_value' => fn( $args ) => $args['is_page'] ?? is_page(),
 				'required_args' => [],
 			],
+			'is_attachment' => [
+				'label'         => __( 'Is Attachment', 'arraypress' ),
+				'group'         => __( 'WordPress: Page', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if on an attachment page.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_attachment'] ?? is_attachment(),
+				'required_args' => [],
+			],
 			'is_search'     => [
 				'label'         => __( 'Is Search Results', 'arraypress' ),
 				'group'         => __( 'WordPress: Page', 'arraypress' ),
@@ -94,6 +102,22 @@ class Context {
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a 404 error page.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_404'] ?? is_404(),
+				'required_args' => [],
+			],
+			'is_preview'    => [
+				'label'         => __( 'Is Preview', 'arraypress' ),
+				'group'         => __( 'WordPress: Page', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if viewing a post preview.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_preview'] ?? is_preview(),
+				'required_args' => [],
+			],
+			'is_paged'      => [
+				'label'         => __( 'Is Paged', 'arraypress' ),
+				'group'         => __( 'WordPress: Page', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if on a paginated page (page 2+).', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_paged'] ?? is_paged(),
 				'required_args' => [],
 			],
 		];
@@ -154,6 +178,14 @@ class Context {
 				'compare_value' => fn( $args ) => $args['is_author'] ?? is_author(),
 				'required_args' => [],
 			],
+			'is_date'              => [
+				'label'         => __( 'Is Date Archive', 'arraypress' ),
+				'group'         => __( 'WordPress: Archive', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if on a date-based archive page.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_date'] ?? is_date(),
+				'required_args' => [],
+			],
 		];
 	}
 
@@ -164,7 +196,7 @@ class Context {
 	 */
 	private static function get_request_type_conditions(): array {
 		return [
-			'is_admin' => [
+			'is_admin'                => [
 				'label'         => __( 'Is Admin Area', 'arraypress' ),
 				'group'         => __( 'WordPress: Request', 'arraypress' ),
 				'type'          => 'boolean',
@@ -172,7 +204,7 @@ class Context {
 				'compare_value' => fn( $args ) => $args['is_admin'] ?? is_admin(),
 				'required_args' => [],
 			],
-			'is_ajax'  => [
+			'is_ajax'                 => [
 				'label'         => __( 'Is AJAX Request', 'arraypress' ),
 				'group'         => __( 'WordPress: Request', 'arraypress' ),
 				'type'          => 'boolean',
@@ -180,7 +212,7 @@ class Context {
 				'compare_value' => fn( $args ) => $args['is_ajax'] ?? wp_doing_ajax(),
 				'required_args' => [],
 			],
-			'is_rest'  => [
+			'is_rest'                 => [
 				'label'         => __( 'Is REST Request', 'arraypress' ),
 				'group'         => __( 'WordPress: Request', 'arraypress' ),
 				'type'          => 'boolean',
@@ -188,12 +220,28 @@ class Context {
 				'compare_value' => fn( $args ) => $args['is_rest'] ?? ( defined( 'REST_REQUEST' ) && REST_REQUEST ),
 				'required_args' => [],
 			],
-			'is_cron'  => [
+			'is_cron'                 => [
 				'label'         => __( 'Is Cron Job', 'arraypress' ),
 				'group'         => __( 'WordPress: Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is a cron job execution.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_cron'] ?? wp_doing_cron(),
+				'required_args' => [],
+			],
+			'is_feed'                 => [
+				'label'         => __( 'Is Feed', 'arraypress' ),
+				'group'         => __( 'WordPress: Request', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if this is an RSS/Atom feed request.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_feed'] ?? is_feed(),
+				'required_args' => [],
+			],
+			'is_customizer_preview'   => [
+				'label'         => __( 'Is Customizer Preview', 'arraypress' ),
+				'group'         => __( 'WordPress: Request', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if viewing the customizer preview.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_customizer_preview'] ?? is_customize_preview(),
 				'required_args' => [],
 			],
 		];

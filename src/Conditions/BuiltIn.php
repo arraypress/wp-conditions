@@ -64,23 +64,4 @@ class BuiltIn {
 		return $conditions;
 	}
 
-	/**
-	 * Get conditions by group.
-	 *
-	 * @param string $group The group name.
-	 *
-	 * @return array<string, array>
-	 */
-	public static function get_by_group( string $group ): array {
-		return match ( strtolower( $group ) ) {
-			'datetime', 'date & time', 'date' => DateTime::get_all(),
-			'user'                            => User::get_all(),
-			'post'                            => Post::get_all(),
-			'request'                         => Request::get_all(),
-			'context', 'wordpress'            => Context::get_all(),
-			'edd'                             => function_exists( 'EDD' ) ? EDD::get_all() : [],
-			default                           => [],
-		};
-	}
-
 }
