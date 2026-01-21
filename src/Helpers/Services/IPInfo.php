@@ -2,7 +2,7 @@
 /**
  * IPInfo Helper
  *
- * Provides IPInfo.io integration utilities for conditions.
+ * Geolocation and privacy detection for fraud prevention and regional rules.
  *
  * @package     ArrayPress\Conditions\Helpers\Services
  * @copyright   Copyright (c) 2026, ArrayPress Limited
@@ -20,7 +20,7 @@ use ArrayPress\IPInfo\Client;
 /**
  * Class IPInfo
  *
- * IPInfo.io utilities for conditions.
+ * IPInfo.io utilities for geolocation and fraud detection.
  */
 class IPInfo {
 
@@ -114,7 +114,7 @@ class IPInfo {
 	 *
 	 * @param array $args The condition arguments.
 	 *
-	 * @return string
+	 * @return string ISO 3166-1 alpha-2 country code (e.g., "US", "GB").
 	 */
 	public static function get_country( array $args ): string {
 		$result = self::get_result( $args );
@@ -123,62 +123,13 @@ class IPInfo {
 	}
 
 	/**
-	 * Get the country name.
+	 * Get the region/state code.
+	 *
+	 * Useful for state-level tax rules, shipping restrictions.
 	 *
 	 * @param array $args The condition arguments.
 	 *
-	 * @return string
-	 */
-	public static function get_country_name( array $args ): string {
-		$result = self::get_result( $args );
-
-		return $result ? ( $result->get_country_name() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the continent code.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_continent( array $args ): string {
-		$result = self::get_result( $args );
-
-		if ( ! $result ) {
-			return '';
-		}
-
-		$continent = $result->get_continent();
-
-		return $continent ? ( $continent->get_code() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the continent name.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_continent_name( array $args ): string {
-		$result = self::get_result( $args );
-
-		if ( ! $result ) {
-			return '';
-		}
-
-		$continent = $result->get_continent();
-
-		return $continent ? ( $continent->get_name() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the region/state.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
+	 * @return string Region/state name (e.g., "California", "England").
 	 */
 	public static function get_region( array $args ): string {
 		$result = self::get_result( $args );
@@ -187,72 +138,9 @@ class IPInfo {
 	}
 
 	/**
-	 * Get the city.
+	 * Check if IP is in the European Union.
 	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_city( array $args ): string {
-		$result = self::get_result( $args );
-
-		return $result ? ( $result->get_city() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the postal code.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_postal( array $args ): string {
-		$result = self::get_result( $args );
-
-		return $result ? ( $result->get_postal() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the timezone.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_timezone( array $args ): string {
-		$result = self::get_result( $args );
-
-		return $result ? ( $result->get_timezone() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the latitude.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return float
-	 */
-	public static function get_latitude( array $args ): float {
-		$result = self::get_result( $args );
-
-		return $result ? (float) ( $result->get_latitude() ?? 0 ) : 0.0;
-	}
-
-	/**
-	 * Get the longitude.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return float
-	 */
-	public static function get_longitude( array $args ): float {
-		$result = self::get_result( $args );
-
-		return $result ? (float) ( $result->get_longitude() ?? 0 ) : 0.0;
-	}
-
-	/**
-	 * Check if IP is in the EU.
+	 * Useful for GDPR compliance and VAT handling.
 	 *
 	 * @param array $args The condition arguments.
 	 *
@@ -265,7 +153,7 @@ class IPInfo {
 	}
 
 	/** -------------------------------------------------------------------------
-	 * Privacy Detection Methods (Business/Premium Plans)
+	 * Privacy/Fraud Detection Methods
 	 * ------------------------------------------------------------------------ */
 
 	/**
@@ -328,6 +216,9 @@ class IPInfo {
 	/**
 	 * Check if IP is a relay (e.g., iCloud Private Relay).
 	 *
+	 * Relays are generally legitimate privacy tools, unlike VPNs used for fraud.
+	 * Consider NOT flagging these as suspicious.
+	 *
 	 * @param array $args The condition arguments.
 	 *
 	 * @return bool
@@ -345,7 +236,9 @@ class IPInfo {
 	}
 
 	/**
-	 * Check if IP is from a hosting provider.
+	 * Check if IP is from a hosting/datacenter provider.
+	 *
+	 * Datacenter IPs are often bots, scrapers, or automated fraud.
 	 *
 	 * @param array $args The condition arguments.
 	 *
@@ -364,26 +257,24 @@ class IPInfo {
 	}
 
 	/**
-	 * Get the privacy service name (if detected).
+	 * Check if IP is suspicious (VPN, proxy, Tor, or hosting).
+	 *
+	 * Excludes relays as they're typically legitimate (iCloud Private Relay).
+	 * This is a convenience method for common fraud detection.
 	 *
 	 * @param array $args The condition arguments.
 	 *
-	 * @return string
+	 * @return bool
 	 */
-	public static function get_privacy_service( array $args ): string {
-		$result = self::get_result( $args );
-
-		if ( ! $result ) {
-			return '';
-		}
-
-		$privacy = $result->get_privacy();
-
-		return $privacy ? ( $privacy->get_service() ?? '' ) : '';
+	public static function is_suspicious( array $args ): bool {
+		return self::is_vpn( $args )
+		       || self::is_proxy( $args )
+		       || self::is_tor( $args )
+		       || self::is_hosting( $args );
 	}
 
 	/** -------------------------------------------------------------------------
-	 * ASN/Network Methods (Basic Plan and Above)
+	 * Network/ASN Methods
 	 * ------------------------------------------------------------------------ */
 
 	/**
@@ -391,7 +282,7 @@ class IPInfo {
 	 *
 	 * @param array $args The condition arguments.
 	 *
-	 * @return string
+	 * @return string ASN in format "AS12345".
 	 */
 	public static function get_asn( array $args ): string {
 		$result = self::get_result( $args );
@@ -406,49 +297,11 @@ class IPInfo {
 	}
 
 	/**
-	 * Get the ASN name/organization.
+	 * Get the ASN type.
 	 *
 	 * @param array $args The condition arguments.
 	 *
-	 * @return string
-	 */
-	public static function get_asn_name( array $args ): string {
-		$result = self::get_result( $args );
-
-		if ( ! $result ) {
-			return '';
-		}
-
-		$asn = $result->get_asn();
-
-		return $asn ? ( $asn->get_name() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the ASN domain.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_asn_domain( array $args ): string {
-		$result = self::get_result( $args );
-
-		if ( ! $result ) {
-			return '';
-		}
-
-		$asn = $result->get_asn();
-
-		return $asn ? ( $asn->get_domain() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the ASN type (isp, hosting, business, education).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
+	 * @return string One of: isp, hosting, business, education.
 	 */
 	public static function get_asn_type( array $args ): string {
 		$result = self::get_result( $args );
@@ -463,137 +316,8 @@ class IPInfo {
 	}
 
 	/** -------------------------------------------------------------------------
-	 * Company Methods (Business/Premium Plans)
-	 * ------------------------------------------------------------------------ */
-
-	/**
-	 * Get the company name.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_company_name( array $args ): string {
-		$result = self::get_result( $args );
-
-		if ( ! $result ) {
-			return '';
-		}
-
-		$company = $result->get_company();
-
-		return $company ? ( $company->get_name() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the company domain.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_company_domain( array $args ): string {
-		$result = self::get_result( $args );
-
-		if ( ! $result ) {
-			return '';
-		}
-
-		$company = $result->get_company();
-
-		return $company ? ( $company->get_domain() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the company type.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_company_type( array $args ): string {
-		$result = self::get_result( $args );
-
-		if ( ! $result ) {
-			return '';
-		}
-
-		$company = $result->get_company();
-
-		return $company ? ( $company->get_type() ?? '' ) : '';
-	}
-
-	/** -------------------------------------------------------------------------
-	 * Currency Methods
-	 * ------------------------------------------------------------------------ */
-
-	/**
-	 * Get the country's currency code.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_currency_code( array $args ): string {
-		$result = self::get_result( $args );
-
-		if ( ! $result ) {
-			return '';
-		}
-
-		$currency = $result->get_country_currency();
-
-		return $currency ? ( $currency->get_code() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the country's currency symbol.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_currency_symbol( array $args ): string {
-		$result = self::get_result( $args );
-
-		if ( ! $result ) {
-			return '';
-		}
-
-		$currency = $result->get_country_currency();
-
-		return $currency ? ( $currency->get_symbol() ?? '' ) : '';
-	}
-
-	/** -------------------------------------------------------------------------
 	 * Utility Methods
 	 * ------------------------------------------------------------------------ */
-
-	/**
-	 * Check if IP is anycast.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function is_anycast( array $args ): bool {
-		$result = self::get_result( $args );
-
-		return $result ? $result->is_anycast() : false;
-	}
-
-	/**
-	 * Get the hostname.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_hostname( array $args ): string {
-		$result = self::get_result( $args );
-
-		return $result ? ( $result->get_hostname() ?? '' ) : '';
-	}
 
 	/**
 	 * Clear the cached results.

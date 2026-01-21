@@ -2,7 +2,7 @@
 /**
  * ProxyCheck Helper
  *
- * Provides ProxyCheck.io integration utilities for conditions.
+ * Proxy/VPN detection and email validation for fraud prevention.
  *
  * @package     ArrayPress\Conditions\Helpers\Services
  * @copyright   Copyright (c) 2026, ArrayPress Limited
@@ -20,7 +20,7 @@ use ArrayPress\ProxyCheck\Client;
 /**
  * Class ProxyCheck
  *
- * ProxyCheck.io utilities for conditions.
+ * ProxyCheck.io utilities for fraud detection.
  */
 class ProxyCheck {
 
@@ -116,9 +116,6 @@ class ProxyCheck {
 			'vpn'  => 1,
 			'asn'  => 1,
 			'risk' => 2,
-			'port' => 1,
-			'seen' => 1,
-			'days' => 7,
 		] );
 
 		if ( is_wp_error( $result ) ) {
@@ -196,7 +193,7 @@ class ProxyCheck {
 	}
 
 	/**
-	 * Check if IP should be blocked.
+	 * Check if IP should be blocked based on ProxyCheck's recommendation.
 	 *
 	 * @param array $args The condition arguments.
 	 *
@@ -209,11 +206,24 @@ class ProxyCheck {
 	}
 
 	/**
+	 * Check if IP is suspicious (proxy or VPN).
+	 *
+	 * Convenience method matching IPInfo's is_suspicious().
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_suspicious( array $args ): bool {
+		return self::is_proxy( $args ) || self::is_vpn( $args );
+	}
+
+	/**
 	 * Get the proxy/VPN type.
 	 *
 	 * @param array $args The condition arguments.
 	 *
-	 * @return string
+	 * @return string e.g., VPN, TOR, SOCKS, SOCKS4, SOCKS5, HTTP, HTTPS, etc.
 	 */
 	public static function get_type( array $args ): string {
 		$result = self::get_ip_result( $args );
@@ -222,7 +232,7 @@ class ProxyCheck {
 	}
 
 	/** -------------------------------------------------------------------------
-	 * IP Risk Methods
+	 * Risk Methods
 	 * ------------------------------------------------------------------------ */
 
 	/**
@@ -230,7 +240,7 @@ class ProxyCheck {
 	 *
 	 * @param array $args The condition arguments.
 	 *
-	 * @return int
+	 * @return int Risk score 0-100 (higher = more risky).
 	 */
 	public static function get_risk_score( array $args ): int {
 		$result = self::get_ip_result( $args );
@@ -239,26 +249,21 @@ class ProxyCheck {
 	}
 
 	/**
-	 * Get the attack history count.
+	 * Check if risk score exceeds threshold.
 	 *
-	 * @param array $args The condition arguments.
+	 * Convenience method for common fraud rules.
 	 *
-	 * @return int
+	 * @param array $args      The condition arguments.
+	 * @param int   $threshold The risk threshold (default 50).
+	 *
+	 * @return bool
 	 */
-	public static function get_attack_history( array $args ): int {
-		$result = self::get_ip_result( $args );
-
-		if ( ! $result ) {
-			return 0;
-		}
-
-		$history = $result->get_attack_history();
-
-		return is_array( $history ) ? count( $history ) : 0;
+	public static function is_high_risk( array $args, int $threshold = 50 ): bool {
+		return self::get_risk_score( $args ) >= $threshold;
 	}
 
 	/** -------------------------------------------------------------------------
-	 * IP Location Methods
+	 * Location Methods
 	 * ------------------------------------------------------------------------ */
 
 	/**
@@ -266,7 +271,7 @@ class ProxyCheck {
 	 *
 	 * @param array $args The condition arguments.
 	 *
-	 * @return string
+	 * @return string ISO 3166-1 alpha-2 country code.
 	 */
 	public static function get_country( array $args ): string {
 		$result = self::get_ip_result( $args );
@@ -274,94 +279,12 @@ class ProxyCheck {
 		return $result ? ( $result->get_country() ?? '' ) : '';
 	}
 
-	/**
-	 * Get the continent.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_continent( array $args ): string {
-		$result = self::get_ip_result( $args );
-
-		return $result ? ( $result->get_continent() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the city.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_city( array $args ): string {
-		$result = self::get_ip_result( $args );
-
-		return $result ? ( $result->get_city() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the region/state.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_region( array $args ): string {
-		$result = self::get_ip_result( $args );
-
-		return $result ? ( $result->get_region() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the timezone.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_timezone( array $args ): string {
-		$result = self::get_ip_result( $args );
-
-		return $result ? ( $result->get_timezone() ?? '' ) : '';
-	}
-
 	/** -------------------------------------------------------------------------
-	 * IP Network Methods
+	 * Email Validation Methods
 	 * ------------------------------------------------------------------------ */
 
 	/**
-	 * Get the operator/ISP name.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_operator( array $args ): string {
-		$result = self::get_ip_result( $args );
-
-		return $result ? ( $result->get_operator() ?? '' ) : '';
-	}
-
-	/**
-	 * Get the port.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return int
-	 */
-	public static function get_port( array $args ): int {
-		$result = self::get_ip_result( $args );
-
-		return $result ? (int) ( $result->get_port() ?? 0 ) : 0;
-	}
-
-	/** -------------------------------------------------------------------------
-	 * Email Methods
-	 * ------------------------------------------------------------------------ */
-
-	/**
-	 * Check if email is disposable.
+	 * Check if email is from a disposable provider.
 	 *
 	 * @param array $args The condition arguments.
 	 *
@@ -374,7 +297,7 @@ class ProxyCheck {
 	}
 
 	/**
-	 * Check if email is valid.
+	 * Check if email address is valid.
 	 *
 	 * @param array $args The condition arguments.
 	 *
@@ -387,7 +310,7 @@ class ProxyCheck {
 	}
 
 	/**
-	 * Check if email is from a free provider.
+	 * Check if email is from a free provider (Gmail, Yahoo, etc.).
 	 *
 	 * @param array $args The condition arguments.
 	 *
@@ -400,7 +323,7 @@ class ProxyCheck {
 	}
 
 	/**
-	 * Check if email has been compromised/leaked.
+	 * Check if email has been leaked in data breaches.
 	 *
 	 * @param array $args The condition arguments.
 	 *
@@ -413,16 +336,18 @@ class ProxyCheck {
 	}
 
 	/**
-	 * Get the email risk score.
+	 * Check if email is risky (disposable, invalid, or leaked).
+	 *
+	 * Convenience method for common fraud rules.
 	 *
 	 * @param array $args The condition arguments.
 	 *
-	 * @return int
+	 * @return bool
 	 */
-	public static function get_email_risk_score( array $args ): int {
-		$result = self::get_email_result( $args );
-
-		return $result ? (int) ( $result->get_risk_score() ?? 0 ) : 0;
+	public static function is_risky_email( array $args ): bool {
+		return self::is_disposable_email( $args )
+		       || ! self::is_valid_email( $args )
+		       || self::is_leaked_email( $args );
 	}
 
 	/** -------------------------------------------------------------------------
