@@ -2,7 +2,7 @@
 /**
  * User Built-in Conditions
  *
- * @package     ArrayPress\Conditions\Conditions\BuiltIn
+ * @package     ArrayPress\Conditions\Conditions\Core
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0

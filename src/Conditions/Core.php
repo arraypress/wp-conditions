@@ -21,6 +21,9 @@ use ArrayPress\Conditions\Conditions\Core\Post;
 use ArrayPress\Conditions\Conditions\Core\Request;
 use ArrayPress\Conditions\Conditions\Core\User;
 
+// Services
+use ArrayPress\Conditions\Conditions\Integrations\Services;
+
 // Integrations
 use ArrayPress\Conditions\Conditions\Integrations\EDD;
 
@@ -52,6 +55,7 @@ class Core {
 	public static function get_all(): array {
 		return array_merge(
 			self::get_core(),
+			self::get_services(),
 			self::get_integrations()
 		);
 	}
@@ -68,6 +72,17 @@ class Core {
 			Post::get_all(),
 			Request::get_all(),
 			Context::get_all()
+		);
+	}
+
+	/**
+	 * Get core service conditions only.
+	 *
+	 * @return array<string, array>
+	 */
+	public static function get_services(): array {
+		return array_merge(
+			Services\ProxyCheck::get_all(),
 		);
 	}
 

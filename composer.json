@@ -23,6 +23,7 @@
     "arraypress/wp-user-agent-utils": "dev-main",
     "arraypress/wp-accept-language-utils": "dev-main",
     "arraypress/wp-referrer-utils": "dev-main",
+    "arraypress/proxycheck": "dev-main",
     "arraypress/email-utils": "dev-main"
   },
   "autoload": {

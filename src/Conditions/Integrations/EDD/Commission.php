@@ -4,7 +4,7 @@
  *
  * Provides conditions for the EDD Commissions add-on.
  *
- * @package     ArrayPress\Conditions\Conditions\BuiltIn\EDD
+ * @package     ArrayPress\Conditions\Conditions\Integrations\EDD
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
