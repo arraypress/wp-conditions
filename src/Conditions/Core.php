@@ -83,7 +83,8 @@ class Core {
 	public static function get_services(): array {
 		return array_merge(
 			Services\ProxyCheck::get_all(),
-			Services\IPInfo::get_all()
+			Services\IPInfo::get_all(),
+			Services\IPQualityScore::get_all()
 		);
 	}
 
