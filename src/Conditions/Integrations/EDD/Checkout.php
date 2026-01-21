@@ -13,8 +13,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
 
-use ArrayPress\Conditions\Helpers\Format;
-use ArrayPress\Conditions\Helpers\PostedData;
+use ArrayPress\Conditions\Helpers\EDD\Checkout as CheckoutHelper;
+use ArrayPress\Conditions\Helpers\EDD\Options;
 use ArrayPress\Conditions\Operators;
 
 /**
@@ -51,19 +51,9 @@ class Checkout {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select gateway...', 'arraypress' ),
 				'description'   => __( 'The payment gateway selected at checkout.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_payment_gateways' ) ? Format::options( edd_get_payment_gateways(), 'admin_label' ) : [],
+				'options'       => fn() => Options::get_gateways(),
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					$posted = $args['posted'] ?? [];
-
-					$gateway = PostedData::get( $posted, [ 'edd-gateway' ] );
-
-					if ( $gateway ) {
-						return $gateway;
-					}
-
-					return function_exists( 'edd_get_chosen_gateway' ) ? edd_get_chosen_gateway() : '';
-				},
+				'compare_value' => fn( $args ) => CheckoutHelper::get_gateway( $args ),
 				'required_args' => [],
 			],
 		];
@@ -76,46 +66,31 @@ class Checkout {
 	 */
 	private static function get_customer_conditions(): array {
 		return [
-			'edd_checkout_email' => [
+			'edd_checkout_email'      => [
 				'label'         => __( 'Email', 'arraypress' ),
 				'group'         => __( 'Checkout: Customer', 'arraypress' ),
 				'type'          => 'email',
 				'placeholder'   => __( 'e.g. john@test.com, @gmail.com, .edu', 'arraypress' ),
 				'description'   => __( 'Match checkout email against patterns. Supports: full email, @domain, .tld, or domain.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					return PostedData::get( $args['posted'] ?? [], [
-						'edd_email',
-						'edd-email',
-					] );
-				},
+				'compare_value' => fn( $args ) => CheckoutHelper::get_email( $args ),
 				'required_args' => [],
 			],
-			'edd_checkout_first_name'   => [
+			'edd_checkout_first_name' => [
 				'label'         => __( 'First Name', 'arraypress' ),
 				'group'         => __( 'Checkout: Customer', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. John', 'arraypress' ),
 				'description'   => __( 'The first name entered at checkout.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					return PostedData::get( $args['posted'] ?? [], [
-						'edd_first',
-						'edd-first',
-					] );
-				},
+				'compare_value' => fn( $args ) => CheckoutHelper::get_first_name( $args ),
 				'required_args' => [],
 			],
-			'edd_checkout_last_name'    => [
+			'edd_checkout_last_name'  => [
 				'label'         => __( 'Last Name', 'arraypress' ),
 				'group'         => __( 'Checkout: Customer', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. Doe', 'arraypress' ),
 				'description'   => __( 'The last name entered at checkout.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					return PostedData::get( $args['posted'] ?? [], [
-						'edd_last',
-						'edd-last',
-					] );
-				},
+				'compare_value' => fn( $args ) => CheckoutHelper::get_last_name( $args ),
 				'required_args' => [],
 			],
 		];
@@ -135,15 +110,9 @@ class Checkout {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'The billing country entered at checkout.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_country_list' ) ? Format::options( edd_get_country_list() ) : [],
+				'options'       => fn() => Options::get_countries(),
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					return PostedData::get( $args['posted'] ?? [], [
-						'billing_country',
-						'edd_address.country',
-						'card_country',
-					] );
-				},
+				'compare_value' => fn( $args ) => CheckoutHelper::get_country( $args ),
 				'required_args' => [],
 			],
 			'edd_checkout_region'   => [
@@ -152,13 +121,7 @@ class Checkout {
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. CA, NY', 'arraypress' ),
 				'description'   => __( 'The billing region/state entered at checkout.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					return PostedData::get( $args['posted'] ?? [], [
-						'billing_state',
-						'edd_address.state',
-						'card_state',
-					] );
-				},
+				'compare_value' => fn( $args ) => CheckoutHelper::get_region( $args ),
 				'required_args' => [],
 			],
 			'edd_checkout_city'     => [
@@ -167,13 +130,7 @@ class Checkout {
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. Los Angeles', 'arraypress' ),
 				'description'   => __( 'The billing city entered at checkout.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					return PostedData::get( $args['posted'] ?? [], [
-						'billing_city',
-						'edd_address.city',
-						'card_city',
-					] );
-				},
+				'compare_value' => fn( $args ) => CheckoutHelper::get_city( $args ),
 				'required_args' => [],
 			],
 			'edd_checkout_postcode' => [
@@ -182,13 +139,7 @@ class Checkout {
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. 90210, SW1A 1AA', 'arraypress' ),
 				'description'   => __( 'The billing postal/zip code entered at checkout.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					return PostedData::get( $args['posted'] ?? [], [
-						'billing_zip',
-						'edd_address.zip',
-						'card_zip',
-					] );
-				},
+				'compare_value' => fn( $args ) => CheckoutHelper::get_postcode( $args ),
 				'required_args' => [],
 			],
 		];

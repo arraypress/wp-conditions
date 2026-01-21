@@ -64,7 +64,7 @@ class Cart {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The cart total including tax and fees.', 'arraypress' ),
-				'compare_value' => fn( $args ) => function_exists( 'edd_get_cart_total' ) ? (float) edd_get_cart_total() : 0,
+				'compare_value' => fn( $args ) => CartHelper::get_total(),
 				'required_args' => [],
 			],
 			'edd_cart_subtotal'        => [
@@ -75,7 +75,7 @@ class Cart {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The cart subtotal before tax and fees.', 'arraypress' ),
-				'compare_value' => fn( $args ) => function_exists( 'edd_get_cart_subtotal' ) ? (float) edd_get_cart_subtotal() : 0,
+				'compare_value' => fn( $args ) => CartHelper::get_subtotal(),
 				'required_args' => [],
 			],
 			'edd_cart_tax'             => [
@@ -86,7 +86,7 @@ class Cart {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The total tax amount in the cart.', 'arraypress' ),
-				'compare_value' => fn( $args ) => function_exists( 'edd_get_cart_tax' ) ? (float) edd_get_cart_tax() : 0,
+				'compare_value' => fn( $args ) => CartHelper::get_tax(),
 				'required_args' => [],
 			],
 			'edd_cart_discount_amount' => [
@@ -97,7 +97,7 @@ class Cart {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The total discount amount applied to the cart.', 'arraypress' ),
-				'compare_value' => fn( $args ) => function_exists( 'edd_get_cart_discounted_amount' ) ? (float) edd_get_cart_discounted_amount() : 0,
+				'compare_value' => fn( $args ) => CartHelper::get_discount_amount(),
 				'required_args' => [],
 			],
 			'edd_cart_fee_total'       => [
@@ -108,7 +108,7 @@ class Cart {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The total fees amount in the cart.', 'arraypress' ),
-				'compare_value' => fn( $args ) => function_exists( 'edd_get_cart_fee_total' ) ? (float) edd_get_cart_fee_total() : 0,
+				'compare_value' => fn( $args ) => CartHelper::get_fee_total(),
 				'required_args' => [],
 			],
 		];
@@ -174,7 +174,7 @@ class Cart {
 				'group'         => __( 'Cart: Contents', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the cart has any discount applied.', 'arraypress' ),
-				'compare_value' => fn( $args ) => function_exists( 'edd_cart_has_discounts' ) && edd_cart_has_discounts(),
+				'compare_value' => fn( $args ) => CartHelper::has_discounts(),
 				'required_args' => [],
 			],
 		];
@@ -195,7 +195,7 @@ class Cart {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'The total number of items in the cart.', 'arraypress' ),
-				'compare_value' => fn( $args ) => function_exists( 'edd_get_cart_quantity' ) ? (int) edd_get_cart_quantity() : 0,
+				'compare_value' => fn( $args ) => CartHelper::get_quantity(),
 				'required_args' => [],
 			],
 			'edd_cart_bundle_count' => [

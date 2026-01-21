@@ -22,6 +22,105 @@ namespace ArrayPress\Conditions\Helpers\EDD;
  */
 class Cart {
 
+	/** -------------------------------------------------------------------------
+	 * Amount Methods
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Get the cart total including tax and fees.
+	 *
+	 * @return float
+	 */
+	public static function get_total(): float {
+		if ( ! function_exists( 'edd_get_cart_total' ) ) {
+			return 0.0;
+		}
+
+		return (float) edd_get_cart_total();
+	}
+
+	/**
+	 * Get the cart subtotal before tax and fees.
+	 *
+	 * @return float
+	 */
+	public static function get_subtotal(): float {
+		if ( ! function_exists( 'edd_get_cart_subtotal' ) ) {
+			return 0.0;
+		}
+
+		return (float) edd_get_cart_subtotal();
+	}
+
+	/**
+	 * Get the total tax amount in the cart.
+	 *
+	 * @return float
+	 */
+	public static function get_tax(): float {
+		if ( ! function_exists( 'edd_get_cart_tax' ) ) {
+			return 0.0;
+		}
+
+		return (float) edd_get_cart_tax();
+	}
+
+	/**
+	 * Get the total discount amount applied to the cart.
+	 *
+	 * @return float
+	 */
+	public static function get_discount_amount(): float {
+		if ( ! function_exists( 'edd_get_cart_discounted_amount' ) ) {
+			return 0.0;
+		}
+
+		return (float) edd_get_cart_discounted_amount();
+	}
+
+	/**
+	 * Get the total fees amount in the cart.
+	 *
+	 * @return float
+	 */
+	public static function get_fee_total(): float {
+		if ( ! function_exists( 'edd_get_cart_fee_total' ) ) {
+			return 0.0;
+		}
+
+		return (float) edd_get_cart_fee_total();
+	}
+
+	/**
+	 * Get the total quantity of items in the cart.
+	 *
+	 * @return int
+	 */
+	public static function get_quantity(): int {
+		if ( ! function_exists( 'edd_get_cart_quantity' ) ) {
+			return 0;
+		}
+
+		return (int) edd_get_cart_quantity();
+	}
+
+	/**
+	 * Check if the cart has any discount applied.
+	 *
+	 * @return bool
+	 */
+	public static function has_discounts(): bool {
+		if ( ! function_exists( 'edd_cart_has_discounts' ) ) {
+			return false;
+		}
+
+		return edd_cart_has_discounts();
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Content Methods
+	 * ------------------------------------------------------------------------ */
+
 	/**
 	 * Get term IDs from cart contents.
 	 *
@@ -68,6 +167,10 @@ class Cart {
 
 		return array_unique( array_column( $contents, 'id' ) );
 	}
+
+	/** -------------------------------------------------------------------------
+	 * Count Methods
+	 * ------------------------------------------------------------------------ */
 
 	/**
 	 * Count cart items by product type.
@@ -211,6 +314,10 @@ class Cart {
 
 		return $count;
 	}
+
+	/** -------------------------------------------------------------------------
+	 * Discount Methods
+	 * ------------------------------------------------------------------------ */
 
 	/**
 	 * Get applied discount IDs from cart.

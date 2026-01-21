@@ -101,6 +101,29 @@ class Options {
 	}
 
 	/**
+	 * Get country options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_countries(): array {
+		if ( ! function_exists( 'edd_get_country_list' ) ) {
+			return [];
+		}
+
+		$countries = edd_get_country_list();
+		$options   = [];
+
+		foreach ( $countries as $value => $label ) {
+			$options[] = [
+				'value' => $value,
+				'label' => $label,
+			];
+		}
+
+		return $options;
+	}
+
+	/**
 	 * Get date range options for period-based conditions.
 	 *
 	 * @return array<array{value: string, label: string}>
