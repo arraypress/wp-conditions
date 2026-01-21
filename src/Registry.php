@@ -18,7 +18,7 @@ namespace ArrayPress\Conditions;
 
 use ArrayPress\Conditions\Abstracts\Condition;
 use ArrayPress\Conditions\Admin\Assets;
-use ArrayPress\Conditions\Conditions\BuiltIn;
+use ArrayPress\Conditions\Conditions\Core;
 use ArrayPress\Conditions\Registration\MetaBox;
 use ArrayPress\Conditions\Registration\PostType;
 use ArrayPress\Conditions\Registration\RestApi;
@@ -250,7 +250,7 @@ class Registry {
 
 		// Handle built-in condition references
 		if ( is_string( $condition_id ) && empty( $args ) ) {
-			$built_in = BuiltIn::get( $condition_id );
+			$built_in = Core::get( $condition_id );
 
 			if ( $built_in ) {
 				self::$conditions[ $set_id ][ $condition_id ] = $built_in;

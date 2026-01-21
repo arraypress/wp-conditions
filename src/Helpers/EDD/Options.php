@@ -15,6 +15,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Helpers\EDD;
 
+use EDD\Reports;
+
 /**
  * Class Options
  *
@@ -96,6 +98,66 @@ class Options {
 				'label' => $customer->name . ' (' . $customer->email . ')',
 			];
 		}, $customers );
+	}
+
+	/**
+	 * Get date range options for period-based conditions.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_date_ranges(): array {
+		$edd_options = Reports\get_dates_filter_options();
+
+		// Remove 'other' (custom) as it doesn't make sense for conditions
+		unset( $edd_options['other'] );
+
+		$options = [];
+		foreach ( $edd_options as $value => $label ) {
+			$options[] = [
+				'value' => $value,
+				'label' => $label,
+			];
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Get order status options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_order_statuses(): array {
+		$statuses = edd_get_payment_statuses();
+		$options  = [];
+
+		foreach ( $statuses as $value => $label ) {
+			$options[] = [
+				'value' => $value,
+				'label' => $label,
+			];
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Get gateway options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_gateways(): array {
+		$gateways = edd_get_payment_gateways();
+		$options  = [];
+
+		foreach ( $gateways as $value => $data ) {
+			$options[] = [
+				'value' => $value,
+				'label' => $data['admin_label'] ?? $value,
+			];
+		}
+
+		return $options;
 	}
 
 }

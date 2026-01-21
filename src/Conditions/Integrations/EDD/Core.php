@@ -13,23 +13,14 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\BuiltIn;
-
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Cart;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Checkout;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Commission;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Customer;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Order;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Product;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Recipient;
-use ArrayPress\Conditions\Conditions\BuiltIn\EDD\Store;
+namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
 
 /**
- * Class EDD
+ * Class Core
  *
  * Provides all Easy Digital Downloads conditions.
  */
-class EDD {
+class Core {
 
 	/**
 	 * Get all EDD conditions.

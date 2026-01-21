@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\BuiltIn;
+namespace ArrayPress\Conditions\Conditions\Core;
 
 use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
 use ArrayPress\Conditions\Helpers\Periods;

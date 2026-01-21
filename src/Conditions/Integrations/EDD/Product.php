@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\BuiltIn\EDD;
+namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
 
 use ArrayPress\Conditions\Helpers\EDD\Product as ProductHelper;
 use ArrayPress\Conditions\Helpers\EDD\Stats;

@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\BuiltIn;
+namespace ArrayPress\Conditions\Conditions\Core;
 
 use ArrayPress\AcceptLanguageUtils\AcceptLanguage;
 use ArrayPress\Conditions\Helpers\Request as RequestHelper;
@@ -376,13 +376,7 @@ class Request {
 				'type'          => 'text_unit',
 				'placeholder'   => __( 'e.g. newsletter, google, spring_sale', 'arraypress' ),
 				'description'   => __( 'Match against a UTM parameter value.', 'arraypress' ),
-				'units'         => [
-					[ 'value' => 'source', 'label' => __( 'Source (utm_source)', 'arraypress' ) ],
-					[ 'value' => 'medium', 'label' => __( 'Medium (utm_medium)', 'arraypress' ) ],
-					[ 'value' => 'campaign', 'label' => __( 'Campaign (utm_campaign)', 'arraypress' ) ],
-					[ 'value' => 'term', 'label' => __( 'Term (utm_term)', 'arraypress' ) ],
-					[ 'value' => 'content', 'label' => __( 'Content (utm_content)', 'arraypress' ) ],
-				],
+				'units'         => fn() => Referrer::get_utm_parameter_options( true ),
 				'compare_value' => fn( $args ) => RequestHelper::get_utm_parameter( $args ),
 				'required_args' => [],
 			],

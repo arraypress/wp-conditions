@@ -11,7 +11,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\BuiltIn;
+namespace ArrayPress\Conditions\Conditions\Core;
 
 /**
  * Class Context
