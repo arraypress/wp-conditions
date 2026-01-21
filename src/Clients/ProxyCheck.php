@@ -13,7 +13,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Helpers\Services;
+namespace ArrayPress\Conditions\Clients;
 
 use ArrayPress\ProxyCheck\Client;
 
@@ -189,7 +189,7 @@ class ProxyCheck {
 	public static function is_vpn( array $args ): bool {
 		$result = self::get_ip_result( $args );
 
-		return $result ? $result->is_vpn() : false;
+		return $result ? ( $result->is_vpn() ?? false ) : false;
 	}
 
 	/**
@@ -207,8 +207,6 @@ class ProxyCheck {
 
 	/**
 	 * Check if IP is suspicious (proxy or VPN).
-	 *
-	 * Convenience method matching IPInfo's is_suspicious().
 	 *
 	 * @param array $args The condition arguments.
 	 *
@@ -245,13 +243,11 @@ class ProxyCheck {
 	public static function get_risk_score( array $args ): int {
 		$result = self::get_ip_result( $args );
 
-		return $result ? (int) ( $result->get_risk_score() ?? 0 ) : 0;
+		return $result ? ( $result->get_risk_score() ?? 0 ) : 0;
 	}
 
 	/**
 	 * Check if risk score exceeds threshold.
-	 *
-	 * Convenience method for common fraud rules.
 	 *
 	 * @param array $args      The condition arguments.
 	 * @param int   $threshold The risk threshold (default 50).
@@ -273,10 +269,199 @@ class ProxyCheck {
 	 *
 	 * @return string ISO 3166-1 alpha-2 country code.
 	 */
-	public static function get_country( array $args ): string {
+	public static function get_country_code( array $args ): string {
 		$result = self::get_ip_result( $args );
 
-		return $result ? ( $result->get_country() ?? '' ) : '';
+		if ( ! $result ) {
+			return '';
+		}
+
+		$country = $result->get_country();
+
+		return $country['code'] ?? '';
+	}
+
+	/**
+	 * Get the country name.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Country name.
+	 */
+	public static function get_country_name( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		if ( ! $result ) {
+			return '';
+		}
+
+		$country = $result->get_country();
+
+		return $country['name'] ?? '';
+	}
+
+	/**
+	 * Check if IP is from an EU country.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_eu_country( array $args ): bool {
+		$result = self::get_ip_result( $args );
+
+		if ( ! $result ) {
+			return false;
+		}
+
+		$country = $result->get_country();
+
+		return $country['is_eu'] ?? false;
+	}
+
+	/**
+	 * Get the continent code.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Continent code (e.g., NA, EU, AS).
+	 */
+	public static function get_continent_code( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		if ( ! $result ) {
+			return '';
+		}
+
+		$continent = $result->get_continent();
+
+		return $continent['code'] ?? '';
+	}
+
+	/**
+	 * Get the continent name.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Continent name.
+	 */
+	public static function get_continent_name( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		if ( ! $result ) {
+			return '';
+		}
+
+		$continent = $result->get_continent();
+
+		return $continent['name'] ?? '';
+	}
+
+	/**
+	 * Get the city name.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string City name.
+	 */
+	public static function get_city( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		return $result ? ( $result->get_city() ?? '' ) : '';
+	}
+
+	/**
+	 * Get the region/state code.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Region code.
+	 */
+	public static function get_region_code( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		if ( ! $result ) {
+			return '';
+		}
+
+		$region = $result->get_region();
+
+		return $region['code'] ?? '';
+	}
+
+	/**
+	 * Get the region/state name.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Region name.
+	 */
+	public static function get_region_name( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		if ( ! $result ) {
+			return '';
+		}
+
+		$region = $result->get_region();
+
+		return $region['name'] ?? '';
+	}
+
+	/**
+	 * Get the timezone.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Timezone string.
+	 */
+	public static function get_timezone( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		return $result ? ( $result->get_timezone() ?? '' ) : '';
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Network Methods
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Get the ASN.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string ASN string.
+	 */
+	public static function get_asn( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		return $result ? ( $result->get_asn() ?? '' ) : '';
+	}
+
+	/**
+	 * Get the provider name.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Provider name.
+	 */
+	public static function get_provider( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		return $result ? ( $result->get_provider() ?? '' ) : '';
+	}
+
+	/**
+	 * Get the organisation name.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Organisation name.
+	 */
+	public static function get_organisation( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		return $result ? ( $result->get_organisation() ?? '' ) : '';
 	}
 
 	/** -------------------------------------------------------------------------
@@ -294,60 +479,6 @@ class ProxyCheck {
 		$result = self::get_email_result( $args );
 
 		return $result ? $result->is_disposable() : false;
-	}
-
-	/**
-	 * Check if email address is valid.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function is_valid_email( array $args ): bool {
-		$result = self::get_email_result( $args );
-
-		return $result ? $result->is_valid() : false;
-	}
-
-	/**
-	 * Check if email is from a free provider (Gmail, Yahoo, etc.).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function is_free_email( array $args ): bool {
-		$result = self::get_email_result( $args );
-
-		return $result ? $result->is_free() : false;
-	}
-
-	/**
-	 * Check if email has been leaked in data breaches.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function is_leaked_email( array $args ): bool {
-		$result = self::get_email_result( $args );
-
-		return $result ? $result->is_leaked() : false;
-	}
-
-	/**
-	 * Check if email is risky (disposable, invalid, or leaked).
-	 *
-	 * Convenience method for common fraud rules.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function is_risky_email( array $args ): bool {
-		return self::is_disposable_email( $args )
-		       || ! self::is_valid_email( $args )
-		       || self::is_leaked_email( $args );
 	}
 
 	/** -------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Helpers\Services;
+namespace ArrayPress\Conditions\Clients;
 
 use ArrayPress\IPQualityScore\Client;
 

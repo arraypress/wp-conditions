@@ -16,7 +16,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\Integrations\Services;
 
 use ArrayPress\Conditions\Helpers\Geography;
-use ArrayPress\Conditions\Helpers\Services\IPQualityScore as IPQSHelper;
+use ArrayPress\Conditions\Clients\IPQualityScore as IPQSHelper;
 use ArrayPress\Conditions\Operators;
 
 /**

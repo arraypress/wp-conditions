@@ -55,8 +55,8 @@ class Post {
 				'description'   => __( 'Match against the post status.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => Options::get_post_statuses(),
-				'arg'           => 'post_status',
-				'required_args' => [ 'post_status' ],
+				'compare_value' => fn( $args ) => PostHelper::get_status( $args ),
+				'required_args' => [ 'post_id' ],
 			],
 			'post_type'     => [
 				'label'         => __( 'Type', 'arraypress' ),
@@ -67,8 +67,8 @@ class Post {
 				'description'   => __( 'Match against the post type.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => Options::get_post_types(),
-				'arg'           => 'post_type',
-				'required_args' => [ 'post_type' ],
+				'compare_value' => fn( $args ) => PostHelper::get_type( $args ),
+				'required_args' => [ 'post_id' ],
 			],
 			'post_author'   => [
 				'label'         => __( 'Author', 'arraypress' ),
@@ -77,8 +77,8 @@ class Post {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search authors...', 'arraypress' ),
 				'description'   => __( 'Match against the post author.', 'arraypress' ),
-				'arg'           => 'post_author',
-				'required_args' => [ 'post_author' ],
+				'compare_value' => fn( $args ) => PostHelper::get_author( $args ),
+				'required_args' => [ 'post_id' ],
 			],
 			'post_age'      => [
 				'label'         => __( 'Age', 'arraypress' ),
@@ -169,8 +169,8 @@ class Post {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search terms...', 'arraypress' ),
 				'description'   => __( 'Check if post has specific terms (specify taxonomy when registering).', 'arraypress' ),
-				'arg'           => 'post_terms',
-				'required_args' => [ 'post_id', 'post_terms' ],
+				'compare_value' => fn( $args ) => PostHelper::get_all_terms( $args ),
+				'required_args' => [ 'post_id' ],
 			],
 		];
 	}
@@ -249,7 +249,7 @@ class Post {
 				'placeholder'   => __( 'e.g. gallery', 'arraypress' ),
 				'description'   => __( 'Check if the post contains a specific shortcode.', 'arraypress' ),
 				'operators'     => Operators::contains(),
-				'compare_value' => fn( $args, $user_value ) => PostHelper::has_shortcode( $args, $user_value ),
+				'compare_value' => fn( $args, $user_value ) => PostHelper::has_shortcode( $args, $user_value ) ? $user_value : '',
 				'required_args' => [ 'post_id' ],
 			],
 			'has_block'           => [
@@ -259,7 +259,7 @@ class Post {
 				'placeholder'   => __( 'e.g. core/image', 'arraypress' ),
 				'description'   => __( 'Check if the post contains a specific Gutenberg block.', 'arraypress' ),
 				'operators'     => Operators::contains(),
-				'compare_value' => fn( $args, $user_value ) => PostHelper::has_block( $args, $user_value ),
+				'compare_value' => fn( $args, $user_value ) => PostHelper::has_block( $args, $user_value ) ? $user_value : '',
 				'required_args' => [ 'post_id' ],
 			],
 		];

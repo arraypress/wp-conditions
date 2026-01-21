@@ -42,6 +42,45 @@ class Post {
 	}
 
 	/**
+	 * Get the post status.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string The post status, or empty string if not found.
+	 */
+	public static function get_status( array $args ): string {
+		$post = self::get( $args );
+
+		return $post?->post_status ?? '';
+	}
+
+	/**
+	 * Get the post type.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string The post type, or empty string if not found.
+	 */
+	public static function get_type( array $args ): string {
+		$post = self::get( $args );
+
+		return $post?->post_type ?? '';
+	}
+
+	/**
+	 * Get the post author ID.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int The author ID, or 0 if not found.
+	 */
+	public static function get_author( array $args ): int {
+		$post = self::get( $args );
+
+		return (int) ( $post?->post_author ?? 0 );
+	}
+
+	/**
 	 * Get post terms for a taxonomy.
 	 *
 	 * @param array  $args     The arguments including post_id.
@@ -63,6 +102,40 @@ class Post {
 		}
 
 		return $terms;
+	}
+
+	/**
+	 * Get all term IDs from all taxonomies for a post.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array<int>
+	 */
+	public static function get_all_terms( array $args ): array {
+		$post_id = $args['post_id'] ?? get_the_ID();
+
+		if ( ! $post_id ) {
+			return [];
+		}
+
+		$post = get_post( $post_id );
+
+		if ( ! $post ) {
+			return [];
+		}
+
+		$taxonomies = get_object_taxonomies( $post->post_type );
+		$all_terms  = [];
+
+		foreach ( $taxonomies as $taxonomy ) {
+			$terms = wp_get_post_terms( $post_id, $taxonomy, [ 'fields' => 'ids' ] );
+
+			if ( ! is_wp_error( $terms ) ) {
+				$all_terms = array_merge( $all_terms, $terms );
+			}
+		}
+
+		return array_unique( $all_terms );
 	}
 
 	/**
@@ -156,7 +229,7 @@ class Post {
 	public static function get_comment_count( array $args ): int {
 		$post = self::get( $args );
 
-		return (int) $post?->comment_count;
+		return (int) ( $post?->comment_count ?? 0 );
 	}
 
 	/**
@@ -169,7 +242,7 @@ class Post {
 	public static function get_comment_status( array $args ): string {
 		$post = self::get( $args );
 
-		return $post ? $post->comment_status : '';
+		return $post?->comment_status ?? '';
 	}
 
 	/**
@@ -223,16 +296,16 @@ class Post {
 	 * @param array       $args       The condition arguments.
 	 * @param string|null $user_value The shortcode tag to check for.
 	 *
-	 * @return string The shortcode tag if found, empty string otherwise.
+	 * @return bool True if post contains the shortcode.
 	 */
-	public static function has_shortcode( array $args, ?string $user_value ): string {
+	public static function has_shortcode( array $args, ?string $user_value ): bool {
 		$post = self::get( $args );
 
 		if ( ! $post || empty( $user_value ) ) {
-			return '';
+			return false;
 		}
 
-		return has_shortcode( $post->post_content, $user_value ) ? $user_value : '';
+		return has_shortcode( $post->post_content, $user_value );
 	}
 
 	/**
@@ -241,16 +314,16 @@ class Post {
 	 * @param array       $args       The condition arguments.
 	 * @param string|null $user_value The block name to check for (e.g., 'core/image').
 	 *
-	 * @return string The block name if found, empty string otherwise.
+	 * @return bool True if post contains the block.
 	 */
-	public static function has_block( array $args, ?string $user_value ): string {
+	public static function has_block( array $args, ?string $user_value ): bool {
 		$post = self::get( $args );
 
 		if ( ! $post || empty( $user_value ) ) {
-			return '';
+			return false;
 		}
 
-		return has_block( $user_value, $post ) ? $user_value : '';
+		return has_block( $user_value, $post );
 	}
 
 	/**

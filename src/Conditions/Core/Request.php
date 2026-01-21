@@ -106,14 +106,14 @@ class Request {
 				'compare_value' => fn( $args ) => RequestHelper::get_method( $args ),
 				'required_args' => [],
 			],
-			'cookie_exists'  => [
+			'cookie_exists' => [
 				'label'         => __( 'Cookie Exists', 'arraypress' ),
 				'group'         => __( 'Request: Connection', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. my_cookie_name', 'arraypress' ),
 				'description'   => __( 'Check if a specific cookie exists.', 'arraypress' ),
 				'operators'     => Operators::contains(),
-				'compare_value' => fn( $args, $user_value ) => RequestHelper::cookie_exists( $args, $user_value ),
+				'compare_value' => fn( $args, $user_value ) => RequestHelper::cookie_exists( $args, $user_value ) ? $user_value : '',
 				'required_args' => [],
 			],
 			'cookie_value'   => [

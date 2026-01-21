@@ -44,6 +44,58 @@ class User {
 	}
 
 	/**
+	 * Get the user ID.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int The user ID, or 0 if not found.
+	 */
+	public static function get_id( array $args ): int {
+		$user = self::get( $args );
+
+		return $user?->ID ?? 0;
+	}
+
+	/**
+	 * Get the user's roles.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array<string> Array of role slugs.
+	 */
+	public static function get_roles( array $args ): array {
+		$user = self::get( $args );
+
+		return $user?->roles ?? [];
+	}
+
+	/**
+	 * Get the user's email address.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string The user's email, or empty string if not found.
+	 */
+	public static function get_email( array $args ): string {
+		$user = self::get( $args );
+
+		return $user?->user_email ?? '';
+	}
+
+	/**
+	 * Get the user's username (login).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string The username, or empty string if not found.
+	 */
+	public static function get_username( array $args ): string {
+		$user = self::get( $args );
+
+		return $user?->user_login ?? '';
+	}
+
+	/**
 	 * Get user account age in the specified unit.
 	 *
 	 * @param array $args The condition arguments.

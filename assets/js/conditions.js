@@ -6,8 +6,6 @@
  * @package ArrayPress\Conditions
  */
 
-console.log('conditions.js loaded');
-
 (function ($) {
     'use strict';
 
@@ -71,9 +69,11 @@ console.log('conditions.js loaded');
             case 'select':
                 return multiple ? (operators.collection || {}) : (operators.equality || {});
 
+            case 'user':
+                return multiple ? (operators.collection_basic || {}) : (operators.equality || {});
+
             case 'post':
             case 'term':
-            case 'user':
             case 'ajax':
                 return multiple ? (operators.collection || {}) : (operators.equality || {});
 
@@ -733,8 +733,6 @@ console.log('conditions.js loaded');
         const ops = getOperators(conditionId);
         const opsArray = Object.entries(ops);
 
-        console.log('updateOperators:', conditionId, 'ops:', ops, 'savedOperator:', savedOperator);
-
         $operatorSelect.empty();
 
         // Add operators
@@ -751,8 +749,6 @@ console.log('conditions.js loaded');
             // Default to first operator
             $operatorSelect.val(opsArray[0][0]);
         }
-
-        console.log('Operator set to:', $operatorSelect.val());
     }
 
     /**
@@ -793,8 +789,6 @@ console.log('conditions.js loaded');
     function init() {
         const $builder = $('.conditions-builder');
         if (!$builder.length) return;
-
-        console.log('Conditions builder init starting');
 
         // Register event handlers FIRST (before loading saved data)
 
@@ -881,10 +875,6 @@ console.log('conditions.js loaded');
             const ruleId = $row.data('condition-id');
             const condition = conditions[conditionId];
 
-            console.log('Condition changed:', conditionId);
-            console.log('Saved data:', savedData);
-            console.log('Condition config:', condition);
-
             updateOperators($row, conditionId, savedData?.operator);
             updateValueField($row, conditionId, groupId, ruleId, savedData?.value);
             updateTooltip($row, condition);
@@ -894,8 +884,6 @@ console.log('conditions.js loaded');
         const $container = $builder.find('.condition-groups');
         const savedData = $container.data('conditions');
 
-        console.log('Loading saved data:', savedData);
-
         if (savedData && savedData.length) {
             savedData.forEach(function (group) {
                 addGroup(group);
@@ -903,8 +891,6 @@ console.log('conditions.js loaded');
         } else {
             addGroup();
         }
-
-        console.log('Conditions builder init complete');
     }
 
     /**

@@ -17,7 +17,7 @@ namespace ArrayPress\Conditions\Conditions\Integrations\Services;
 
 use ArrayPress\Conditions\Helpers\Geography;
 use ArrayPress\Conditions\Helpers\Network;
-use ArrayPress\Conditions\Helpers\Services\IPInfo as IPInfoHelper;
+use ArrayPress\Conditions\Clients\IPInfo as IPInfoHelper;
 use ArrayPress\Conditions\Operators;
 
 /**

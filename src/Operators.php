@@ -83,8 +83,6 @@ class Operators {
 			'not_contains' => __( 'Does not contain', 'arraypress' ),
 			'starts_with'  => __( 'Starts with', 'arraypress' ),
 			'ends_with'    => __( 'Ends with', 'arraypress' ),
-			'empty'        => __( 'Is empty', 'arraypress' ),
-			'not_empty'    => __( 'Is not empty', 'arraypress' ),
 		];
 	}
 
@@ -106,7 +104,7 @@ class Operators {
 	/**
 	 * Collection operators for checking membership.
 	 *
-	 * Used for: select (multiple), post, term, user, ajax types.
+	 * Used for: select (multiple), post, term, ajax types.
 	 *
 	 * @return array<string, string>
 	 */
@@ -121,7 +119,7 @@ class Operators {
 	/**
 	 * Collection operators without "all" option.
 	 *
-	 * Used when "all" doesn't make logical sense.
+	 * Used when "all" doesn't make logical sense (e.g., user type).
 	 *
 	 * @return array<string, string>
 	 */
@@ -129,6 +127,21 @@ class Operators {
 		return [
 			'any'  => __( 'Is any of', 'arraypress' ),
 			'none' => __( 'Is none of', 'arraypress' ),
+		];
+	}
+
+	/**
+	 * Contains operators for presence checking.
+	 *
+	 * Used for checking if something contains/has a value.
+	 * Example: "Has shortcode", "Has block", "Contains tag".
+	 *
+	 * @return array<string, string>
+	 */
+	public static function contains(): array {
+		return [
+			'==' => __( 'Contains', 'arraypress' ),
+			'!=' => __( 'Does not contain', 'arraypress' ),
 		];
 	}
 
@@ -231,24 +244,6 @@ class Operators {
 	}
 
 	/** -------------------------------------------------------------------------
-	 * Content Operators
-	 * ------------------------------------------------------------------------ */
-
-	/**
-	 * Content presence operators.
-	 *
-	 * Used for checking if content contains something (shortcodes, blocks, etc.).
-	 *
-	 * @return array<string, string>
-	 */
-	public static function contains(): array {
-		return [
-			'==' => __( 'Contains', 'arraypress' ),
-			'!=' => __( 'Does not contain', 'arraypress' ),
-		];
-	}
-
-	/** -------------------------------------------------------------------------
 	 * Type Resolution
 	 * ------------------------------------------------------------------------ */
 
@@ -270,8 +265,8 @@ class Operators {
 			'ip' => self::ip(),
 			'email' => self::email(),
 			'tags' => self::tags(),
-			'select' => $multiple ? self::collection() : self::equality(),
-			'post', 'term', 'user', 'ajax' => $multiple ? self::collection() : self::equality(),
+			'select', 'post', 'term', 'ajax' => $multiple ? self::collection() : self::equality(),
+			'user' => $multiple ? self::collection_any_none() : self::equality(),
 			default => self::text(),
 		};
 	}
@@ -287,9 +282,7 @@ class Operators {
 		return [
 			'text'             => self::text(),
 			'text_advanced'    => self::text_advanced(),
-			'text_unit'        => self::text(),
 			'number'           => self::numeric(),
-			'number_unit'      => self::numeric(),
 			'boolean'          => self::boolean(),
 			'date'             => self::date(),
 			'time'             => self::time(),

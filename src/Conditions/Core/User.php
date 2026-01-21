@@ -61,7 +61,7 @@ class User {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search users...', 'arraypress' ),
 				'description'   => __( 'Match against specific user(s).', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['user_id'] ?? get_current_user_id(),
+				'compare_value' => fn( $args ) => UserHelper::get_id( $args ),
 				'required_args' => [],
 			],
 			'user_role'      => [
@@ -70,10 +70,10 @@ class User {
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select roles...', 'arraypress' ),
-				'description'   => __( 'Match against the current user\'s role(s).', 'arraypress' ),
-				'operators'     => Operators::collection(),
+				'description'   => __( 'Match against the user\'s role(s).', 'arraypress' ),
+				'operators'     => Operators::collection_any_none(),
 				'options'       => Options::get_roles(),
-				'compare_value' => fn( $args ) => $args['user_roles'] ?? wp_get_current_user()->roles,
+				'compare_value' => fn( $args ) => UserHelper::get_roles( $args ),
 				'required_args' => [],
 			],
 			'has_capability' => [
@@ -104,7 +104,7 @@ class User {
 				'type'          => 'email',
 				'placeholder'   => __( 'e.g. john@test.com, @gmail.com, .edu', 'arraypress' ),
 				'description'   => __( 'Match against email patterns. Supports: full email, @domain, .tld, or domain.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['user_email'] ?? wp_get_current_user()->user_email,
+				'compare_value' => fn( $args ) => UserHelper::get_email( $args ),
 				'required_args' => [],
 			],
 			'user_username'   => [
@@ -113,7 +113,7 @@ class User {
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. johndoe', 'arraypress' ),
 				'description'   => __( 'Match against the user\'s login username.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['user_username'] ?? wp_get_current_user()->user_login,
+				'compare_value' => fn( $args ) => UserHelper::get_username( $args ),
 				'required_args' => [],
 			],
 			'user_registered' => [
