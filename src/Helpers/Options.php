@@ -111,7 +111,7 @@ class Options {
 		foreach ( array_keys( $capabilities ) as $cap ) {
 			$options[] = [
 				'value' => $cap,
-				'label' => self::format_capability_label( $cap ),
+				'label' => self::format_capability_label( (string) $cap ),
 			];
 		}
 

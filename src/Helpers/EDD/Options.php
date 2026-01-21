@@ -18,6 +18,8 @@ namespace ArrayPress\Conditions\Helpers\EDD;
 use ArrayPress\Conditions\Helpers\Format;
 use EDD\Reports;
 
+require_once EDD_PLUGIN_DIR . 'includes/reports/reports-functions.php';
+
 /**
  * Class Options
  *

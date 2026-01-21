@@ -25,6 +25,7 @@
     "arraypress/wp-referrer-utils": "dev-main",
     "arraypress/proxycheck": "dev-main",
     "arraypress/ipinfo": "dev-main",
+    "arraypress/ipqualityscore": "dev-main",
     "arraypress/email-utils": "dev-main"
   },
   "autoload": {
