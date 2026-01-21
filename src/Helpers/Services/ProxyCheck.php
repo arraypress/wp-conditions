@@ -4,7 +4,7 @@
  *
  * Provides ProxyCheck.io integration utilities for conditions.
  *
- * @package     ArrayPress\Conditions\Helpers
+ * @package     ArrayPress\Conditions\Helpers\Services
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
@@ -13,7 +13,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Helpers;
+namespace ArrayPress\Conditions\Helpers\Services;
 
 use ArrayPress\ProxyCheck\Client;
 
@@ -36,7 +36,14 @@ class ProxyCheck {
 	 *
 	 * @var array
 	 */
-	private static array $results = [];
+	private static array $ip_results = [];
+
+	/**
+	 * Cached email results.
+	 *
+	 * @var array
+	 */
+	private static array $email_results = [];
 
 	/**
 	 * Get the ProxyCheck client.
@@ -71,21 +78,32 @@ class ProxyCheck {
 	}
 
 	/**
+	 * Get email address from args.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_email_address( array $args ): string {
+		return $args['email'] ?? $args['email_address'] ?? '';
+	}
+
+	/**
 	 * Get the IP check result (cached).
 	 *
 	 * @param array $args The condition arguments.
 	 *
 	 * @return object|null
 	 */
-	public static function get_result( array $args ): ?object {
+	public static function get_ip_result( array $args ): ?object {
 		$ip = self::get_ip( $args );
 
 		if ( empty( $ip ) ) {
 			return null;
 		}
 
-		if ( isset( self::$results[ $ip ] ) ) {
-			return self::$results[ $ip ];
+		if ( isset( self::$ip_results[ $ip ] ) ) {
+			return self::$ip_results[ $ip ];
 		}
 
 		$client = self::get_client( $args );
@@ -107,13 +125,48 @@ class ProxyCheck {
 			return null;
 		}
 
-		self::$results[ $ip ] = $result;
+		self::$ip_results[ $ip ] = $result;
+
+		return $result;
+	}
+
+	/**
+	 * Get the email check result (cached).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return object|null
+	 */
+	public static function get_email_result( array $args ): ?object {
+		$email = self::get_email_address( $args );
+
+		if ( empty( $email ) ) {
+			return null;
+		}
+
+		if ( isset( self::$email_results[ $email ] ) ) {
+			return self::$email_results[ $email ];
+		}
+
+		$client = self::get_client( $args );
+
+		if ( ! $client ) {
+			return null;
+		}
+
+		$result = $client->check_email( $email );
+
+		if ( is_wp_error( $result ) ) {
+			return null;
+		}
+
+		self::$email_results[ $email ] = $result;
 
 		return $result;
 	}
 
 	/** -------------------------------------------------------------------------
-	 * Detection Methods
+	 * IP Detection Methods
 	 * ------------------------------------------------------------------------ */
 
 	/**
@@ -124,7 +177,7 @@ class ProxyCheck {
 	 * @return bool
 	 */
 	public static function is_proxy( array $args ): bool {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? $result->is_proxy() : false;
 	}
@@ -137,7 +190,7 @@ class ProxyCheck {
 	 * @return bool
 	 */
 	public static function is_vpn( array $args ): bool {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? $result->is_vpn() : false;
 	}
@@ -150,7 +203,7 @@ class ProxyCheck {
 	 * @return bool
 	 */
 	public static function should_block( array $args ): bool {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? $result->should_block() : false;
 	}
@@ -163,13 +216,13 @@ class ProxyCheck {
 	 * @return string
 	 */
 	public static function get_type( array $args ): string {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? ( $result->get_type() ?? '' ) : '';
 	}
 
 	/** -------------------------------------------------------------------------
-	 * Risk Methods
+	 * IP Risk Methods
 	 * ------------------------------------------------------------------------ */
 
 	/**
@@ -180,7 +233,7 @@ class ProxyCheck {
 	 * @return int
 	 */
 	public static function get_risk_score( array $args ): int {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? (int) ( $result->get_risk_score() ?? 0 ) : 0;
 	}
@@ -193,7 +246,7 @@ class ProxyCheck {
 	 * @return int
 	 */
 	public static function get_attack_history( array $args ): int {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		if ( ! $result ) {
 			return 0;
@@ -205,7 +258,7 @@ class ProxyCheck {
 	}
 
 	/** -------------------------------------------------------------------------
-	 * Location Methods
+	 * IP Location Methods
 	 * ------------------------------------------------------------------------ */
 
 	/**
@@ -216,7 +269,7 @@ class ProxyCheck {
 	 * @return string
 	 */
 	public static function get_country( array $args ): string {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? ( $result->get_country() ?? '' ) : '';
 	}
@@ -229,7 +282,7 @@ class ProxyCheck {
 	 * @return string
 	 */
 	public static function get_continent( array $args ): string {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? ( $result->get_continent() ?? '' ) : '';
 	}
@@ -242,7 +295,7 @@ class ProxyCheck {
 	 * @return string
 	 */
 	public static function get_city( array $args ): string {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? ( $result->get_city() ?? '' ) : '';
 	}
@@ -255,7 +308,7 @@ class ProxyCheck {
 	 * @return string
 	 */
 	public static function get_region( array $args ): string {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? ( $result->get_region() ?? '' ) : '';
 	}
@@ -268,13 +321,13 @@ class ProxyCheck {
 	 * @return string
 	 */
 	public static function get_timezone( array $args ): string {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? ( $result->get_timezone() ?? '' ) : '';
 	}
 
 	/** -------------------------------------------------------------------------
-	 * Network Methods
+	 * IP Network Methods
 	 * ------------------------------------------------------------------------ */
 
 	/**
@@ -285,7 +338,7 @@ class ProxyCheck {
 	 * @return string
 	 */
 	public static function get_operator( array $args ): string {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? ( $result->get_operator() ?? '' ) : '';
 	}
@@ -298,9 +351,78 @@ class ProxyCheck {
 	 * @return int
 	 */
 	public static function get_port( array $args ): int {
-		$result = self::get_result( $args );
+		$result = self::get_ip_result( $args );
 
 		return $result ? (int) ( $result->get_port() ?? 0 ) : 0;
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Email Methods
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Check if email is disposable.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_disposable_email( array $args ): bool {
+		$result = self::get_email_result( $args );
+
+		return $result ? $result->is_disposable() : false;
+	}
+
+	/**
+	 * Check if email is valid.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_valid_email( array $args ): bool {
+		$result = self::get_email_result( $args );
+
+		return $result ? $result->is_valid() : false;
+	}
+
+	/**
+	 * Check if email is from a free provider.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_free_email( array $args ): bool {
+		$result = self::get_email_result( $args );
+
+		return $result ? $result->is_free() : false;
+	}
+
+	/**
+	 * Check if email has been compromised/leaked.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_leaked_email( array $args ): bool {
+		$result = self::get_email_result( $args );
+
+		return $result ? $result->is_leaked() : false;
+	}
+
+	/**
+	 * Get the email risk score.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_email_risk_score( array $args ): int {
+		$result = self::get_email_result( $args );
+
+		return $result ? (int) ( $result->get_risk_score() ?? 0 ) : 0;
 	}
 
 	/** -------------------------------------------------------------------------
@@ -313,8 +435,9 @@ class ProxyCheck {
 	 * @return void
 	 */
 	public static function clear_cache(): void {
-		self::$results = [];
-		self::$client  = null;
+		self::$ip_results    = [];
+		self::$email_results = [];
+		self::$client        = null;
 	}
 
 }

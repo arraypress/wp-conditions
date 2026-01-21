@@ -2,9 +2,9 @@
 /**
  * ProxyCheck Conditions
  *
- * Provides conditions for ProxyCheck.io IP analysis.
+ * Provides conditions for ProxyCheck.io IP and email analysis.
  *
- * @package     ArrayPress\Conditions\Conditions\Integrations
+ * @package     ArrayPress\Conditions\Conditions\Integrations\Services
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
@@ -15,13 +15,15 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\Integrations\Services;
 
-use ArrayPress\Conditions\Helpers\ProxyCheck as ProxyCheckHelper;
+use ArrayPress\Conditions\Helpers\Geography;
+use ArrayPress\Conditions\Helpers\Network;
+use ArrayPress\Conditions\Helpers\Services\ProxyCheck as ProxyCheckHelper;
 use ArrayPress\Conditions\Operators;
 
 /**
  * Class ProxyCheck
  *
- * Provides ProxyCheck.io IP analysis conditions.
+ * Provides ProxyCheck.io IP and email analysis conditions.
  */
 class ProxyCheck {
 
@@ -35,7 +37,8 @@ class ProxyCheck {
 			self::get_detection_conditions(),
 			self::get_risk_conditions(),
 			self::get_location_conditions(),
-			self::get_network_conditions()
+			self::get_network_conditions(),
+			self::get_email_conditions()
 		);
 	}
 
@@ -77,22 +80,7 @@ class ProxyCheck {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select types...', 'arraypress' ),
 				'description'   => __( 'The detected proxy/VPN type.', 'arraypress' ),
-				'options'       => [
-					[ 'value' => 'VPN', 'label' => __( 'VPN', 'arraypress' ) ],
-					[ 'value' => 'TOR', 'label' => __( 'TOR', 'arraypress' ) ],
-					[ 'value' => 'SOCKS', 'label' => __( 'SOCKS', 'arraypress' ) ],
-					[ 'value' => 'SOCKS4', 'label' => __( 'SOCKS4', 'arraypress' ) ],
-					[ 'value' => 'SOCKS4A', 'label' => __( 'SOCKS4A', 'arraypress' ) ],
-					[ 'value' => 'SOCKS5', 'label' => __( 'SOCKS5', 'arraypress' ) ],
-					[ 'value' => 'SOCKS5H', 'label' => __( 'SOCKS5H', 'arraypress' ) ],
-					[ 'value' => 'Shadowsocks', 'label' => __( 'Shadowsocks', 'arraypress' ) ],
-					[ 'value' => 'HTTP', 'label' => __( 'HTTP', 'arraypress' ) ],
-					[ 'value' => 'HTTPS', 'label' => __( 'HTTPS', 'arraypress' ) ],
-					[ 'value' => 'Compromised Server', 'label' => __( 'Compromised Server', 'arraypress' ) ],
-					[ 'value' => 'Inference Engine', 'label' => __( 'Inference Engine', 'arraypress' ) ],
-					[ 'value' => 'OpenVPN', 'label' => __( 'OpenVPN', 'arraypress' ) ],
-					[ 'value' => 'WireGuard', 'label' => __( 'WireGuard', 'arraypress' ) ],
-				],
+				'options'       => fn() => Network::get_proxy_types(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_type( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
@@ -143,9 +131,12 @@ class ProxyCheck {
 			'proxycheck_country'   => [
 				'label'         => __( 'Country', 'arraypress' ),
 				'group'         => __( 'ProxyCheck: Location', 'arraypress' ),
-				'type'          => 'text',
-				'placeholder'   => __( 'e.g. US, GB, DE', 'arraypress' ),
-				'description'   => __( 'The country code of the IP.', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select countries...', 'arraypress' ),
+				'description'   => __( 'The country of the IP address.', 'arraypress' ),
+				'options'       => fn() => Geography::get_countries(),
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_country( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
@@ -155,16 +146,8 @@ class ProxyCheck {
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select continents...', 'arraypress' ),
-				'description'   => __( 'The continent of the IP.', 'arraypress' ),
-				'options'       => [
-					[ 'value' => 'Africa', 'label' => __( 'Africa', 'arraypress' ) ],
-					[ 'value' => 'Antarctica', 'label' => __( 'Antarctica', 'arraypress' ) ],
-					[ 'value' => 'Asia', 'label' => __( 'Asia', 'arraypress' ) ],
-					[ 'value' => 'Europe', 'label' => __( 'Europe', 'arraypress' ) ],
-					[ 'value' => 'North America', 'label' => __( 'North America', 'arraypress' ) ],
-					[ 'value' => 'Oceania', 'label' => __( 'Oceania', 'arraypress' ) ],
-					[ 'value' => 'South America', 'label' => __( 'South America', 'arraypress' ) ],
-				],
+				'description'   => __( 'The continent of the IP address.', 'arraypress' ),
+				'options'       => fn() => Geography::get_continents(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_continent( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
@@ -174,7 +157,7 @@ class ProxyCheck {
 				'group'         => __( 'ProxyCheck: Location', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. London, New York', 'arraypress' ),
-				'description'   => __( 'The city of the IP.', 'arraypress' ),
+				'description'   => __( 'The city of the IP address.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_city( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
@@ -183,16 +166,19 @@ class ProxyCheck {
 				'group'         => __( 'ProxyCheck: Location', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. California, England', 'arraypress' ),
-				'description'   => __( 'The region or state of the IP.', 'arraypress' ),
+				'description'   => __( 'The region or state of the IP address.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_region( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
 			'proxycheck_timezone'  => [
 				'label'         => __( 'Timezone', 'arraypress' ),
 				'group'         => __( 'ProxyCheck: Location', 'arraypress' ),
-				'type'          => 'text',
-				'placeholder'   => __( 'e.g. America/New_York', 'arraypress' ),
-				'description'   => __( 'The timezone of the IP.', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select timezones...', 'arraypress' ),
+				'description'   => __( 'The timezone of the IP address.', 'arraypress' ),
+				'options'       => fn() => Geography::get_timezones(),
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_timezone( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
@@ -226,6 +212,60 @@ class ProxyCheck {
 				'description'   => __( 'The detected port for the proxy.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_port( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+		];
+	}
+
+	/**
+	 * Get email-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_email_conditions(): array {
+		return [
+			'proxycheck_email_disposable' => [
+				'label'         => __( 'Is Disposable Email', 'arraypress' ),
+				'group'         => __( 'ProxyCheck: Email', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the email is from a disposable email provider.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::is_disposable_email( $args ),
+				'required_args' => [ 'email', 'proxycheck_api_key' ],
+			],
+			'proxycheck_email_valid'      => [
+				'label'         => __( 'Is Valid Email', 'arraypress' ),
+				'group'         => __( 'ProxyCheck: Email', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the email address is valid.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::is_valid_email( $args ),
+				'required_args' => [ 'email', 'proxycheck_api_key' ],
+			],
+			'proxycheck_email_free'       => [
+				'label'         => __( 'Is Free Email', 'arraypress' ),
+				'group'         => __( 'ProxyCheck: Email', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the email is from a free email provider (Gmail, Yahoo, etc.).', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::is_free_email( $args ),
+				'required_args' => [ 'email', 'proxycheck_api_key' ],
+			],
+			'proxycheck_email_leaked'     => [
+				'label'         => __( 'Is Leaked Email', 'arraypress' ),
+				'group'         => __( 'ProxyCheck: Email', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the email has appeared in known data breaches.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::is_leaked_email( $args ),
+				'required_args' => [ 'email', 'proxycheck_api_key' ],
+			],
+			'proxycheck_email_risk_score' => [
+				'label'         => __( 'Email Risk Score', 'arraypress' ),
+				'group'         => __( 'ProxyCheck: Email', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 50', 'arraypress' ),
+				'min'           => 0,
+				'max'           => 100,
+				'step'          => 1,
+				'description'   => __( 'The risk score for the email (0-100).', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::get_email_risk_score( $args ),
+				'required_args' => [ 'email', 'proxycheck_api_key' ],
 			],
 		];
 	}
