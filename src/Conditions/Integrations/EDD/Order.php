@@ -2,7 +2,7 @@
 /**
  * EDD Order Conditions
  *
- * @package     ArrayPress\Conditions\Conditions\BuiltIn\EDD
+ * @package     ArrayPress\Conditions\Conditions\Integrations\EDD
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
@@ -15,11 +15,8 @@ namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
 
 use ArrayPress\Conditions\Helpers\EDD\Options;
 use ArrayPress\Conditions\Helpers\EDD\Order as OrderHelper;
-use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
 use ArrayPress\Conditions\Helpers\Periods;
-use ArrayPress\Conditions\Helpers\Format;
 use ArrayPress\Conditions\Operators;
-use EDD\Orders\Order as EDD_Order;
 
 /**
  * Class Order
@@ -66,11 +63,7 @@ class Order {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The order total amount.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order ? (float) $order->total : 0;
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_total( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_subtotal' => [
@@ -81,11 +74,7 @@ class Order {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The order subtotal before tax.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order ? (float) $order->subtotal : 0;
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_subtotal( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_tax'      => [
@@ -96,11 +85,7 @@ class Order {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The order tax amount.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order ? (float) $order->tax : 0;
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_tax( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_discount' => [
@@ -111,11 +96,7 @@ class Order {
 				'min'           => 0,
 				'step'          => 0.01,
 				'description'   => __( 'The order discount amount.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order ? (float) $order->discount : 0;
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_discount( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 		];
@@ -135,13 +116,9 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select status...', 'arraypress' ),
 				'description'   => __( 'The order status.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_payment_statuses' ) ? Format::options( edd_get_payment_statuses() ) : [],
+				'options'       => fn() => Options::get_order_statuses(),
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order ? $order->status : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_status( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_gateway'  => [
@@ -151,13 +128,9 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select gateway...', 'arraypress' ),
 				'description'   => __( 'The payment gateway used for the order.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_payment_gateways' ) ? Format::options( edd_get_payment_gateways(), 'admin_label' ) : [],
+				'options'       => fn() => Options::get_gateways(),
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order ? $order->gateway : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_gateway( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_currency' => [
@@ -167,13 +140,9 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select currency...', 'arraypress' ),
 				'description'   => __( 'The order currency.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_currencies' ) ? Format::options( edd_get_currencies() ) : [],
+				'options'       => fn() => Options::get_currencies(),
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order ? $order->currency : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_currency( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_mode'     => [
@@ -187,11 +156,7 @@ class Order {
 					[ 'value' => 'live', 'label' => __( 'Live', 'arraypress' ) ],
 					[ 'value' => 'test', 'label' => __( 'Test', 'arraypress' ) ],
 				],
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order ? $order->mode : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_mode( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_ip'       => [
@@ -200,11 +165,7 @@ class Order {
 				'type'          => 'ip',
 				'placeholder'   => __( 'e.g. 192.168.1.1 or 192.168.1.0/24', 'arraypress' ),
 				'description'   => __( 'The IP address used for the order. Supports exact match, CIDR, and wildcards.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order ? $order->ip : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_ip( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 		];
@@ -226,7 +187,7 @@ class Order {
 				'placeholder'   => __( 'Search products...', 'arraypress' ),
 				'description'   => __( 'Check if the order contains specific products.', 'arraypress' ),
 				'operators'     => Operators::collection(),
-				'compare_value' => fn( $args ) => OrderHelper::get_product_ids( $args['order_id'] ?? 0 ),
+				'compare_value' => fn( $args ) => OrderHelper::get_product_ids( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_categories' => [
@@ -238,7 +199,7 @@ class Order {
 				'placeholder'   => __( 'Search categories...', 'arraypress' ),
 				'description'   => __( 'Check if the order contains products from specific categories.', 'arraypress' ),
 				'operators'     => Operators::collection(),
-				'compare_value' => fn( $args ) => OrderHelper::get_term_ids( $args['order_id'] ?? 0, 'download_category' ),
+				'compare_value' => fn( $args ) => OrderHelper::get_category_ids( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_tags'       => [
@@ -250,7 +211,7 @@ class Order {
 				'placeholder'   => __( 'Search tags...', 'arraypress' ),
 				'description'   => __( 'Check if the order contains products with specific tags.', 'arraypress' ),
 				'operators'     => Operators::collection(),
-				'compare_value' => fn( $args ) => OrderHelper::get_term_ids( $args['order_id'] ?? 0, 'download_tag' ),
+				'compare_value' => fn( $args ) => OrderHelper::get_tag_ids( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_item_count' => [
@@ -261,20 +222,7 @@ class Order {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'The number of items in the order.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order_id = $args['order_id'] ?? 0;
-
-					if ( ! $order_id || ! function_exists( 'edd_get_order_items' ) ) {
-						return 0;
-					}
-
-					$items = edd_get_order_items( [
-						'order_id' => $order_id,
-						'number'   => 999,
-					] );
-
-					return count( $items );
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_item_count( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 		];
@@ -294,19 +242,9 @@ class Order {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'The billing country for the order.', 'arraypress' ),
-				'options'       => fn() => function_exists( 'edd_get_country_list' ) ? Format::options( edd_get_country_list() ) : [],
+				'options'       => fn() => Options::get_countries(),
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					if ( ! $order ) {
-						return '';
-					}
-
-					$address = $order->get_address();
-
-					return $address ? $address->country : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_country( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_region'   => [
@@ -315,17 +253,7 @@ class Order {
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. CA, NY', 'arraypress' ),
 				'description'   => __( 'The billing region/state for the order.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					if ( ! $order ) {
-						return '';
-					}
-
-					$address = $order->get_address();
-
-					return $address ? $address->region : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_region( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_city'     => [
@@ -334,17 +262,7 @@ class Order {
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. Los Angeles', 'arraypress' ),
 				'description'   => __( 'The billing city for the order.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					if ( ! $order ) {
-						return '';
-					}
-
-					$address = $order->get_address();
-
-					return $address ? $address->city : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_city( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_postcode' => [
@@ -353,17 +271,7 @@ class Order {
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. 90210', 'arraypress' ),
 				'description'   => __( 'The billing postal/zip code for the order.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					if ( ! $order ) {
-						return '';
-					}
-
-					$address = $order->get_address();
-
-					return $address ? $address->postal_code : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_postcode( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 		];
@@ -376,19 +284,16 @@ class Order {
 	 */
 	private static function get_customer_conditions(): array {
 		return [
-			'edd_order_email' => [
+			'edd_order_email'       => [
 				'label'         => __( 'Email', 'arraypress' ),
 				'group'         => __( 'Order: Customer', 'arraypress' ),
 				'type'          => 'email',
 				'placeholder'   => __( 'e.g. john@test.com, @gmail.com, .edu', 'arraypress' ),
 				'description'   => __( 'Match order email against patterns. Supports: full email, @domain, .tld, or domain.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-					return $order ? $order->email : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_email( $args ),
 				'required_args' => [ 'order_id' ],
 			],
-			'edd_order_customer_id'  => [
+			'edd_order_customer_id' => [
 				'label'         => __( 'Customer', 'arraypress' ),
 				'group'         => __( 'Order: Customer', 'arraypress' ),
 				'type'          => 'ajax',
@@ -397,14 +302,10 @@ class Order {
 				'description'   => __( 'The customer who placed the order.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'ajax'          => fn( ?string $search, ?array $ids ): array => Options::get_customer_options( $search, $ids ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return (int) $order?->customer_id;
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_customer_id( $args ),
 				'required_args' => [ 'order_id' ],
 			],
-			'edd_order_user_id'      => [
+			'edd_order_user_id'     => [
 				'label'         => __( 'User', 'arraypress' ),
 				'group'         => __( 'Order: Customer', 'arraypress' ),
 				'type'          => 'user',
@@ -412,11 +313,7 @@ class Order {
 				'placeholder'   => __( 'Search users...', 'arraypress' ),
 				'description'   => __( 'The WordPress user who placed the order.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return (int) $order?->user_id;
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_user_id( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 		];
@@ -434,11 +331,7 @@ class Order {
 				'group'         => __( 'Order: Dates', 'arraypress' ),
 				'type'          => 'date',
 				'description'   => __( 'The date the order was created.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order ? wp_date( 'Y-m-d', strtotime( $order->date_created ) ) : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_date_created( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_date_completed' => [
@@ -446,11 +339,7 @@ class Order {
 				'group'         => __( 'Order: Dates', 'arraypress' ),
 				'type'          => 'date',
 				'description'   => __( 'The date the order was completed.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					return $order && $order->date_completed ? wp_date( 'Y-m-d', strtotime( $order->date_completed ) ) : '';
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_date_completed( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_age'            => [
@@ -461,15 +350,7 @@ class Order {
 				'min'           => 0,
 				'units'         => Periods::get_age_units(),
 				'description'   => __( 'How long ago the order was placed.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$order = self::get_order( $args );
-
-					if ( ! $order || empty( $order->date_created ) ) {
-						return 0;
-					}
-
-					return DateTimeHelper::get_age( $order->date_created, $args['_unit'] ?? 'day' );
-				},
+				'compare_value' => fn( $args ) => OrderHelper::get_age( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 		];
@@ -489,7 +370,7 @@ class Order {
 				'group'         => __( 'Order: Subscriptions', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the order is a subscription renewal.', 'arraypress' ),
-				'compare_value' => fn( $args ) => OrderHelper::is_renewal( $args['order_id'] ?? 0 ),
+				'compare_value' => fn( $args ) => OrderHelper::is_renewal( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_is_subscription'    => [
@@ -497,7 +378,7 @@ class Order {
 				'group'         => __( 'Order: Subscriptions', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the order is an initial subscription payment.', 'arraypress' ),
-				'compare_value' => fn( $args ) => OrderHelper::is_subscription( $args['order_id'] ?? 0 ),
+				'compare_value' => fn( $args ) => OrderHelper::is_subscription( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_subscription_count' => [
@@ -508,31 +389,10 @@ class Order {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'Number of subscriptions created from this order.', 'arraypress' ),
-				'compare_value' => fn( $args ) => OrderHelper::get_subscription_count( $args['order_id'] ?? 0 ),
+				'compare_value' => fn( $args ) => OrderHelper::get_subscription_count( $args ),
 				'required_args' => [ 'order_id' ],
 			],
 		];
-	}
-
-	/**
-	 * Get order object from args.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return EDD_Order|null
-	 */
-	private static function get_order( array $args ): ?EDD_Order {
-		if ( ! function_exists( 'edd_get_order' ) ) {
-			return null;
-		}
-
-		$order_id = $args['order_id'] ?? 0;
-
-		if ( ! $order_id ) {
-			return null;
-		}
-
-		return edd_get_order( $order_id );
 	}
 
 }

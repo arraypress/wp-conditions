@@ -2,7 +2,7 @@
 /**
  * DateTime Built-in Conditions
  *
- * @package     ArrayPress\Conditions\Conditions\BuiltIn
+ * @package     ArrayPress\Conditions\Conditions\Core
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
@@ -50,7 +50,7 @@ class DateTime {
 				'group'         => __( 'Date & Time: Date', 'arraypress' ),
 				'type'          => 'date',
 				'description'   => __( 'Match against the current date.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['current_date'] ?? current_time( 'Y-m-d' ),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_current_date( $args ),
 				'required_args' => [],
 			],
 			'current_year'  => [
@@ -62,7 +62,7 @@ class DateTime {
 				'min'           => 2000,
 				'max'           => 2100,
 				'step'          => 1,
-				'compare_value' => fn( $args ) => $args['current_year'] ?? (int) current_time( 'Y' ),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_current_year( $args ),
 				'required_args' => [],
 			],
 			'current_month' => [
@@ -74,7 +74,7 @@ class DateTime {
 				'description'   => __( 'Match against the current month.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => Periods::get_months(),
-				'compare_value' => fn( $args ) => $args['current_month'] ?? current_time( 'n' ),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_current_month( $args ),
 				'required_args' => [],
 			],
 			'day_of_month'  => [
@@ -86,7 +86,7 @@ class DateTime {
 				'min'           => 1,
 				'max'           => 31,
 				'step'          => 1,
-				'compare_value' => fn( $args ) => $args['day_of_month'] ?? (int) current_time( 'j' ),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_day_of_month( $args ),
 				'required_args' => [],
 			],
 			'day_of_week'   => [
@@ -98,7 +98,7 @@ class DateTime {
 				'description'   => __( 'Match against the current day of the week.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => Periods::get_days_of_week(),
-				'compare_value' => fn( $args ) => $args['day_of_week'] ?? current_time( 'N' ),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_day_of_week( $args ),
 				'required_args' => [],
 			],
 			'day_of_year'   => [
@@ -110,7 +110,7 @@ class DateTime {
 				'min'           => 1,
 				'max'           => 366,
 				'step'          => 1,
-				'compare_value' => fn( $args ) => $args['day_of_year'] ?? (int) current_time( 'z' ) + 1,
+				'compare_value' => fn( $args ) => DateTimeHelper::get_day_of_year( $args ),
 				'required_args' => [],
 			],
 		];
@@ -128,7 +128,7 @@ class DateTime {
 				'group'         => __( 'Date & Time: Time', 'arraypress' ),
 				'type'          => 'time',
 				'description'   => __( 'Match against the current time.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['current_time'] ?? current_time( 'H:i' ),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_current_time( $args ),
 				'required_args' => [],
 			],
 			'time_of_day'  => [
@@ -140,7 +140,7 @@ class DateTime {
 				'description'   => __( 'Match against the current part of the day.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => Periods::get_times_of_day(),
-				'compare_value' => fn( $args ) => $args['time_of_day'] ?? DateTimeHelper::get_time_of_day(),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_time_of_day( $args ),
 				'required_args' => [],
 			],
 		];
@@ -162,7 +162,7 @@ class DateTime {
 				'description'   => __( 'Match against the current quarter.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => Periods::get_quarters(),
-				'compare_value' => fn( $args ) => $args['quarter'] ?? (string) DateTimeHelper::get_quarter(),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_quarter( $args ),
 				'required_args' => [],
 			],
 			'week_of_year' => [
@@ -174,7 +174,7 @@ class DateTime {
 				'min'           => 1,
 				'max'           => 53,
 				'step'          => 1,
-				'compare_value' => fn( $args ) => $args['week_of_year'] ?? (int) current_time( 'W' ),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_week_of_year( $args ),
 				'required_args' => [],
 			],
 		];
@@ -192,7 +192,7 @@ class DateTime {
 				'group'         => __( 'Date & Time: Convenience', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if today is Saturday or Sunday.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['is_weekend'] ?? DateTimeHelper::is_weekend(),
+				'compare_value' => fn( $args ) => DateTimeHelper::is_weekend( $args ),
 				'required_args' => [],
 			],
 			'is_weekday'        => [
@@ -200,7 +200,7 @@ class DateTime {
 				'group'         => __( 'Date & Time: Convenience', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if today is Monday through Friday.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['is_weekday'] ?? DateTimeHelper::is_weekday(),
+				'compare_value' => fn( $args ) => DateTimeHelper::is_weekday( $args ),
 				'required_args' => [],
 			],
 			'is_business_hours' => [
@@ -208,7 +208,7 @@ class DateTime {
 				'group'         => __( 'Date & Time: Convenience', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if current time is Monday-Friday 9am-5pm.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['is_business_hours'] ?? DateTimeHelper::is_business_hours(),
+				'compare_value' => fn( $args ) => DateTimeHelper::is_business_hours( $args ),
 				'required_args' => [],
 			],
 		];

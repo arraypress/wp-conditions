@@ -209,6 +209,17 @@ class Cart {
 				'compare_value' => fn( $args ) => CartHelper::count_by_type( 'bundle' ),
 				'required_args' => [],
 			],
+			'edd_cart_service_count' => [
+				'label'         => __( 'Service Count', 'arraypress' ),
+				'group'         => __( 'Cart: Item Counts', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 2', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'The number of service products in the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::count_by_type( 'service' ),
+				'required_args' => [],
+			],
 			'edd_cart_free_count'   => [
 				'label'         => __( 'Free Item Count', 'arraypress' ),
 				'group'         => __( 'Cart: Item Counts', 'arraypress' ),

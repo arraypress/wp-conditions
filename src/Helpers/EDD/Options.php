@@ -4,7 +4,7 @@
  *
  * Provides utilities for EDD condition options.
  *
- * @package     ArrayPress\Conditions\Conditions\BuiltIn\EDD\Helpers
+ * @package     ArrayPress\Conditions\Helpers\EDD
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
@@ -15,6 +15,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Helpers\EDD;
 
+use ArrayPress\Conditions\Helpers\Format;
 use EDD\Reports;
 
 /**
@@ -33,10 +34,6 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_discount_options( ?string $search, ?array $ids ): array {
-		if ( ! function_exists( 'edd_get_discounts' ) ) {
-			return [];
-		}
-
 		$args = [
 			'number' => 20,
 			'status' => [ 'active', 'inactive' ],
@@ -71,10 +68,6 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_customer_options( ?string $search, ?array $ids ): array {
-		if ( ! function_exists( 'edd_get_customers' ) ) {
-			return [];
-		}
-
 		$args = [
 			'number' => 20,
 		];
@@ -106,21 +99,7 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_countries(): array {
-		if ( ! function_exists( 'edd_get_country_list' ) ) {
-			return [];
-		}
-
-		$countries = edd_get_country_list();
-		$options   = [];
-
-		foreach ( $countries as $value => $label ) {
-			$options[] = [
-				'value' => $value,
-				'label' => $label,
-			];
-		}
-
-		return $options;
+		return Format::options( edd_get_country_list() );
 	}
 
 	/**
@@ -134,15 +113,7 @@ class Options {
 		// Remove 'other' (custom) as it doesn't make sense for conditions
 		unset( $edd_options['other'] );
 
-		$options = [];
-		foreach ( $edd_options as $value => $label ) {
-			$options[] = [
-				'value' => $value,
-				'label' => $label,
-			];
-		}
-
-		return $options;
+		return Format::options( $edd_options );
 	}
 
 	/**
@@ -151,17 +122,7 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_order_statuses(): array {
-		$statuses = edd_get_payment_statuses();
-		$options  = [];
-
-		foreach ( $statuses as $value => $label ) {
-			$options[] = [
-				'value' => $value,
-				'label' => $label,
-			];
-		}
-
-		return $options;
+		return Format::options( edd_get_payment_statuses() );
 	}
 
 	/**
@@ -170,17 +131,16 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_gateways(): array {
-		$gateways = edd_get_payment_gateways();
-		$options  = [];
+		return Format::options( edd_get_payment_gateways(), 'admin_label' );
+	}
 
-		foreach ( $gateways as $value => $data ) {
-			$options[] = [
-				'value' => $value,
-				'label' => $data['admin_label'] ?? $value,
-			];
-		}
-
-		return $options;
+	/**
+	 * Get currency options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_currencies(): array {
+		return Format::options( edd_get_currencies() );
 	}
 
 }
