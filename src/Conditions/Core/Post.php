@@ -14,8 +14,8 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\Core;
 
 use ArrayPress\Conditions\Helpers\Post as PostHelper;
-use ArrayPress\Conditions\Helpers\Options;
-use ArrayPress\Conditions\Helpers\Periods;
+use ArrayPress\Conditions\Options\WordPress;
+use ArrayPress\Conditions\Options\Periods;
 use ArrayPress\Conditions\Operators;
 
 /**
@@ -54,7 +54,7 @@ class Post {
 				'placeholder'   => __( 'Select statuses...', 'arraypress' ),
 				'description'   => __( 'Match against the post status.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => Options::get_post_statuses(),
+				'options'       => fn() => WordPress::get_post_statuses(),
 				'compare_value' => fn( $args ) => PostHelper::get_status( $args ),
 				'required_args' => [ 'post_id' ],
 			],
@@ -66,7 +66,7 @@ class Post {
 				'placeholder'   => __( 'Select post types...', 'arraypress' ),
 				'description'   => __( 'Match against the post type.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => Options::get_post_types(),
+				'options'       => fn() => WordPress::get_post_types(),
 				'compare_value' => fn( $args ) => PostHelper::get_type( $args ),
 				'required_args' => [ 'post_id' ],
 			],
@@ -111,7 +111,7 @@ class Post {
 				'placeholder'   => __( 'Select template...', 'arraypress' ),
 				'description'   => __( 'Match against the page template.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => Options::get_page_templates(),
+				'options'       => fn() => WordPress::get_page_templates(),
 				'compare_value' => fn( $args ) => PostHelper::get_template( $args ),
 				'required_args' => [ 'post_id' ],
 			],
@@ -123,7 +123,7 @@ class Post {
 				'placeholder'   => __( 'Select format...', 'arraypress' ),
 				'description'   => __( 'Match against the post format.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => Options::get_post_formats(),
+				'options'       => fn() => WordPress::get_post_formats(),
 				'compare_value' => fn( $args ) => PostHelper::get_format( $args ),
 				'required_args' => [ 'post_id' ],
 			],
@@ -208,10 +208,7 @@ class Post {
 				'multiple'      => false,
 				'placeholder'   => __( 'Select status...', 'arraypress' ),
 				'description'   => __( 'Whether comments are open or closed.', 'arraypress' ),
-				'options'       => [
-					[ 'value' => 'open', 'label' => __( 'Open', 'arraypress' ) ],
-					[ 'value' => 'closed', 'label' => __( 'Closed', 'arraypress' ) ],
-				],
+				'options'       => WordPress::get_comment_statuses(),
 				'compare_value' => fn( $args ) => PostHelper::get_comment_status( $args ),
 				'required_args' => [ 'post_id' ],
 			],

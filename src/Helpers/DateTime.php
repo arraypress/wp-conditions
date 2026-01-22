@@ -22,9 +22,7 @@ namespace ArrayPress\Conditions\Helpers;
  */
 class DateTime {
 
-	/** -------------------------------------------------------------------------
-	 * Date Methods
-	 * ------------------------------------------------------------------------ */
+	/** Current Value Getters *****************************************************/
 
 	/**
 	 * Get the current date.
@@ -35,6 +33,17 @@ class DateTime {
 	 */
 	public static function get_current_date( array $args = [] ): string {
 		return $args['current_date'] ?? current_time( 'Y-m-d' );
+	}
+
+	/**
+	 * Get the current time.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string H:i formatted time.
+	 */
+	public static function get_current_time( array $args = [] ): string {
+		return $args['current_time'] ?? current_time( 'H:i' );
 	}
 
 	/**
@@ -57,6 +66,28 @@ class DateTime {
 	 */
 	public static function get_current_month( array $args = [] ): int {
 		return $args['current_month'] ?? (int) current_time( 'n' );
+	}
+
+	/**
+	 * Get the current quarter (1-4).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_current_quarter( array $args = [] ): int {
+		return $args['quarter'] ?? (int) ceil( (int) current_time( 'n' ) / 3 );
+	}
+
+	/**
+	 * Get the current week of year (1-53).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_current_week( array $args = [] ): int {
+		return $args['week_of_year'] ?? (int) current_time( 'W' );
 	}
 
 	/**
@@ -92,21 +123,6 @@ class DateTime {
 		return $args['day_of_year'] ?? (int) current_time( 'z' ) + 1;
 	}
 
-	/** -------------------------------------------------------------------------
-	 * Time Methods
-	 * ------------------------------------------------------------------------ */
-
-	/**
-	 * Get the current time.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string H:i formatted time.
-	 */
-	public static function get_current_time( array $args = [] ): string {
-		return $args['current_time'] ?? current_time( 'H:i' );
-	}
-
 	/**
 	 * Get the current time of day period.
 	 *
@@ -131,35 +147,7 @@ class DateTime {
 		};
 	}
 
-	/** -------------------------------------------------------------------------
-	 * Period Methods
-	 * ------------------------------------------------------------------------ */
-
-	/**
-	 * Get the current quarter (1-4).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return int
-	 */
-	public static function get_quarter( array $args = [] ): int {
-		return $args['quarter'] ?? (int) ceil( (int) current_time( 'n' ) / 3 );
-	}
-
-	/**
-	 * Get the current week of year (1-53).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return int
-	 */
-	public static function get_week_of_year( array $args = [] ): int {
-		return $args['week_of_year'] ?? (int) current_time( 'W' );
-	}
-
-	/** -------------------------------------------------------------------------
-	 * Convenience Methods
-	 * ------------------------------------------------------------------------ */
+	/** Boolean Checks ************************************************************/
 
 	/**
 	 * Check if today is a weekend (Saturday or Sunday).
@@ -201,9 +189,7 @@ class DateTime {
 		return $day <= 5 && $hour >= 9 && $hour < 17;
 	}
 
-	/** -------------------------------------------------------------------------
-	 * Calculation Methods
-	 * ------------------------------------------------------------------------ */
+	/** Unit Conversions **********************************************************/
 
 	/**
 	 * Get the seconds multiplier for a unit.
@@ -247,6 +233,8 @@ class DateTime {
 		return (int) floor( $seconds / self::get_multiplier( $unit ) );
 	}
 
+	/** Age Calculations **********************************************************/
+
 	/**
 	 * Calculate age from a date string in specified units.
 	 *
@@ -287,6 +275,8 @@ class DateTime {
 
 		return self::from_seconds( $diff, $unit );
 	}
+
+	/** Date Ranges ***************************************************************/
 
 	/**
 	 * Get a date range from now back to X units ago.

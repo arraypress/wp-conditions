@@ -14,7 +14,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\Core;
 
 use ArrayPress\Conditions\Helpers\DateTime as DateTimeHelper;
-use ArrayPress\Conditions\Helpers\Periods;
+use ArrayPress\Conditions\Options\Periods;
 use ArrayPress\Conditions\Operators;
 
 /**
@@ -162,7 +162,7 @@ class DateTime {
 				'description'   => __( 'Match against the current quarter.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => Periods::get_quarters(),
-				'compare_value' => fn( $args ) => DateTimeHelper::get_quarter( $args ),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_current_quarter( $args ),
 				'required_args' => [],
 			],
 			'week_of_year' => [
@@ -174,7 +174,7 @@ class DateTime {
 				'min'           => 1,
 				'max'           => 53,
 				'step'          => 1,
-				'compare_value' => fn( $args ) => DateTimeHelper::get_week_of_year( $args ),
+				'compare_value' => fn( $args ) => DateTimeHelper::get_current_week( $args ),
 				'required_args' => [],
 			],
 		];

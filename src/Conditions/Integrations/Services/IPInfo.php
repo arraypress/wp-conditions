@@ -15,10 +15,10 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\Integrations\Services;
 
-use ArrayPress\Conditions\Helpers\Geography;
 use ArrayPress\Conditions\Helpers\Network;
 use ArrayPress\Conditions\Clients\IPInfo as IPInfoHelper;
 use ArrayPress\Conditions\Operators;
+use ArrayPress\Countries\Countries;
 
 /**
  * Class IPInfo
@@ -54,7 +54,7 @@ class IPInfo {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'The country of the IP address.', 'arraypress' ),
-				'options'       => fn() => Countries::get_value_label_options(),
+				'options'       => fn() => Countries::get_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => IPInfoHelper::get_country( $args ),
 				'required_args' => [ 'ip', 'ipinfo_api_key' ],

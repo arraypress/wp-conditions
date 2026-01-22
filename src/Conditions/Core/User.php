@@ -14,8 +14,8 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\Core;
 
 use ArrayPress\Conditions\Helpers\User as UserHelper;
-use ArrayPress\Conditions\Helpers\Options;
-use ArrayPress\Conditions\Helpers\Periods;
+use ArrayPress\Conditions\Options\WordPress;
+use ArrayPress\Conditions\Options\Periods;
 use ArrayPress\Conditions\Operators;
 
 /**
@@ -72,7 +72,7 @@ class User {
 				'placeholder'   => __( 'Select roles...', 'arraypress' ),
 				'description'   => __( 'Match against the user\'s role(s).', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => Options::get_roles(),
+				'options'       => fn() => WordPress::get_roles(),
 				'compare_value' => fn( $args ) => UserHelper::get_roles( $args ),
 				'required_args' => [],
 			],
@@ -84,7 +84,7 @@ class User {
 				'placeholder'   => __( 'Select capabilities...', 'arraypress' ),
 				'description'   => __( 'Check if the user has specific capabilities.', 'arraypress' ),
 				'operators'     => Operators::collection(),
-				'options'       => fn() => Options::get_capabilities(),
+				'options'       => fn() => WordPress::get_capabilities(),
 				'compare_value' => fn( $args ) => UserHelper::get_capabilities( $args ),
 				'required_args' => [],
 			],
@@ -125,18 +125,6 @@ class User {
 				'min'           => 0,
 				'units'         => Periods::get_age_units(),
 				'compare_value' => fn( $args ) => UserHelper::get_age( $args ),
-				'required_args' => [],
-			],
-			'user_locale'     => [
-				'label'         => __( 'User Locale', 'arraypress' ),
-				'group'         => __( 'User: Profile', 'arraypress' ),
-				'type'          => 'select',
-				'multiple'      => true,
-				'placeholder'   => __( 'Select locale...', 'arraypress' ),
-				'description'   => __( 'The user\'s configured locale/language.', 'arraypress' ),
-				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => Options::get_available_locales(),
-				'compare_value' => fn( $args ) => UserHelper::get_locale( $args ),
 				'required_args' => [],
 			],
 		];

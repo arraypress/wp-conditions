@@ -16,6 +16,7 @@ namespace ArrayPress\Conditions\Conditions\Core;
 use ArrayPress\AcceptLanguageUtils\AcceptLanguage;
 use ArrayPress\Conditions\Helpers\Request as RequestHelper;
 use ArrayPress\Conditions\Operators;
+use ArrayPress\Conditions\Options\Network;
 use ArrayPress\IPUtils\IP;
 use ArrayPress\ReferrerUtils\Referrer;
 use ArrayPress\UserAgentUtils\UserAgent;
@@ -94,15 +95,7 @@ class Request {
 				'placeholder'   => __( 'Select methods...', 'arraypress' ),
 				'description'   => __( 'The HTTP request method.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => [
-					[ 'value' => 'GET', 'label' => 'GET' ],
-					[ 'value' => 'POST', 'label' => 'POST' ],
-					[ 'value' => 'PUT', 'label' => 'PUT' ],
-					[ 'value' => 'PATCH', 'label' => 'PATCH' ],
-					[ 'value' => 'DELETE', 'label' => 'DELETE' ],
-					[ 'value' => 'HEAD', 'label' => 'HEAD' ],
-					[ 'value' => 'OPTIONS', 'label' => 'OPTIONS' ],
-				],
+				'options'       => Network::get_request_methods(),
 				'compare_value' => fn( $args ) => RequestHelper::get_method( $args ),
 				'required_args' => [],
 			],

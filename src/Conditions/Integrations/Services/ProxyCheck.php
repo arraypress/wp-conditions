@@ -19,6 +19,7 @@ use ArrayPress\Conditions\Helpers\Geography;
 use ArrayPress\Conditions\Helpers\Network;
 use ArrayPress\Conditions\Clients\ProxyCheck as ProxyCheckHelper;
 use ArrayPress\Conditions\Operators;
+use ArrayPress\Countries\Countries;
 
 /**
  * Class ProxyCheck
@@ -172,18 +173,6 @@ class ProxyCheck {
 				'placeholder'   => __( 'e.g., London', 'arraypress' ),
 				'description'   => __( 'The city of the IP address.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_city( $args ),
-				'required_args' => [ 'ip', 'proxycheck_api_key' ],
-			],
-			'proxycheck_timezone'  => [
-				'label'         => __( 'Timezone', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Location', 'arraypress' ),
-				'type'          => 'select',
-				'multiple'      => true,
-				'placeholder'   => __( 'Select timezones...', 'arraypress' ),
-				'description'   => __( 'The timezone of the IP address.', 'arraypress' ),
-				'options'       => fn() => Geography::get_timezones(),
-				'operators'     => Operators::collection_any_none(),
-				'compare_value' => fn( $args ) => ProxyCheckHelper::get_timezone( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
 		];

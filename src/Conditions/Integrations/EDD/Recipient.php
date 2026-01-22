@@ -15,7 +15,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
 
-use ArrayPress\Conditions\Helpers\Periods;
+use ArrayPress\Conditions\Options\Periods;
 use ArrayPress\Conditions\Helpers\User as UserHelper;
 
 /**

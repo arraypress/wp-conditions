@@ -17,7 +17,7 @@ use ArrayPress\Conditions\Helpers\EDD\Product as ProductHelper;
 use ArrayPress\Conditions\Helpers\EDD\Stats;
 use ArrayPress\Conditions\Helpers\Format;
 use ArrayPress\Conditions\Helpers\Parse;
-use ArrayPress\Conditions\Helpers\Periods;
+use ArrayPress\Conditions\Options\Periods;
 use ArrayPress\Conditions\Operators;
 
 /**

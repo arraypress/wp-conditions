@@ -22,6 +22,8 @@ namespace ArrayPress\Conditions\Options;
  */
 class Units {
 
+	/** Measurement Units *********************************************************/
+
 	/**
 	 * Get weight units.
 	 *
@@ -79,6 +81,20 @@ class Units {
 	}
 
 	/**
+	 * Get temperature units.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_temperature(): array {
+		return [
+			[ 'value' => 'c', 'label' => __( 'Celsius (°C)', 'arraypress' ) ],
+			[ 'value' => 'f', 'label' => __( 'Fahrenheit (°F)', 'arraypress' ) ],
+		];
+	}
+
+	/** Digital Units *************************************************************/
+
+	/**
 	 * Get data storage units.
 	 *
 	 * @return array<array{value: string, label: string}>
@@ -92,16 +108,7 @@ class Units {
 		];
 	}
 
-	/**
-	 * Get percentage units.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_percentage(): array {
-		return [
-			[ 'value' => 'percent', 'label' => __( 'Percent (%)', 'arraypress' ) ],
-		];
-	}
+	/** Quantity Units ************************************************************/
 
 	/**
 	 * Get quantity/count units.
@@ -116,6 +123,8 @@ class Units {
 		];
 	}
 
+	/** Currency Units ************************************************************/
+
 	/**
 	 * Get currency units (common).
 	 *
@@ -128,19 +137,6 @@ class Units {
 			[ 'value' => 'gbp', 'label' => __( 'British Pounds (£)', 'arraypress' ) ],
 			[ 'value' => 'cad', 'label' => __( 'Canadian Dollars (C$)', 'arraypress' ) ],
 			[ 'value' => 'aud', 'label' => __( 'Australian Dollars (A$)', 'arraypress' ) ],
-		];
-	}
-
-	/**
-	 * Get temperature units.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_temperature(): array {
-		return [
-			[ 'value' => 'c', 'label' => __( 'Celsius (°C)', 'arraypress' ) ],
-			[ 'value' => 'f', 'label' => __( 'Fahrenheit (°F)', 'arraypress' ) ],
-			[ 'value' => 'k', 'label' => __( 'Kelvin (K)', 'arraypress' ) ],
 		];
 	}
 

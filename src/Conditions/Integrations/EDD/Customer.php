@@ -15,7 +15,7 @@ namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
 
 use ArrayPress\Conditions\Helpers\EDD\Customer as CustomerHelper;
 use ArrayPress\Conditions\Helpers\EDD\Options;
-use ArrayPress\Conditions\Helpers\Periods;
+use ArrayPress\Conditions\Options\Periods;
 use ArrayPress\Conditions\Operators;
 
 /**

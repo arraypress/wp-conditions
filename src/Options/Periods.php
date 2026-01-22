@@ -22,6 +22,8 @@ namespace ArrayPress\Conditions\Options;
  */
 class Periods {
 
+	/** Time Units ****************************************************************/
+
 	/**
 	 * Get time period units (includes minutes and hours).
 	 *
@@ -56,6 +58,8 @@ class Periods {
 		];
 	}
 
+	/** Calendar Options **********************************************************/
+
 	/**
 	 * Get month options.
 	 *
@@ -75,6 +79,20 @@ class Periods {
 			[ 'value' => '10', 'label' => __( 'October', 'arraypress' ) ],
 			[ 'value' => '11', 'label' => __( 'November', 'arraypress' ) ],
 			[ 'value' => '12', 'label' => __( 'December', 'arraypress' ) ],
+		];
+	}
+
+	/**
+	 * Get quarter options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_quarters(): array {
+		return [
+			[ 'value' => '1', 'label' => __( 'Q1 (Jan - Mar)', 'arraypress' ) ],
+			[ 'value' => '2', 'label' => __( 'Q2 (Apr - Jun)', 'arraypress' ) ],
+			[ 'value' => '3', 'label' => __( 'Q3 (Jul - Sep)', 'arraypress' ) ],
+			[ 'value' => '4', 'label' => __( 'Q4 (Oct - Dec)', 'arraypress' ) ],
 		];
 	}
 
@@ -110,20 +128,6 @@ class Periods {
 			[ 'value' => 'evening', 'label' => __( 'Evening (5pm - 9pm)', 'arraypress' ) ],
 			[ 'value' => 'night', 'label' => __( 'Night (9pm - 12am)', 'arraypress' ) ],
 			[ 'value' => 'late_night', 'label' => __( 'Late Night (12am - 5am)', 'arraypress' ) ],
-		];
-	}
-
-	/**
-	 * Get quarter options.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_quarters(): array {
-		return [
-			[ 'value' => '1', 'label' => __( 'Q1 (Jan - Mar)', 'arraypress' ) ],
-			[ 'value' => '2', 'label' => __( 'Q2 (Apr - Jun)', 'arraypress' ) ],
-			[ 'value' => '3', 'label' => __( 'Q3 (Jul - Sep)', 'arraypress' ) ],
-			[ 'value' => '4', 'label' => __( 'Q4 (Oct - Dec)', 'arraypress' ) ],
 		];
 	}
 

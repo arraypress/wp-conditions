@@ -13,6 +13,9 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\Core;
 
+use ArrayPress\Conditions\Helpers\Context as ContextHelper;
+use ArrayPress\Conditions\Options\WordPress;
+
 /**
  * Class Context
  *
@@ -29,7 +32,8 @@ class Context {
 		return array_merge(
 			self::get_page_conditions(),
 			self::get_archive_conditions(),
-			self::get_request_type_conditions()
+			self::get_request_conditions(),
+			self::get_environment_conditions()
 		);
 	}
 
@@ -186,6 +190,30 @@ class Context {
 				'compare_value' => fn( $args ) => $args['is_date'] ?? is_date(),
 				'required_args' => [],
 			],
+			'is_year'              => [
+				'label'         => __( 'Is Year Archive', 'arraypress' ),
+				'group'         => __( 'WordPress: Archive', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if on a yearly archive page.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_year'] ?? is_year(),
+				'required_args' => [],
+			],
+			'is_month'             => [
+				'label'         => __( 'Is Month Archive', 'arraypress' ),
+				'group'         => __( 'WordPress: Archive', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if on a monthly archive page.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_month'] ?? is_month(),
+				'required_args' => [],
+			],
+			'is_day'               => [
+				'label'         => __( 'Is Day Archive', 'arraypress' ),
+				'group'         => __( 'WordPress: Archive', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if on a daily archive page.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_day'] ?? is_day(),
+				'required_args' => [],
+			],
 		];
 	}
 
@@ -194,9 +222,9 @@ class Context {
 	 *
 	 * @return array<string, array>
 	 */
-	private static function get_request_type_conditions(): array {
+	private static function get_request_conditions(): array {
 		return [
-			'is_admin'                => [
+			'is_admin'              => [
 				'label'         => __( 'Is Admin Area', 'arraypress' ),
 				'group'         => __( 'WordPress: Request', 'arraypress' ),
 				'type'          => 'boolean',
@@ -204,7 +232,15 @@ class Context {
 				'compare_value' => fn( $args ) => $args['is_admin'] ?? is_admin(),
 				'required_args' => [],
 			],
-			'is_ajax'                 => [
+			'is_network_admin'      => [
+				'label'         => __( 'Is Network Admin', 'arraypress' ),
+				'group'         => __( 'WordPress: Request', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if in the network admin area (multisite).', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_network_admin'] ?? is_network_admin(),
+				'required_args' => [],
+			],
+			'is_ajax'               => [
 				'label'         => __( 'Is AJAX Request', 'arraypress' ),
 				'group'         => __( 'WordPress: Request', 'arraypress' ),
 				'type'          => 'boolean',
@@ -212,15 +248,15 @@ class Context {
 				'compare_value' => fn( $args ) => $args['is_ajax'] ?? wp_doing_ajax(),
 				'required_args' => [],
 			],
-			'is_rest'                 => [
+			'is_rest'               => [
 				'label'         => __( 'Is REST Request', 'arraypress' ),
 				'group'         => __( 'WordPress: Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is a REST API request.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['is_rest'] ?? ( defined( 'REST_REQUEST' ) && REST_REQUEST ),
+				'compare_value' => fn( $args ) => ContextHelper::is_rest( $args ),
 				'required_args' => [],
 			],
-			'is_cron'                 => [
+			'is_cron'               => [
 				'label'         => __( 'Is Cron Job', 'arraypress' ),
 				'group'         => __( 'WordPress: Request', 'arraypress' ),
 				'type'          => 'boolean',
@@ -228,7 +264,15 @@ class Context {
 				'compare_value' => fn( $args ) => $args['is_cron'] ?? wp_doing_cron(),
 				'required_args' => [],
 			],
-			'is_feed'                 => [
+			'is_cli'                => [
+				'label'         => __( 'Is WP-CLI', 'arraypress' ),
+				'group'         => __( 'WordPress: Request', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if running from WP-CLI command line.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ContextHelper::is_cli( $args ),
+				'required_args' => [],
+			],
+			'is_feed'               => [
 				'label'         => __( 'Is Feed', 'arraypress' ),
 				'group'         => __( 'WordPress: Request', 'arraypress' ),
 				'type'          => 'boolean',
@@ -236,12 +280,87 @@ class Context {
 				'compare_value' => fn( $args ) => $args['is_feed'] ?? is_feed(),
 				'required_args' => [],
 			],
-			'is_customizer_preview'   => [
+			'is_customizer_preview' => [
 				'label'         => __( 'Is Customizer Preview', 'arraypress' ),
 				'group'         => __( 'WordPress: Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if viewing the customizer preview.', 'arraypress' ),
 				'compare_value' => fn( $args ) => $args['is_customizer_preview'] ?? is_customize_preview(),
+				'required_args' => [],
+			],
+			'is_embed'              => [
+				'label'         => __( 'Is Embed', 'arraypress' ),
+				'group'         => __( 'WordPress: Request', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if this is an oEmbed request.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_embed'] ?? is_embed(),
+				'required_args' => [],
+			],
+		];
+	}
+
+	/**
+	 * Get environment conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_environment_conditions(): array {
+		return [
+			'is_multisite' => [
+				'label'         => __( 'Is Multisite', 'arraypress' ),
+				'group'         => __( 'WordPress: Environment', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if this is a multisite installation.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_multisite'] ?? is_multisite(),
+				'required_args' => [],
+			],
+			'is_main_site' => [
+				'label'         => __( 'Is Main Site', 'arraypress' ),
+				'group'         => __( 'WordPress: Environment', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if this is the main site in a multisite network.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_main_site'] ?? is_main_site(),
+				'required_args' => [],
+			],
+			'is_debug'     => [
+				'label'         => __( 'Is Debug Mode', 'arraypress' ),
+				'group'         => __( 'WordPress: Environment', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if WP_DEBUG is enabled.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ContextHelper::is_debug( $args ),
+				'required_args' => [],
+			],
+			'environment'  => [
+				'label'         => __( 'Environment Type', 'arraypress' ),
+				'group'         => __( 'WordPress: Environment', 'arraypress' ),
+				'type'          => 'select',
+				'options'       => WordPress::get_environment_types(),
+				'description'   => __( 'Check the WordPress environment type.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ContextHelper::get_environment( $args ),
+				'required_args' => [],
+			],
+			'is_local'     => [
+				'label'         => __( 'Is Local Environment', 'arraypress' ),
+				'group'         => __( 'WordPress: Environment', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if running in a local/development environment.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ContextHelper::is_local( $args ),
+				'required_args' => [],
+			],
+			'is_ssl'       => [
+				'label'         => __( 'Is SSL/HTTPS', 'arraypress' ),
+				'group'         => __( 'WordPress: Environment', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the connection is using SSL/HTTPS.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_ssl'] ?? is_ssl(),
+				'required_args' => [],
+			],
+			'is_rtl'       => [
+				'label'         => __( 'Is RTL Language', 'arraypress' ),
+				'group'         => __( 'WordPress: Environment', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the current locale is right-to-left.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_rtl'] ?? is_rtl(),
 				'required_args' => [],
 			],
 		];

@@ -22,6 +22,24 @@ namespace ArrayPress\Conditions\Options;
  */
 class WordPress {
 
+	/** Environment ***************************************************************/
+
+	/**
+	 * Get environment type options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_environment_types(): array {
+		return [
+			[ 'value' => 'local', 'label' => __( 'Local', 'arraypress' ) ],
+			[ 'value' => 'development', 'label' => __( 'Development', 'arraypress' ) ],
+			[ 'value' => 'staging', 'label' => __( 'Staging', 'arraypress' ) ],
+			[ 'value' => 'production', 'label' => __( 'Production', 'arraypress' ) ],
+		];
+	}
+
+	/** Users & Roles *************************************************************/
+
 	/**
 	 * Get role options for select field.
 	 *
@@ -40,6 +58,60 @@ class WordPress {
 
 		return $options;
 	}
+
+	/**
+	 * Get user capabilities options.
+	 *
+	 * Returns all unique capabilities across all roles.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_capabilities(): array {
+		global $wp_roles;
+
+		if ( ! isset( $wp_roles ) ) {
+			$wp_roles = new \WP_Roles();
+		}
+
+		$capabilities = [];
+
+		foreach ( $wp_roles->roles as $role ) {
+			if ( isset( $role['capabilities'] ) && is_array( $role['capabilities'] ) ) {
+				foreach ( $role['capabilities'] as $cap => $granted ) {
+					if ( is_string( $cap ) && ! empty( $cap ) && $granted === true ) {
+						$capabilities[ $cap ] = true;
+					}
+				}
+			}
+		}
+
+		ksort( $capabilities );
+
+		$options = [];
+		foreach ( array_keys( $capabilities ) as $cap ) {
+			$options[] = [
+				'value' => $cap,
+				'label' => self::format_capability_label( $cap ),
+			];
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Format a capability name as a readable label.
+	 *
+	 * @param string $capability The capability name.
+	 *
+	 * @return string Formatted label.
+	 */
+	private static function format_capability_label( string $capability ): string {
+		$label = str_replace( '_', ' ', $capability );
+
+		return ucwords( $label );
+	}
+
+	/** Posts *********************************************************************/
 
 	/**
 	 * Get post status options.
@@ -82,131 +154,6 @@ class WordPress {
 	}
 
 	/**
-	 * Get user capabilities options.
-	 *
-	 * Returns all unique capabilities across all roles.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_capabilities(): array {
-		global $wp_roles;
-
-		if ( ! isset( $wp_roles ) ) {
-			$wp_roles = new \WP_Roles();
-		}
-
-		$capabilities = [];
-
-		// Collect all capabilities from all roles
-		foreach ( $wp_roles->roles as $role ) {
-			if ( isset( $role['capabilities'] ) && is_array( $role['capabilities'] ) ) {
-				foreach ( array_keys( $role['capabilities'] ) as $cap ) {
-					$capabilities[ $cap ] = true;
-				}
-			}
-		}
-
-		// Sort alphabetically
-		ksort( $capabilities );
-
-		$options = [];
-		foreach ( array_keys( $capabilities ) as $cap ) {
-			$options[] = [
-				'value' => $cap,
-				'label' => self::format_capability_label( (string) $cap ),
-			];
-		}
-
-		return $options;
-	}
-
-	/**
-	 * Format a capability name as a readable label.
-	 *
-	 * @param string $capability The capability name.
-	 *
-	 * @return string Formatted label.
-	 */
-	private static function format_capability_label( string $capability ): string {
-		// Replace underscores with spaces and capitalize words
-		$label = str_replace( '_', ' ', $capability );
-
-		return ucwords( $label );
-	}
-
-	/**
-	 * Get available locales/languages.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_locales(): array {
-		// Get installed languages
-		$languages = get_available_languages();
-
-		// Always include en_US
-		if ( ! in_array( 'en_US', $languages, true ) ) {
-			array_unshift( $languages, 'en_US' );
-		}
-
-		// Get translations info
-		require_once ABSPATH . 'wp-admin/includes/translation-install.php';
-		$translations = wp_get_available_translations();
-
-		$options = [];
-
-		foreach ( $languages as $locale ) {
-			if ( $locale === 'en_US' ) {
-				$options[] = [
-					'value' => 'en_US',
-					'label' => 'English (United States)',
-				];
-			} elseif ( isset( $translations[ $locale ] ) ) {
-				$options[] = [
-					'value' => $locale,
-					'label' => $translations[ $locale ]['native_name'],
-				];
-			} else {
-				$options[] = [
-					'value' => $locale,
-					'label' => $locale,
-				];
-			}
-		}
-
-		// Sort by label
-		usort( $options, fn( $a, $b ) => strcmp( $a['label'], $b['label'] ) );
-
-		return $options;
-	}
-
-	/**
-	 * Get page template options.
-	 *
-	 * @param string $post_type The post type to get templates for.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_page_templates( string $post_type = 'page' ): array {
-		$templates = get_page_templates( null, $post_type );
-		$options   = [];
-
-		// Add default template
-		$options[] = [
-			'value' => 'default',
-			'label' => __( 'Default Template', 'arraypress' ),
-		];
-
-		foreach ( $templates as $name => $file ) {
-			$options[] = [
-				'value' => $file,
-				'label' => $name,
-			];
-		}
-
-		return $options;
-	}
-
-	/**
 	 * Get post format options.
 	 *
 	 * @return array<array{value: string, label: string}>
@@ -224,6 +171,46 @@ class WordPress {
 
 		return $options;
 	}
+
+	/**
+	 * Get page template options.
+	 *
+	 * @param string $post_type The post type to get templates for.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_page_templates( string $post_type = 'page' ): array {
+		$templates = get_page_templates( null, $post_type );
+		$options   = [];
+
+		$options[] = [
+			'value' => 'default',
+			'label' => __( 'Default Template', 'arraypress' ),
+		];
+
+		foreach ( $templates as $name => $file ) {
+			$options[] = [
+				'value' => $file,
+				'label' => $name,
+			];
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Get comment status options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_comment_statuses(): array {
+		return [
+			[ 'value' => 'open', 'label' => __( 'Open', 'arraypress' ) ],
+			[ 'value' => 'closed', 'label' => __( 'Closed', 'arraypress' ) ],
+		];
+	}
+
+	/** Taxonomies ****************************************************************/
 
 	/**
 	 * Get registered taxonomies as options.
@@ -246,6 +233,8 @@ class WordPress {
 		return $options;
 	}
 
+	/** Media *********************************************************************/
+
 	/**
 	 * Get registered image sizes as options.
 	 *
@@ -262,7 +251,6 @@ class WordPress {
 			];
 		}
 
-		// Add full size
 		$options[] = [
 			'value' => 'full',
 			'label' => __( 'Full Size', 'arraypress' ),
@@ -270,6 +258,8 @@ class WordPress {
 
 		return $options;
 	}
+
+	/** Menus & Sidebars **********************************************************/
 
 	/**
 	 * Get registered nav menus as options.
@@ -284,6 +274,25 @@ class WordPress {
 			$options[] = [
 				'value' => (string) $menu->term_id,
 				'label' => $menu->name,
+			];
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Get registered menu locations as options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_menu_locations(): array {
+		$locations = get_registered_nav_menus();
+		$options   = [];
+
+		foreach ( $locations as $location => $description ) {
+			$options[] = [
+				'value' => $location,
+				'label' => $description,
 			];
 		}
 
@@ -307,25 +316,6 @@ class WordPress {
 					'label' => $sidebar['name'],
 				];
 			}
-		}
-
-		return $options;
-	}
-
-	/**
-	 * Get registered menu locations as options.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_menu_locations(): array {
-		$locations = get_registered_nav_menus();
-		$options   = [];
-
-		foreach ( $locations as $location => $description ) {
-			$options[] = [
-				'value' => $location,
-				'label' => $description,
-			];
 		}
 
 		return $options;

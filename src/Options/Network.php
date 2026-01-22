@@ -22,6 +22,27 @@ namespace ArrayPress\Conditions\Options;
  */
 class Network {
 
+	/** HTTP *********************************************************************/
+
+	/**
+	 * Get HTTP request method options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_request_methods(): array {
+		return [
+			[ 'value' => 'GET', 'label' => 'GET' ],
+			[ 'value' => 'POST', 'label' => 'POST' ],
+			[ 'value' => 'PUT', 'label' => 'PUT' ],
+			[ 'value' => 'PATCH', 'label' => 'PATCH' ],
+			[ 'value' => 'DELETE', 'label' => 'DELETE' ],
+			[ 'value' => 'HEAD', 'label' => 'HEAD' ],
+			[ 'value' => 'OPTIONS', 'label' => 'OPTIONS' ],
+		];
+	}
+
+	/** Network Types ************************************************************/
+
 	/**
 	 * Get network/ASN type options.
 	 *
@@ -51,6 +72,8 @@ class Network {
 		];
 	}
 
+	/** Proxy Types **************************************************************/
+
 	/**
 	 * Get proxy type options.
 	 *
@@ -74,6 +97,8 @@ class Network {
 			[ 'value' => 'WireGuard', 'label' => __( 'WireGuard', 'arraypress' ) ],
 		];
 	}
+
+	/** Security *****************************************************************/
 
 	/**
 	 * Get abuse velocity options.

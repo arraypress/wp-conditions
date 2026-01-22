@@ -201,9 +201,7 @@ class Registry {
 		self::$meta_boxes[ $set_id ]->register();
 
 		// Add to assets tracking
-		if ( self::$assets ) {
-			self::$assets->add_set_id( $set_id );
-		}
+		self::$assets?->add_set_id( $set_id );
 
 		/**
 		 * Action fired after a condition set is registered.
