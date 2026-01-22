@@ -4,7 +4,7 @@
  *
  * Provides utilities for retrieving request data from condition arguments.
  *
- * @package     ArrayPress\Conditions\Helpers
+ * @package     ArrayPress\Conditions\Helpers\Data
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
@@ -13,8 +13,9 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Helpers;
+namespace ArrayPress\Conditions\Helpers\Data;
 
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\ReferrerUtils\Referrer;
 
 /**

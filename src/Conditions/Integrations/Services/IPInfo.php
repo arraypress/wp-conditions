@@ -54,7 +54,7 @@ class IPInfo {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'The country of the IP address.', 'arraypress' ),
-				'options'       => fn() => Geography::get_countries(),
+				'options'       => fn() => Countries::get_value_label_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => IPInfoHelper::get_country( $args ),
 				'required_args' => [ 'ip', 'ipinfo_api_key' ],

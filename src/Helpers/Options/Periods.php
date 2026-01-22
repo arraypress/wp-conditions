@@ -1,10 +1,10 @@
 <?php
 /**
- * Time Periods Utility
+ * Time Periods Options Helper
  *
  * Provides standardized time period units and options for condition fields.
  *
- * @package     ArrayPress\Conditions\Helpers
+ * @package     ArrayPress\Conditions\Helpers\Options
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
@@ -13,7 +13,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Helpers;
+namespace ArrayPress\Conditions\Helpers\Options;
 
 /**
  * Class Periods
