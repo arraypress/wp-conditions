@@ -13,9 +13,8 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Helpers\Data;
+namespace ArrayPress\Conditions\Helpers;
 
-use ArrayPress\Conditions\Helpers\Parse;
 use WP_User;
 
 /**

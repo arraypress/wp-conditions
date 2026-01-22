@@ -4,7 +4,7 @@
  *
  * Provides standardized network-related options for select fields.
  *
- * @package     ArrayPress\Conditions\Helpers\Options
+ * @package     ArrayPress\Conditions\Options
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
@@ -13,7 +13,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Helpers\Options;
+namespace ArrayPress\Conditions\Options;
 
 /**
  * Class Network

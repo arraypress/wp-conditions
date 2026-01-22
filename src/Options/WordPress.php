@@ -1,10 +1,10 @@
 <?php
 /**
- * Options Helper
+ * WordPress Options Helper
  *
- * Provides standardized option arrays for select fields.
+ * Provides WordPress-specific option arrays for select fields.
  *
- * @package     ArrayPress\Conditions\Helpers
+ * @package     ArrayPress\Conditions\Options
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
  * @since       1.0.0
@@ -13,14 +13,14 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Helpers;
+namespace ArrayPress\Conditions\Options;
 
 /**
- * Class Options
+ * Class WordPress
  *
- * Standardized option arrays for select condition fields.
+ * WordPress-specific option arrays for select condition fields.
  */
-class Options {
+class WordPress {
 
 	/**
 	 * Get role options for select field.
@@ -63,10 +63,12 @@ class Options {
 	/**
 	 * Get post type options.
 	 *
+	 * @param array $args Optional arguments for get_post_types().
+	 *
 	 * @return array<array{value: string, label: string}>
 	 */
-	public static function get_post_types(): array {
-		$types   = get_post_types( [ 'public' => true ], 'objects' );
+	public static function get_post_types( array $args = [ 'public' => true ] ): array {
+		$types   = get_post_types( $args, 'objects' );
 		$options = [];
 
 		foreach ( $types as $type ) {
@@ -137,7 +139,7 @@ class Options {
 	 *
 	 * @return array<array{value: string, label: string}>
 	 */
-	public static function get_available_locales(): array {
+	public static function get_locales(): array {
 		// Get installed languages
 		$languages = get_available_languages();
 
@@ -224,101 +226,6 @@ class Options {
 	}
 
 	/**
-	 * Get comment status options.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_comment_statuses(): array {
-		return [
-			[ 'value' => 'open', 'label' => __( 'Open', 'arraypress' ) ],
-			[ 'value' => 'closed', 'label' => __( 'Closed', 'arraypress' ) ],
-		];
-	}
-
-	/**
-	 * Get ping status options.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_ping_statuses(): array {
-		return [
-			[ 'value' => 'open', 'label' => __( 'Open', 'arraypress' ) ],
-			[ 'value' => 'closed', 'label' => __( 'Closed', 'arraypress' ) ],
-		];
-	}
-
-	/**
-	 * Get visibility options.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_visibility_options(): array {
-		return [
-			[ 'value' => 'public', 'label' => __( 'Public', 'arraypress' ) ],
-			[ 'value' => 'private', 'label' => __( 'Private', 'arraypress' ) ],
-			[ 'value' => 'password', 'label' => __( 'Password Protected', 'arraypress' ) ],
-		];
-	}
-
-	/**
-	 * Get menu order options (commonly used ranges).
-	 *
-	 * @param int $min  Minimum value.
-	 * @param int $max  Maximum value.
-	 * @param int $step Step increment.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_order_options( int $min = 0, int $max = 100, int $step = 10 ): array {
-		$options = [];
-
-		for ( $i = $min; $i <= $max; $i += $step ) {
-			$options[] = [
-				'value' => (string) $i,
-				'label' => (string) $i,
-			];
-		}
-
-		return $options;
-	}
-
-	/**
-	 * Get yes/no options.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_yes_no(): array {
-		return [
-			[ 'value' => 'yes', 'label' => __( 'Yes', 'arraypress' ) ],
-			[ 'value' => 'no', 'label' => __( 'No', 'arraypress' ) ],
-		];
-	}
-
-	/**
-	 * Get true/false options.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_true_false(): array {
-		return [
-			[ 'value' => '1', 'label' => __( 'True', 'arraypress' ) ],
-			[ 'value' => '0', 'label' => __( 'False', 'arraypress' ) ],
-		];
-	}
-
-	/**
-	 * Get enabled/disabled options.
-	 *
-	 * @return array<array{value: string, label: string}>
-	 */
-	public static function get_enabled_disabled(): array {
-		return [
-			[ 'value' => 'enabled', 'label' => __( 'Enabled', 'arraypress' ) ],
-			[ 'value' => 'disabled', 'label' => __( 'Disabled', 'arraypress' ) ],
-		];
-	}
-
-	/**
 	 * Get registered taxonomies as options.
 	 *
 	 * @param array $args Optional. Arguments to pass to get_taxonomies().
@@ -400,6 +307,25 @@ class Options {
 					'label' => $sidebar['name'],
 				];
 			}
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Get registered menu locations as options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_menu_locations(): array {
+		$locations = get_registered_nav_menus();
+		$options   = [];
+
+		foreach ( $locations as $location => $description ) {
+			$options[] = [
+				'value' => $location,
+				'label' => $description,
+			];
 		}
 
 		return $options;

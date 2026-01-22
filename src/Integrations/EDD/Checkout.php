@@ -13,7 +13,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Helpers\EDD;
+namespace ArrayPress\Conditions\Integrations\EDD;
 
 use ArrayPress\Conditions\Helpers\PostedData;
 
