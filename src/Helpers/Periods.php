@@ -127,16 +127,4 @@ class Periods {
 		];
 	}
 
-	/**
-	 * Calculate age from a date string in specified units.
-	 *
-	 * @param string $date_string The date string (any format strtotime accepts).
-	 * @param string $unit        The unit to return.
-	 *
-	 * @return int The age in the specified unit, or 0 if invalid date.
-	 */
-	public static function get_age( string $date_string, string $unit = 'day' ): int {
-		return DateTime::get_age( $date_string, $unit );
-	}
-
 }

@@ -16,6 +16,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
 
 use ArrayPress\Conditions\Helpers\Periods;
+use ArrayPress\Conditions\Helpers\User as UserHelper;
 
 /**
  * Class Recipient
@@ -209,21 +210,7 @@ class Recipient {
 				'min'           => 0,
 				'units'         => Periods::get_age_units(),
 				'description'   => __( 'How long the user has been a commission recipient.', 'arraypress' ),
-				'compare_value' => function ( $args ) {
-					$user_id = self::get_user_id( $args );
-
-					if ( ! $user_id ) {
-						return 0;
-					}
-
-					$user = get_userdata( $user_id );
-
-					if ( ! $user ) {
-						return 0;
-					}
-
-					return Periods::get_age( $user->user_registered, $args['_unit'] ?? 'day' );
-				},
+				'compare_value' => fn( $args ) => UserHelper::get_age( $args ),
 				'required_args' => [],
 			],
 			'edd_recipient_is_vendor'   => [
