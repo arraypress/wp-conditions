@@ -138,9 +138,7 @@ class Request {
 	public static function get_utm_parameter( array $args ): string {
 		$parsed = Parse::text_unit( $args, 'source' );
 
-		$utm = Referrer::get_utm_parameters();
-
-		return $utm[ $parsed['unit'] ] ?? '';
+		return Referrer::get_utm_parameter( $parsed['unit'] ) ?? '';
 	}
 
 }
