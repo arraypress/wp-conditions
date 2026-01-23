@@ -90,7 +90,7 @@ class Conditions {
 
 		// Easy Digital Downloads
 		if ( function_exists( 'EDD' ) || class_exists( 'Easy_Digital_Downloads' ) ) {
-			$conditions = array_merge( $conditions, EDD\Core::get_all() );
+			$conditions = array_merge( $conditions, EDD\Conditions::get_all() );
 		}
 
 		// WooCommerce (future)
