@@ -140,7 +140,7 @@ class ProxyCheck {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'The country of the IP address.', 'arraypress' ),
-				'options'       => fn() => Countries::get_value_label_options(),
+				'options'       => fn() => Countries::get_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_country_code( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
