@@ -15,7 +15,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\Integrations\Services;
 
-use ArrayPress\Conditions\Helpers\Network;
+use ArrayPress\Conditions\Options\Network;
 use ArrayPress\Conditions\Clients\IPInfo as IPInfoHelper;
 use ArrayPress\Conditions\Operators;
 use ArrayPress\Countries\Countries;
