@@ -15,7 +15,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\EDD;
 
-use ArrayPress\Conditions\Helpers\PostedData;
+use ArrayPress\ArrayUtils\Arr;
 
 /**
  * Class Checkout
@@ -38,7 +38,7 @@ class Checkout {
 	public static function get_gateway( array $args ): string {
 		$posted = $args['posted'] ?? [];
 
-		$gateway = PostedData::get( $posted, [ 'edd-gateway' ] );
+		$gateway = Arr::get_first( $posted, [ 'edd-gateway' ] );
 
 		if ( $gateway ) {
 			return $gateway;
@@ -63,7 +63,7 @@ class Checkout {
 	 * @return string
 	 */
 	public static function get_email( array $args ): string {
-		return PostedData::get( $args['posted'] ?? [], [
+		return Arr::get_first( $args['posted'] ?? [], [
 			'edd_email',
 			'edd-email',
 		] );
@@ -77,7 +77,7 @@ class Checkout {
 	 * @return string
 	 */
 	public static function get_first_name( array $args ): string {
-		return PostedData::get( $args['posted'] ?? [], [
+		return Arr::get_first( $args['posted'] ?? [], [
 			'edd_first',
 			'edd-first',
 		] );
@@ -91,7 +91,7 @@ class Checkout {
 	 * @return string
 	 */
 	public static function get_last_name( array $args ): string {
-		return PostedData::get( $args['posted'] ?? [], [
+		return Arr::get_first( $args['posted'] ?? [], [
 			'edd_last',
 			'edd-last',
 		] );
@@ -109,7 +109,7 @@ class Checkout {
 	 * @return string
 	 */
 	public static function get_country( array $args ): string {
-		return PostedData::get( $args['posted'] ?? [], [
+		return Arr::get_first( $args['posted'] ?? [], [
 			'billing_country',
 			'edd_address.country',
 			'card_country',
@@ -124,7 +124,7 @@ class Checkout {
 	 * @return string
 	 */
 	public static function get_region( array $args ): string {
-		return PostedData::get( $args['posted'] ?? [], [
+		return Arr::get_first( $args['posted'] ?? [], [
 			'billing_state',
 			'edd_address.state',
 			'card_state',
@@ -139,7 +139,7 @@ class Checkout {
 	 * @return string
 	 */
 	public static function get_city( array $args ): string {
-		return PostedData::get( $args['posted'] ?? [], [
+		return Arr::get_first( $args['posted'] ?? [], [
 			'billing_city',
 			'edd_address.city',
 			'card_city',
@@ -154,7 +154,7 @@ class Checkout {
 	 * @return string
 	 */
 	public static function get_postcode( array $args ): string {
-		return PostedData::get( $args['posted'] ?? [], [
+		return Arr::get_first( $args['posted'] ?? [], [
 			'billing_zip',
 			'edd_address.zip',
 			'card_zip',

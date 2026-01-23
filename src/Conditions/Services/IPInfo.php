@@ -13,7 +13,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\Integrations\Services;
+namespace ArrayPress\Conditions\Conditions\Services;
 
 use ArrayPress\Conditions\Options\Network;
 use ArrayPress\Conditions\Clients\IPInfo as IPInfoHelper;
@@ -146,12 +146,13 @@ class IPInfo {
 	 */
 	private static function get_network_conditions(): array {
 		return [
-			'ipinfo_asn'      => [
+			'ipinfo_asn' => [
 				'label'         => __( 'ASN', 'arraypress' ),
 				'group'         => __( 'IPInfo: Network', 'arraypress' ),
-				'type'          => 'text',
+				'type'          => 'tags',
 				'placeholder'   => __( 'e.g., AS15169, AS13335', 'arraypress' ),
-				'description'   => __( 'The Autonomous System Number. Supports comma-separated list.', 'arraypress' ),
+				'description'   => __( 'The Autonomous System Number.', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
 				'compare_value' => fn( $args ) => IPInfoHelper::get_asn( $args ),
 				'required_args' => [ 'ip', 'ipinfo_api_key' ],
 			],

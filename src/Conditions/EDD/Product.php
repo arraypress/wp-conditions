@@ -11,12 +11,9 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
+namespace ArrayPress\Conditions\Conditions\EDD;
 
-use ArrayPress\Conditions\Helpers\EDD\Product as ProductHelper;
-use ArrayPress\Conditions\Helpers\EDD\Stats;
-use ArrayPress\Conditions\Helpers\Format;
-use ArrayPress\Conditions\Helpers\Parse;
+use ArrayPress\Conditions\Integrations\EDD\Product as ProductHelper;
 use ArrayPress\Conditions\Options\Periods;
 use ArrayPress\Conditions\Operators;
 

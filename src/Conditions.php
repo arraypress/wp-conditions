@@ -13,26 +13,18 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions;
+namespace ArrayPress\Conditions;
 
-use ArrayPress\Conditions\Conditions\Core\Context;
-use ArrayPress\Conditions\Conditions\Core\DateTime;
-use ArrayPress\Conditions\Conditions\Core\Post;
-use ArrayPress\Conditions\Conditions\Core\Request;
-use ArrayPress\Conditions\Conditions\Core\User;
-
-// Services
-use ArrayPress\Conditions\Conditions\Integrations\Services;
-
-// Integrations
-use ArrayPress\Conditions\Conditions\Integrations\EDD;
+use ArrayPress\Conditions\Conditions\Core;
+use ArrayPress\Conditions\Conditions\Services;
+use ArrayPress\Conditions\Conditions\EDD;
 
 /**
- * Class Core
+ * Class Conditions
  *
  * Provides access to core and integration condition configurations.
  */
-class Core {
+class Conditions {
 
 	/**
 	 * Get a condition configuration by name.
@@ -67,11 +59,11 @@ class Core {
 	 */
 	public static function get_core(): array {
 		return array_merge(
-			DateTime::get_all(),
-			User::get_all(),
-			Post::get_all(),
-			Request::get_all(),
-			Context::get_all()
+			Core\DateTime::get_all(),
+			Core\User::get_all(),
+			Core\Post::get_all(),
+			Core\Request::get_all(),
+			Core\Context::get_all()
 		);
 	}
 

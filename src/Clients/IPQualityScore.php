@@ -287,6 +287,51 @@ class IPQualityScore {
 		return $result ? ( $result->get_country_code() ?? '' ) : '';
 	}
 
+	/**
+	 * Get the ASN.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string ASN as string (for tag matching).
+	 */
+	public static function get_asn( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		if ( ! $result ) {
+			return '';
+		}
+
+		$asn = $result->get_asn();
+
+		return $asn !== null ? (string) $asn : '';
+	}
+
+	/**
+	 * Get the connection type.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Connection type (Residential, Corporate, Education, Mobile, Data Center).
+	 */
+	public static function get_connection_type( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		return $result ? ( $result->get_connection_type() ?? '' ) : '';
+	}
+
+	/**
+	 * Get the ISP.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string ISP name.
+	 */
+	public static function get_isp( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		return $result ? ( $result->get_isp() ?? '' ) : '';
+	}
+
 	/** -------------------------------------------------------------------------
 	 * Email Validation Methods
 	 * ------------------------------------------------------------------------ */

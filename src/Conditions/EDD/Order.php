@@ -11,10 +11,10 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
+namespace ArrayPress\Conditions\Conditions\EDD;
 
-use ArrayPress\Conditions\Helpers\EDD\Options;
-use ArrayPress\Conditions\Helpers\EDD\Order as OrderHelper;
+use ArrayPress\Conditions\Integrations\EDD\Options;
+use ArrayPress\Conditions\Integrations\EDD\Order as OrderHelper;
 use ArrayPress\Conditions\Options\Periods;
 use ArrayPress\Conditions\Operators;
 

@@ -13,11 +13,12 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\Integrations\Services;
+namespace ArrayPress\Conditions\Conditions\Services;
 
 use ArrayPress\Conditions\Clients\IPQualityScore as IPQSHelper;
 use ArrayPress\Conditions\Operators;
 use ArrayPress\Countries\Countries;
+use ArrayPress\Conditions\Options\Network;
 
 /**
  * Class IPQualityScore
@@ -36,6 +37,7 @@ class IPQualityScore {
 			self::get_detection_conditions(),
 			self::get_risk_conditions(),
 			self::get_location_conditions(),
+			self::get_network_conditions(),
 			self::get_email_conditions()
 		);
 	}
@@ -145,6 +147,48 @@ class IPQualityScore {
 				'options'       => fn() => Countries::get_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => IPQSHelper::get_country( $args ),
+				'required_args' => [ 'ip', 'ipqs_api_key' ],
+			],
+		];
+	}
+
+	/**
+	 * Get network-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_network_conditions(): array {
+		return [
+			'ipqs_asn'             => [
+				'label'         => __( 'ASN', 'arraypress' ),
+				'group'         => __( 'IPQualityScore: Network', 'arraypress' ),
+				'type'          => 'tags',
+				'placeholder'   => __( 'e.g., 15169, 13335', 'arraypress' ),
+				'description'   => __( 'The Autonomous System Number.', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
+				'compare_value' => fn( $args ) => IPQSHelper::get_asn( $args ),
+				'required_args' => [ 'ip', 'ipqs_api_key' ],
+			],
+			'ipqs_connection_type' => [
+				'label'         => __( 'Connection Type', 'arraypress' ),
+				'group'         => __( 'IPQualityScore: Network', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select connection types...', 'arraypress' ),
+				'description'   => __( 'The connection type. Data Center is a strong fraud signal.', 'arraypress' ),
+				'options'       => fn() => Network::get_connection_types(),
+				'operators'     => Operators::collection_any_none(),
+				'compare_value' => fn( $args ) => IPQSHelper::get_connection_type( $args ),
+				'required_args' => [ 'ip', 'ipqs_api_key' ],
+			],
+			'ipqs_isp'             => [
+				'label'         => __( 'ISP', 'arraypress' ),
+				'group'         => __( 'IPQualityScore: Network', 'arraypress' ),
+				'type'          => 'tags',
+				'placeholder'   => __( 'e.g., Comcast, Verizon', 'arraypress' ),
+				'description'   => __( 'The Internet Service Provider name.', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
+				'compare_value' => fn( $args ) => IPQSHelper::get_isp( $args ),
 				'required_args' => [ 'ip', 'ipqs_api_key' ],
 			],
 		];

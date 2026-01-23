@@ -13,10 +13,9 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\Integrations\Services;
+namespace ArrayPress\Conditions\Conditions\Services;
 
-use ArrayPress\Conditions\Helpers\Geography;
-use ArrayPress\Conditions\Helpers\Network;
+use ArrayPress\Conditions\Options\Network;
 use ArrayPress\Conditions\Clients\ProxyCheck as ProxyCheckHelper;
 use ArrayPress\Conditions\Operators;
 use ArrayPress\Countries\Countries;
@@ -188,8 +187,9 @@ class ProxyCheck {
 			'proxycheck_asn'          => [
 				'label'         => __( 'ASN', 'arraypress' ),
 				'group'         => __( 'ProxyCheck: Network', 'arraypress' ),
-				'type'          => 'text',
+				'type'          => 'tags',
 				'placeholder'   => __( 'e.g., AS15169', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
 				'description'   => __( 'The Autonomous System Number.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_asn( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
@@ -197,8 +197,9 @@ class ProxyCheck {
 			'proxycheck_provider'     => [
 				'label'         => __( 'Provider', 'arraypress' ),
 				'group'         => __( 'ProxyCheck: Network', 'arraypress' ),
-				'type'          => 'text',
+				'type'          => 'tags',
 				'placeholder'   => __( 'e.g., Google LLC', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
 				'description'   => __( 'The network provider name.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_provider( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
@@ -206,8 +207,9 @@ class ProxyCheck {
 			'proxycheck_organisation' => [
 				'label'         => __( 'Organisation', 'arraypress' ),
 				'group'         => __( 'ProxyCheck: Network', 'arraypress' ),
-				'type'          => 'text',
+				'type'          => 'tags',
 				'placeholder'   => __( 'e.g., Google LLC', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
 				'description'   => __( 'The organisation name.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_organisation( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],

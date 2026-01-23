@@ -243,6 +243,22 @@ class Operators {
 		];
 	}
 
+	/**
+	 * Tags operators - exact matching only.
+	 *
+	 * Used for identifiers (ASN, codes, IDs) where partial matching doesn't apply.
+	 *
+	 * Convince helper method, not passed in the JS
+	 *
+	 * @return array<string, string>
+	 */
+	public static function tags_exact(): array {
+		return [
+			'any_exact'  => __( 'Is any of', 'arraypress' ),
+			'none_exact' => __( 'Is none of', 'arraypress' ),
+		];
+	}
+
 	/** -------------------------------------------------------------------------
 	 * Type Resolution
 	 * ------------------------------------------------------------------------ */

@@ -11,10 +11,10 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
+namespace ArrayPress\Conditions\Conditions\EDD;
 
-use ArrayPress\Conditions\Helpers\EDD\Checkout as CheckoutHelper;
-use ArrayPress\Conditions\Helpers\EDD\Options;
+use ArrayPress\Conditions\Integrations\EDD\Checkout as CheckoutHelper;
+use ArrayPress\Conditions\Integrations\EDD\Options;
 use ArrayPress\Conditions\Operators;
 
 /**

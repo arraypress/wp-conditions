@@ -13,7 +13,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\Conditions\Conditions\Integrations\EDD;
+namespace ArrayPress\Conditions\Conditions\EDD;
 
 use ArrayPress\Conditions\Operators;
 
