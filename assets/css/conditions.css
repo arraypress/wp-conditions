@@ -374,6 +374,31 @@
 }
 
 /**
+ * Condition Select (Select2)
+ * Ensures the condition dropdown respects flex layout
+ */
+.condition-fields > .select2-container {
+    flex: 1.5 !important;
+    min-width: 180px;
+    width: auto !important;
+}
+
+/**
+ * Operator Select (native) - ensure it doesn't get Select2
+ */
+.condition-fields > .operator-select {
+    flex: 0 0 200px;
+    min-width: 200px;
+}
+
+/**
+ * Value Field Select2 Container
+ */
+.condition-fields > .value-field-wrapper .select2-container {
+    width: 100% !important;
+}
+
+/**
  * Single & Multiple Selection Box
  */
 .conditions-builder .select2-container--default .select2-selection--single,
@@ -545,10 +570,11 @@
 
     .condition-fields > .condition-select,
     .condition-fields > .operator-select,
-    .condition-fields > .value-field-wrapper {
-        flex: none;
-        width: 100%;
-        min-width: 100%;
+    .condition-fields > .value-field-wrapper,
+    .condition-fields > .select2-container {
+        flex: none !important;
+        width: 100% !important;
+        min-width: 100% !important;
     }
 
     .condition-row {

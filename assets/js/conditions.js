@@ -83,7 +83,7 @@
     }
 
     /**
-     * Format condition selection to show "Group → Label"
+     * Format selected condition to show "Group → Label"
      */
     function formatConditionSelection(option) {
         if (!option.id) {
@@ -94,9 +94,10 @@
         const group = $option.closest('optgroup').attr('label');
 
         if (group) {
-            // Extract base group (e.g., "Cart: Amounts" → "Cart")
-            const baseGroup = group.split(':')[0].trim();
-            return baseGroup + ' → ' + option.text;
+            // Use full group name, or extract base if it contains colon
+            // "Cart: Amounts" → "Cart" (short) or keep full based on preference
+            // For now, let's keep the full group for clarity
+            return group + ' → ' + option.text;
         }
 
         return option.text;
