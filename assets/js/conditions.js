@@ -83,6 +83,51 @@
     }
 
     /**
+     * Format condition selection to show "Group → Label"
+     */
+    function formatConditionSelection(option) {
+        if (!option.id) {
+            return option.text; // Placeholder
+        }
+
+        const $option = $(option.element);
+        const group = $option.closest('optgroup').attr('label');
+
+        if (group) {
+            // Extract base group (e.g., "Cart: Amounts" → "Cart")
+            const baseGroup = group.split(':')[0].trim();
+            return baseGroup + ' → ' + option.text;
+        }
+
+        return option.text;
+    }
+
+    /**
+     * Initialize Select2 on condition select
+     */
+    function initConditionSelect($select) {
+        if ($select.hasClass('select2-hidden-accessible')) {
+            return; // Already initialized
+        }
+
+        $select.select2({
+            width: '100%',
+            allowClear: false,
+            placeholder: i18n.selectCondition || 'Select condition...',
+            templateSelection: formatConditionSelection
+        });
+
+        // Disable browser autocomplete on Select2 search fields
+        $select.on('select2:open', function () {
+            const $search = $('.select2-container--open .select2-search__field');
+            $search.attr('autocomplete', 'off')
+                .attr('autocorrect', 'off')
+                .attr('autocapitalize', 'off')
+                .attr('spellcheck', 'false');
+        });
+    }
+
+    /**
      * Render value field based on condition type
      */
     function renderValueField(conditionId, groupId, ruleId, currentValue) {
@@ -698,9 +743,12 @@
         const $row = $(conditionHtml);
         $list.append($row);
 
+        // Initialize Select2 on condition select
+        const $conditionSelect = $row.find('.condition-select');
+        initConditionSelect($conditionSelect);
+
         // Set saved values
         if (savedData?.condition) {
-            const $conditionSelect = $row.find('.condition-select');
             $conditionSelect.val(savedData.condition).trigger('change', [savedData]);
         }
 
@@ -860,13 +908,16 @@
             const $row = $(this).closest('.condition-row');
             const $group = $row.closest('.condition-group');
 
+            // Destroy Select2 before removing
+            $row.find('.select2-hidden-accessible').select2('destroy');
+
             $row.remove();
 
             // Update remove button states
             updateRemoveButtons($group);
         });
 
-        // Event: Condition changed
+        // Event: Condition changed (using Select2 event)
         $builder.on('change', '.condition-select', function (e, savedData) {
             const $row = $(this).closest('.condition-row');
             const $group = $row.closest('.condition-group');

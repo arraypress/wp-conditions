@@ -108,7 +108,7 @@ class MetaBoxRenderer {
         <script type="text/html" id="tmpl-condition-row">
             <div class="condition-row" data-condition-id="{{ data.id }}">
                 <div class="condition-fields">
-                    <select class="condition-select"
+                    <select class="condition-select conditions-condition-select"
                             name="_conditions[{{ data.groupId }}][rules][{{ data.id }}][condition]">
                         <option value=""><?php esc_html_e( 'Select condition...', 'arraypress' ); ?></option>
                         <?php echo self::render_condition_options( $conditions ); ?>
