@@ -31,44 +31,40 @@ class Customer {
 	 * @return array<string, array>
 	 */
 	public static function get_all(): array {
-		return array_merge(
-			self::get_profile_conditions(),
-			self::get_history_conditions(),
-			self::get_activity_conditions()
-		);
-	}
-
-	/**
-	 * Get profile-related conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_profile_conditions(): array {
 		return [
-			'edd_customer_segment'     => [
-				'label'         => __( 'Customer Segment', 'arraypress' ),
-				'group'         => __( 'Customer: Profile', 'arraypress' ),
+			// Profile
+			'edd_customer_segment'              => [
+				'label'         => __( 'Segment', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select segment...', 'arraypress' ),
 				'description'   => __( 'Whether the customer is a first-time or returning buyer.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => CustomerHelper::get_segment_options(),
+				'options'       => CustomerHelper::get_segment_options(),
 				'compare_value' => fn( $args ) => CustomerHelper::get_segment( $args ),
 				'required_args' => [],
 			],
-			'edd_customer_email'       => [
+			'edd_customer_email'                => [
 				'label'         => __( 'Email', 'arraypress' ),
-				'group'         => __( 'Customer: Profile', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'email',
 				'placeholder'   => __( 'e.g. john@test.com, @gmail.com, .edu', 'arraypress' ),
-				'description'   => __( 'Match customer email against patterns. Supports: full email, @domain, .tld, or domain.', 'arraypress' ),
+				'description'   => __( 'Match customer email against patterns.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CustomerHelper::get_email( $args ),
 				'required_args' => [],
 			],
-			'edd_customer_account_age' => [
+			'edd_customer_date_created'         => [
+				'label'         => __( 'Date Registered', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
+				'type'          => 'date',
+				'description'   => __( 'The date the customer account was created.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CustomerHelper::get_date_created( $args ),
+				'required_args' => [],
+			],
+			'edd_customer_account_age'          => [
 				'label'         => __( 'Account Age', 'arraypress' ),
-				'group'         => __( 'Customer: Profile', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
 				'min'           => 0,
@@ -77,52 +73,44 @@ class Customer {
 				'compare_value' => fn( $args ) => CustomerHelper::get_account_age( $args ),
 				'required_args' => [],
 			],
-		];
-	}
 
-	/**
-	 * Get purchase history conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_history_conditions(): array {
-		return [
+			// Purchase History
 			'edd_customer_order_count'          => [
-				'label'         => __( 'Total Orders', 'arraypress' ),
-				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
+				'label'         => __( 'Order Count', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 5', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 1,
-				'description'   => __( 'The total number of orders placed by the customer.', 'arraypress' ),
+				'description'   => __( 'The total number of orders placed.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CustomerHelper::get_order_count( $args ),
 				'required_args' => [],
 			],
 			'edd_customer_total_spent'          => [
 				'label'         => __( 'Total Spent', 'arraypress' ),
-				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 500.00', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 0.01,
-				'description'   => __( 'The total amount spent by the customer.', 'arraypress' ),
+				'description'   => __( 'The total amount spent.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CustomerHelper::get_total_spent( $args ),
 				'required_args' => [],
 			],
 			'edd_customer_avg_order_value'      => [
 				'label'         => __( 'Average Order Value', 'arraypress' ),
-				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 50.00', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 0.01,
-				'description'   => __( 'The average value of customer orders.', 'arraypress' ),
+				'description'   => __( 'The average value of orders.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CustomerHelper::get_average_order_value( $args ),
 				'required_args' => [],
 			],
 			'edd_customer_purchased_products'   => [
 				'label'         => __( 'Purchased Products', 'arraypress' ),
-				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'post',
 				'post_type'     => 'download',
 				'multiple'      => true,
@@ -134,7 +122,7 @@ class Customer {
 			],
 			'edd_customer_purchased_categories' => [
 				'label'         => __( 'Purchased Categories', 'arraypress' ),
-				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'term',
 				'taxonomy'      => 'download_category',
 				'multiple'      => true,
@@ -146,7 +134,7 @@ class Customer {
 			],
 			'edd_customer_purchased_tags'       => [
 				'label'         => __( 'Purchased Tags', 'arraypress' ),
-				'group'         => __( 'Customer: Purchase History', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'term',
 				'taxonomy'      => 'download_tag',
 				'multiple'      => true,
@@ -156,19 +144,30 @@ class Customer {
 				'compare_value' => fn( $args ) => CustomerHelper::get_term_ids( $args, 'download_tag' ),
 				'required_args' => [],
 			],
-		];
-	}
 
-	/**
-	 * Get activity-related conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_activity_conditions(): array {
-		return [
-			'edd_customer_orders_in_period' => [
+			// Activity
+			'edd_customer_last_order_date'      => [
+				'label'         => __( 'Last Order Date', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
+				'type'          => 'date',
+				'description'   => __( 'The date of the customer\'s most recent order.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CustomerHelper::get_last_order_date( $args ),
+				'required_args' => [],
+			],
+			'edd_customer_days_since_order'     => [
+				'label'         => __( 'Days Since Last Order', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
+				'type'          => 'number_unit',
+				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
+				'min'           => 0,
+				'units'         => Periods::get_age_units(),
+				'description'   => __( 'Time since the customer\'s last order.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CustomerHelper::get_days_since_last_order( $args ),
+				'required_args' => [],
+			],
+			'edd_customer_orders_in_period'     => [
 				'label'         => __( 'Orders in Period', 'arraypress' ),
-				'group'         => __( 'Customer: Activity', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
 				'min'           => 0,
@@ -178,9 +177,9 @@ class Customer {
 				'compare_value' => fn( $args ) => CustomerHelper::get_orders_in_period( $args ),
 				'required_args' => [],
 			],
-			'edd_customer_spend_in_period'  => [
+			'edd_customer_spend_in_period'      => [
 				'label'         => __( 'Spend in Period', 'arraypress' ),
-				'group'         => __( 'Customer: Activity', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 100.00', 'arraypress' ),
 				'min'           => 0,
@@ -190,20 +189,20 @@ class Customer {
 				'compare_value' => fn( $args ) => CustomerHelper::get_spend_in_period( $args ),
 				'required_args' => [],
 			],
-			'edd_customer_ip_count'         => [
+			'edd_customer_ip_count'             => [
 				'label'         => __( 'Unique IP Count', 'arraypress' ),
-				'group'         => __( 'Customer: Activity', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 1,
-				'description'   => __( 'Number of unique IP addresses used by the customer.', 'arraypress' ),
+				'description'   => __( 'Number of unique IP addresses used.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CustomerHelper::get_unique_ip_count( $args ),
 				'required_args' => [],
 			],
-			'edd_customer_refund_count'     => [
+			'edd_customer_refund_count'         => [
 				'label'         => __( 'Refund Count', 'arraypress' ),
-				'group'         => __( 'Customer: Activity', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 2', 'arraypress' ),
 				'min'           => 0,
@@ -212,9 +211,9 @@ class Customer {
 				'compare_value' => fn( $args ) => CustomerHelper::get_refund_count( $args ),
 				'required_args' => [],
 			],
-			'edd_customer_refund_rate'      => [
+			'edd_customer_refund_rate'          => [
 				'label'         => __( 'Refund Rate (%)', 'arraypress' ),
-				'group'         => __( 'Customer: Activity', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 10', 'arraypress' ),
 				'min'           => 0,

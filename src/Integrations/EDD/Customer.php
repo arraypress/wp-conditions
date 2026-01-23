@@ -368,4 +368,69 @@ class Customer {
 		return ( $refunded_orders / $total_orders ) * 100;
 	}
 
+	/**
+	 * Get the customer creation date.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Y-m-d formatted date or empty string.
+	 */
+	public static function get_date_created( array $args ): string {
+		$customer = self::get( $args );
+
+		if ( ! $customer || empty( $customer->date_created ) ) {
+			return '';
+		}
+
+		return wp_date( 'Y-m-d', strtotime( $customer->date_created ) );
+	}
+
+	/**
+	 * Get the date of the customer's last order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Y-m-d formatted date or empty string.
+	 */
+	public static function get_last_order_date( array $args ): string {
+		$customer = self::get( $args );
+
+		if ( ! $customer ) {
+			return '';
+		}
+
+		$orders = edd_get_orders( [
+			'customer_id' => $customer->id,
+			'status__in'  => edd_get_complete_order_statuses(),
+			'number'      => 1,
+			'orderby'     => 'date_created',
+			'order'       => 'DESC',
+		] );
+
+		if ( empty( $orders ) ) {
+			return '';
+		}
+
+		return wp_date( 'Y-m-d', strtotime( $orders[0]->date_created ) );
+	}
+
+	/**
+	 * Get time since customer's last order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_days_since_last_order( array $args ): int {
+		$last_order_date = self::get_last_order_date( $args );
+
+		if ( empty( $last_order_date ) ) {
+			return 0;
+		}
+
+		$parsed = Parse::number_unit( $args );
+
+		return DateTime::get_age( $last_order_date, $parsed['unit'] );
+	}
+
 }

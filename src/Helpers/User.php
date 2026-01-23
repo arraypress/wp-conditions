@@ -229,4 +229,38 @@ class User {
 		return (float) get_user_meta( $user->ID, $parsed['key'], true );
 	}
 
+	/**
+	 * Get user display name.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_display_name( array $args ): string {
+		$user = self::get( $args );
+
+		if ( ! $user ) {
+			return '';
+		}
+
+		return $user->display_name;
+	}
+
+	/**
+	 * Get user registration date.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Date in Y-m-d format.
+	 */
+	public static function get_date_registered( array $args ): string {
+		$user = self::get( $args );
+
+		if ( ! $user ) {
+			return '';
+		}
+
+		return date( 'Y-m-d', strtotime( $user->user_registered ) );
+	}
+
 }

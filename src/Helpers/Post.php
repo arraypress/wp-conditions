@@ -366,4 +366,57 @@ class Post {
 		return (float) get_post_meta( $post->ID, $parsed['key'], true );
 	}
 
+	/**
+	 * Get post creation date.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Date in Y-m-d format.
+	 */
+	public static function get_date_created( array $args ): string {
+		$post = self::get( $args );
+
+		if ( ! $post ) {
+			return '';
+		}
+
+		return get_the_date( 'Y-m-d', $post );
+	}
+
+	/**
+	 * Get post modified date.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Date in Y-m-d format.
+	 */
+	public static function get_date_modified( array $args ): string {
+		$post = self::get( $args );
+
+		if ( ! $post ) {
+			return '';
+		}
+
+		return get_the_modified_date( 'Y-m-d', $post );
+	}
+
+	/**
+	 * Get time since post was modified.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int Age in the specified unit.
+	 */
+	public static function get_modified_age( array $args ): int {
+		$post = self::get( $args );
+
+		if ( ! $post ) {
+			return 0;
+		}
+
+		$parsed = Parse::number_unit( $args );
+
+		return DateTime::get_age( $post->post_modified, $parsed['unit'] );
+	}
+
 }

@@ -524,4 +524,98 @@ class Order {
 		return count( $subs );
 	}
 
+	/**
+	 * Get mode options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_mode_options(): array {
+		return [
+			[ 'value' => 'live', 'label' => __( 'Live', 'arraypress' ) ],
+			[ 'value' => 'test', 'label' => __( 'Test', 'arraypress' ) ],
+		];
+	}
+
+	/**
+	 * Get unique product count (ignoring quantities).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_unique_product_count( array $args ): int {
+		$product_ids = self::get_product_ids( $args );
+
+		return count( array_unique( $product_ids ) );
+	}
+
+	/**
+	 * Count items by product type.
+	 *
+	 * @param array  $args The condition arguments.
+	 * @param string $type The product type (bundle, service, default).
+	 *
+	 * @return int
+	 */
+	public static function count_by_type( array $args, string $type ): int {
+		$product_ids = self::get_product_ids( $args );
+
+		if ( empty( $product_ids ) ) {
+			return 0;
+		}
+
+		$count = 0;
+
+		foreach ( $product_ids as $product_id ) {
+			$product_type = edd_get_download_type( $product_id );
+
+			if ( $product_type === $type ) {
+				$count++;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Get discount IDs applied to order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array<int>
+	 */
+	public static function get_discount_ids( array $args ): array {
+		$order = self::get( $args );
+
+		if ( ! $order || ! function_exists( 'edd_get_order_adjustments' ) ) {
+			return [];
+		}
+
+		$adjustments = edd_get_order_adjustments( [
+			'object_id'   => $order->id,
+			'object_type' => 'order',
+			'type'        => 'discount',
+			'number'      => 999,
+		] );
+
+		if ( empty( $adjustments ) ) {
+			return [];
+		}
+
+		return array_filter( array_column( $adjustments, 'type_id' ) );
+	}
+
+	/**
+	 * Check if order has any discount applied.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function has_discount( array $args ): bool {
+		$order = self::get( $args );
+
+		return $order && (float) $order->discount > 0;
+	}
+
 }

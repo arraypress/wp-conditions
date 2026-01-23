@@ -59,6 +59,28 @@ class Store {
 		return Stats::get_refund_rate( $args['_unit'] ?? 'this_month' );
 	}
 
+	/**
+	 * Get average order value within a period.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 */
+	public static function get_avg_order_value( array $args ): float {
+		return Stats::get_average_order_value( $args['_unit'] ?? 'this_month' );
+	}
+
+	/**
+	 * Get total discount savings within a period.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 */
+	public static function get_discount_savings( array $args ): float {
+		return Stats::get_discount_savings( null, $args['_unit'] ?? 'this_month' );
+	}
+
 	/** -------------------------------------------------------------------------
 	 * Order Methods
 	 * ------------------------------------------------------------------------ */
@@ -72,6 +94,17 @@ class Store {
 	 */
 	public static function get_sales_in_period( array $args ): int {
 		return Stats::get_order_count( $args['_unit'] ?? 'this_month' );
+	}
+
+	/**
+	 * Get store refund count within a period.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_refund_count( array $args ): int {
+		return Stats::get_refund_count( $args['_unit'] ?? 'this_month' );
 	}
 
 	/** -------------------------------------------------------------------------

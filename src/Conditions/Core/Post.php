@@ -33,6 +33,7 @@ class Post {
 	public static function get_all(): array {
 		return array_merge(
 			self::get_detail_conditions(),
+			self::get_date_conditions(),
 			self::get_taxonomy_conditions(),
 			self::get_content_conditions(),
 			self::get_meta_conditions()
@@ -48,7 +49,7 @@ class Post {
 		return [
 			'post_status'   => [
 				'label'         => __( 'Status', 'arraypress' ),
-				'group'         => __( 'Post: Details', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select statuses...', 'arraypress' ),
@@ -60,7 +61,7 @@ class Post {
 			],
 			'post_type'     => [
 				'label'         => __( 'Type', 'arraypress' ),
-				'group'         => __( 'Post: Details', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select post types...', 'arraypress' ),
@@ -72,7 +73,7 @@ class Post {
 			],
 			'post_author'   => [
 				'label'         => __( 'Author', 'arraypress' ),
-				'group'         => __( 'Post: Details', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'user',
 				'multiple'      => true,
 				'placeholder'   => __( 'Search authors...', 'arraypress' ),
@@ -80,20 +81,9 @@ class Post {
 				'compare_value' => fn( $args ) => PostHelper::get_author( $args ),
 				'required_args' => [ 'post_id' ],
 			],
-			'post_age'      => [
-				'label'         => __( 'Age', 'arraypress' ),
-				'group'         => __( 'Post: Details', 'arraypress' ),
-				'type'          => 'number_unit',
-				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
-				'description'   => __( 'How long since the post was published.', 'arraypress' ),
-				'min'           => 0,
-				'units'         => Periods::get_age_units(),
-				'compare_value' => fn( $args ) => PostHelper::get_age( $args ),
-				'required_args' => [ 'post_id' ],
-			],
 			'post_parent'   => [
 				'label'         => __( 'Parent', 'arraypress' ),
-				'group'         => __( 'Post: Details', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'post',
 				'post_type'     => 'page',
 				'multiple'      => true,
@@ -105,7 +95,7 @@ class Post {
 			],
 			'post_template' => [
 				'label'         => __( 'Page Template', 'arraypress' ),
-				'group'         => __( 'Post: Details', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select template...', 'arraypress' ),
@@ -117,7 +107,7 @@ class Post {
 			],
 			'post_format'   => [
 				'label'         => __( 'Post Format', 'arraypress' ),
-				'group'         => __( 'Post: Details', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select format...', 'arraypress' ),
@@ -125,6 +115,54 @@ class Post {
 				'operators'     => Operators::collection_any_none(),
 				'options'       => fn() => WordPress::get_post_formats(),
 				'compare_value' => fn( $args ) => PostHelper::get_format( $args ),
+				'required_args' => [ 'post_id' ],
+			],
+		];
+	}
+
+	/**
+	 * Get date-related conditions.
+	 *
+	 * @return array<string, array>
+	 */
+	private static function get_date_conditions(): array {
+		return [
+			'post_date_created'  => [
+				'label'         => __( 'Date Created', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
+				'type'          => 'date',
+				'description'   => __( 'Match against the post creation date.', 'arraypress' ),
+				'compare_value' => fn( $args ) => PostHelper::get_date_created( $args ),
+				'required_args' => [ 'post_id' ],
+			],
+			'post_date_modified' => [
+				'label'         => __( 'Date Modified', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
+				'type'          => 'date',
+				'description'   => __( 'Match against the post last modified date.', 'arraypress' ),
+				'compare_value' => fn( $args ) => PostHelper::get_date_modified( $args ),
+				'required_args' => [ 'post_id' ],
+			],
+			'post_age'           => [
+				'label'         => __( 'Age', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
+				'type'          => 'number_unit',
+				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
+				'description'   => __( 'How long since the post was published.', 'arraypress' ),
+				'min'           => 0,
+				'units'         => Periods::get_age_units(),
+				'compare_value' => fn( $args ) => PostHelper::get_age( $args ),
+				'required_args' => [ 'post_id' ],
+			],
+			'post_modified_age'  => [
+				'label'         => __( 'Time Since Modified', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
+				'type'          => 'number_unit',
+				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
+				'description'   => __( 'How long since the post was last modified.', 'arraypress' ),
+				'min'           => 0,
+				'units'         => Periods::get_age_units(),
+				'compare_value' => fn( $args ) => PostHelper::get_modified_age( $args ),
 				'required_args' => [ 'post_id' ],
 			],
 		];
@@ -139,7 +177,7 @@ class Post {
 		return [
 			'post_category' => [
 				'label'         => __( 'Category', 'arraypress' ),
-				'group'         => __( 'Post: Taxonomies', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'term',
 				'taxonomy'      => 'category',
 				'multiple'      => true,
@@ -151,7 +189,7 @@ class Post {
 			],
 			'post_tag'      => [
 				'label'         => __( 'Tag', 'arraypress' ),
-				'group'         => __( 'Post: Taxonomies', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'term',
 				'taxonomy'      => 'post_tag',
 				'multiple'      => true,
@@ -163,7 +201,7 @@ class Post {
 			],
 			'has_term'      => [
 				'label'         => __( 'Has Term', 'arraypress' ),
-				'group'         => __( 'Post: Taxonomies', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'term',
 				'taxonomy'      => 'category',
 				'multiple'      => true,
@@ -184,7 +222,7 @@ class Post {
 		return [
 			'has_featured_image'  => [
 				'label'         => __( 'Has Featured Image', 'arraypress' ),
-				'group'         => __( 'Post: Content', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the post has a featured image.', 'arraypress' ),
 				'compare_value' => fn( $args ) => PostHelper::has_featured_image( $args ),
@@ -192,7 +230,7 @@ class Post {
 			],
 			'post_comment_count'  => [
 				'label'         => __( 'Comment Count', 'arraypress' ),
-				'group'         => __( 'Post: Content', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 10', 'arraypress' ),
 				'min'           => 0,
@@ -203,7 +241,7 @@ class Post {
 			],
 			'post_comment_status' => [
 				'label'         => __( 'Comment Status', 'arraypress' ),
-				'group'         => __( 'Post: Content', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => false,
 				'placeholder'   => __( 'Select status...', 'arraypress' ),
@@ -214,7 +252,7 @@ class Post {
 			],
 			'is_sticky'           => [
 				'label'         => __( 'Is Sticky', 'arraypress' ),
-				'group'         => __( 'Post: Content', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the post is sticky.', 'arraypress' ),
 				'compare_value' => fn( $args ) => PostHelper::is_sticky( $args ),
@@ -222,7 +260,7 @@ class Post {
 			],
 			'has_excerpt'         => [
 				'label'         => __( 'Has Excerpt', 'arraypress' ),
-				'group'         => __( 'Post: Content', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the post has a manual excerpt.', 'arraypress' ),
 				'compare_value' => fn( $args ) => PostHelper::has_excerpt( $args ),
@@ -230,7 +268,7 @@ class Post {
 			],
 			'post_word_count'     => [
 				'label'         => __( 'Word Count', 'arraypress' ),
-				'group'         => __( 'Post: Content', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 500', 'arraypress' ),
 				'min'           => 0,
@@ -241,7 +279,7 @@ class Post {
 			],
 			'has_shortcode'       => [
 				'label'         => __( 'Has Shortcode', 'arraypress' ),
-				'group'         => __( 'Post: Content', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. gallery', 'arraypress' ),
 				'description'   => __( 'Check if the post contains a specific shortcode.', 'arraypress' ),
@@ -251,7 +289,7 @@ class Post {
 			],
 			'has_block'           => [
 				'label'         => __( 'Has Block', 'arraypress' ),
-				'group'         => __( 'Post: Content', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. core/image', 'arraypress' ),
 				'description'   => __( 'Check if the post contains a specific Gutenberg block.', 'arraypress' ),
@@ -271,7 +309,7 @@ class Post {
 		return [
 			'post_meta_text'   => [
 				'label'         => __( 'Post Meta (Text)', 'arraypress' ),
-				'group'         => __( 'Post: Meta', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
 				'description'   => __( 'Format: meta_key:value_to_match', 'arraypress' ),
@@ -280,7 +318,7 @@ class Post {
 			],
 			'post_meta_number' => [
 				'label'         => __( 'Post Meta (Number)', 'arraypress' ),
-				'group'         => __( 'Post: Meta', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
 				'description'   => __( 'Match against a numeric post meta field. Format: meta_key:value', 'arraypress' ),

@@ -30,23 +30,11 @@ class Checkout {
 	 * @return array<string, array>
 	 */
 	public static function get_all(): array {
-		return array_merge(
-			self::get_payment_conditions(),
-			self::get_customer_conditions(),
-			self::get_address_conditions()
-		);
-	}
-
-	/**
-	 * Get payment-related conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_payment_conditions(): array {
 		return [
-			'edd_checkout_gateway' => [
-				'label'         => __( 'Selected Gateway', 'arraypress' ),
-				'group'         => __( 'Checkout: Payment', 'arraypress' ),
+			// Payment
+			'edd_checkout_gateway'    => [
+				'label'         => __( 'Gateway', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select gateway...', 'arraypress' ),
@@ -56,19 +44,11 @@ class Checkout {
 				'compare_value' => fn( $args ) => CheckoutHelper::get_gateway( $args ),
 				'required_args' => [],
 			],
-		];
-	}
 
-	/**
-	 * Get customer info conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_customer_conditions(): array {
-		return [
+			// Customer
 			'edd_checkout_email'      => [
 				'label'         => __( 'Email', 'arraypress' ),
-				'group'         => __( 'Checkout: Customer', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
 				'type'          => 'email',
 				'placeholder'   => __( 'e.g. john@test.com, @gmail.com, .edu', 'arraypress' ),
 				'description'   => __( 'Match checkout email against patterns. Supports: full email, @domain, .tld, or domain.', 'arraypress' ),
@@ -77,7 +57,7 @@ class Checkout {
 			],
 			'edd_checkout_first_name' => [
 				'label'         => __( 'First Name', 'arraypress' ),
-				'group'         => __( 'Checkout: Customer', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. John', 'arraypress' ),
 				'description'   => __( 'The first name entered at checkout.', 'arraypress' ),
@@ -86,26 +66,18 @@ class Checkout {
 			],
 			'edd_checkout_last_name'  => [
 				'label'         => __( 'Last Name', 'arraypress' ),
-				'group'         => __( 'Checkout: Customer', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. Doe', 'arraypress' ),
 				'description'   => __( 'The last name entered at checkout.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CheckoutHelper::get_last_name( $args ),
 				'required_args' => [],
 			],
-		];
-	}
 
-	/**
-	 * Get address-related conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_address_conditions(): array {
-		return [
-			'edd_checkout_country'  => [
+			// Address
+			'edd_checkout_country'    => [
 				'label'         => __( 'Country', 'arraypress' ),
-				'group'         => __( 'Checkout: Address', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
@@ -115,30 +87,33 @@ class Checkout {
 				'compare_value' => fn( $args ) => CheckoutHelper::get_country( $args ),
 				'required_args' => [],
 			],
-			'edd_checkout_region'   => [
+			'edd_checkout_region'     => [
 				'label'         => __( 'Region/State', 'arraypress' ),
-				'group'         => __( 'Checkout: Address', 'arraypress' ),
-				'type'          => 'text',
-				'placeholder'   => __( 'e.g. CA, NY', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'tags',
+				'placeholder'   => __( 'e.g. CA, NY, TX', 'arraypress' ),
 				'description'   => __( 'The billing region/state entered at checkout.', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
 				'compare_value' => fn( $args ) => CheckoutHelper::get_region( $args ),
 				'required_args' => [],
 			],
-			'edd_checkout_city'     => [
+			'edd_checkout_city'       => [
 				'label'         => __( 'City', 'arraypress' ),
-				'group'         => __( 'Checkout: Address', 'arraypress' ),
-				'type'          => 'text',
-				'placeholder'   => __( 'e.g. Los Angeles', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'tags',
+				'placeholder'   => __( 'e.g. Los Angeles, New York', 'arraypress' ),
 				'description'   => __( 'The billing city entered at checkout.', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
 				'compare_value' => fn( $args ) => CheckoutHelper::get_city( $args ),
 				'required_args' => [],
 			],
-			'edd_checkout_postcode' => [
+			'edd_checkout_postcode'   => [
 				'label'         => __( 'Postal Code', 'arraypress' ),
-				'group'         => __( 'Checkout: Address', 'arraypress' ),
-				'type'          => 'text',
-				'placeholder'   => __( 'e.g. 90210, SW1A 1AA', 'arraypress' ),
-				'description'   => __( 'The billing postal/zip code entered at checkout.', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'tags',
+				'placeholder'   => __( 'e.g. 90210, SW1A, 902', 'arraypress' ),
+				'description'   => __( 'The billing postal/zip code. Supports prefix matching (e.g., 902 matches 90210).', 'arraypress' ),
+				'operators'     => Operators::tags(),
 				'compare_value' => fn( $args ) => CheckoutHelper::get_postcode( $args ),
 				'required_args' => [],
 			],

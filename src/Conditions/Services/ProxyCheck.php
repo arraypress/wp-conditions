@@ -33,79 +33,11 @@ class ProxyCheck {
 	 * @return array<string, array>
 	 */
 	public static function get_all(): array {
-		return array_merge(
-			self::get_detection_conditions(),
-			self::get_risk_conditions(),
-			self::get_location_conditions(),
-			self::get_network_conditions(),
-			self::get_email_conditions()
-		);
-	}
-
-	/**
-	 * Get proxy/VPN detection conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_detection_conditions(): array {
 		return [
-			'proxycheck_is_proxy'      => [
-				'label'         => __( 'Is Proxy', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Detection', 'arraypress' ),
-				'type'          => 'boolean',
-				'description'   => __( 'Check if the IP is a proxy.', 'arraypress' ),
-				'compare_value' => fn( $args ) => ProxyCheckHelper::is_proxy( $args ),
-				'required_args' => [ 'ip', 'proxycheck_api_key' ],
-			],
-			'proxycheck_is_vpn'        => [
-				'label'         => __( 'Is VPN', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Detection', 'arraypress' ),
-				'type'          => 'boolean',
-				'description'   => __( 'Check if the IP is a VPN.', 'arraypress' ),
-				'compare_value' => fn( $args ) => ProxyCheckHelper::is_vpn( $args ),
-				'required_args' => [ 'ip', 'proxycheck_api_key' ],
-			],
-			'proxycheck_is_suspicious' => [
-				'label'         => __( 'Is Suspicious', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Detection', 'arraypress' ),
-				'type'          => 'boolean',
-				'description'   => __( 'Check if the IP is suspicious (proxy or VPN).', 'arraypress' ),
-				'compare_value' => fn( $args ) => ProxyCheckHelper::is_suspicious( $args ),
-				'required_args' => [ 'ip', 'proxycheck_api_key' ],
-			],
-			'proxycheck_should_block'  => [
-				'label'         => __( 'Should Block', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Detection', 'arraypress' ),
-				'type'          => 'boolean',
-				'description'   => __( 'Check if ProxyCheck recommends blocking this IP.', 'arraypress' ),
-				'compare_value' => fn( $args ) => ProxyCheckHelper::should_block( $args ),
-				'required_args' => [ 'ip', 'proxycheck_api_key' ],
-			],
-			'proxycheck_type'          => [
-				'label'         => __( 'Proxy Type', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Detection', 'arraypress' ),
-				'type'          => 'select',
-				'multiple'      => true,
-				'placeholder'   => __( 'Select types...', 'arraypress' ),
-				'description'   => __( 'The detected proxy/VPN type.', 'arraypress' ),
-				'options'       => fn() => Network::get_proxy_types(),
-				'operators'     => Operators::collection_any_none(),
-				'compare_value' => fn( $args ) => ProxyCheckHelper::get_type( $args ),
-				'required_args' => [ 'ip', 'proxycheck_api_key' ],
-			],
-		];
-	}
-
-	/**
-	 * Get risk-related conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_risk_conditions(): array {
-		return [
-			'proxycheck_risk_score'   => [
+			// Risk Score
+			'proxycheck_risk_score'          => [
 				'label'         => __( 'Risk Score', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Risk', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g., 50', 'arraypress' ),
 				'min'           => 0,
@@ -115,78 +47,108 @@ class ProxyCheck {
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_risk_score( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
-			'proxycheck_is_high_risk' => [
+			'proxycheck_is_high_risk'        => [
 				'label'         => __( 'Is High Risk', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Risk', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the risk score is 50 or above.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::is_high_risk( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
-		];
-	}
 
-	/**
-	 * Get location-related conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_location_conditions(): array {
-		return [
-			'proxycheck_country'   => [
+			// Detection
+			'proxycheck_is_proxy'            => [
+				'label'         => __( 'Is Proxy', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the IP is a proxy.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::is_proxy( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+			'proxycheck_is_vpn'              => [
+				'label'         => __( 'Is VPN', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the IP is a VPN.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::is_vpn( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+			'proxycheck_is_suspicious'       => [
+				'label'         => __( 'Is Suspicious', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if the IP is suspicious (proxy or VPN).', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::is_suspicious( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+			'proxycheck_should_block'        => [
+				'label'         => __( 'Should Block', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check if ProxyCheck recommends blocking this IP.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::should_block( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+			'proxycheck_type'                => [
+				'label'         => __( 'Proxy Type', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select types...', 'arraypress' ),
+				'description'   => __( 'The detected proxy/VPN type.', 'arraypress' ),
+				'options'       => Network::get_proxy_types(),
+				'operators'     => Operators::collection_any_none(),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::get_type( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+
+			// Location
+			'proxycheck_country'             => [
 				'label'         => __( 'Country', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Location', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'The country of the IP address.', 'arraypress' ),
-				'options'       => fn() => Countries::get_options(),
+				'options'       => Countries::get_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_country_code( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
-			'proxycheck_continent' => [
+			'proxycheck_continent'           => [
 				'label'         => __( 'Continent', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Location', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select continents...', 'arraypress' ),
 				'description'   => __( 'The continent of the IP address.', 'arraypress' ),
-				'options'       => fn() => Countries::get_continent_options(),
+				'options'       => Countries::get_continent_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_continent_code( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
-			'proxycheck_is_eu'     => [
+			'proxycheck_is_eu'               => [
 				'label'         => __( 'Is EU Country', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Location', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the IP is from an EU country.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::is_eu_country( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
-			'proxycheck_city'      => [
+			'proxycheck_city'                => [
 				'label'         => __( 'City', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Location', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g., London', 'arraypress' ),
 				'description'   => __( 'The city of the IP address.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_city( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
-		];
-	}
 
-	/**
-	 * Get network-related conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_network_conditions(): array {
-		return [
-			'proxycheck_asn'          => [
+			// Network
+			'proxycheck_asn'                 => [
 				'label'         => __( 'ASN', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Network', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'tags',
 				'placeholder'   => __( 'e.g., AS15169', 'arraypress' ),
 				'operators'     => Operators::tags_exact(),
@@ -194,9 +156,9 @@ class ProxyCheck {
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_asn( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
-			'proxycheck_provider'     => [
+			'proxycheck_provider'            => [
 				'label'         => __( 'Provider', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Network', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'tags',
 				'placeholder'   => __( 'e.g., Google LLC', 'arraypress' ),
 				'operators'     => Operators::tags_exact(),
@@ -204,9 +166,9 @@ class ProxyCheck {
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_provider( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
-			'proxycheck_organisation' => [
+			'proxycheck_organisation'        => [
 				'label'         => __( 'Organisation', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Network', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'tags',
 				'placeholder'   => __( 'e.g., Google LLC', 'arraypress' ),
 				'operators'     => Operators::tags_exact(),
@@ -214,19 +176,11 @@ class ProxyCheck {
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_organisation( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
-		];
-	}
 
-	/**
-	 * Get email validation conditions.
-	 *
-	 * @return array<string, array>
-	 */
-	private static function get_email_conditions(): array {
-		return [
+			// Email
 			'proxycheck_is_disposable_email' => [
 				'label'         => __( 'Is Disposable Email', 'arraypress' ),
-				'group'         => __( 'ProxyCheck: Email', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the email is from a disposable provider.', 'arraypress' ),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::is_disposable_email( $args ),

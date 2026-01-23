@@ -348,4 +348,32 @@ class Cart {
 		return $discount_ids;
 	}
 
+	/**
+	 * Get unique product count (ignoring quantities).
+	 *
+	 * @return int
+	 */
+	public static function get_unique_product_count(): int {
+		$product_ids = self::get_product_ids();
+		return count( array_unique( $product_ids ) );
+	}
+
+	/**
+	 * Check if cart has any subscriptions.
+	 *
+	 * @return bool
+	 */
+	public static function has_subscriptions(): bool {
+		return self::count_subscriptions() > 0;
+	}
+
+	/**
+	 * Check if cart has any renewals.
+	 *
+	 * @return bool
+	 */
+	public static function has_renewals(): bool {
+		return self::count_renewals() > 0;
+	}
+
 }

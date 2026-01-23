@@ -802,4 +802,26 @@ class Product {
 		return (float) edd_recurring()->get_signup_fee_single( $product_id );
 	}
 
+	/**
+	 * Get the date created.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Y-m-d formatted date or empty string.
+	 */
+	public static function get_date_created( array $args ): string {
+		return Post::get_date_created( self::normalize_args( $args ) );
+	}
+
+	/**
+	 * Get the date modified.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Y-m-d formatted date or empty string.
+	 */
+	public static function get_date_modified( array $args ): string {
+		return Post::get_date_modified( self::normalize_args( $args ) );
+	}
+
 }
