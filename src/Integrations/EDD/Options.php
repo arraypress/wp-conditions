@@ -15,7 +15,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\EDD;
 
-use ArrayPress\Conditions\Helpers\Format;
+use ArrayPress\ArrayUtils\Arr;
 use EDD\Reports;
 
 require_once EDD_PLUGIN_DIR . 'includes/reports/reports-functions.php';
@@ -101,7 +101,16 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_countries(): array {
-		return Format::options( edd_get_country_list() );
+		return Arr::to_options( edd_get_country_list() );
+	}
+
+	/**
+	 * Get country options.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_product_types(): array {
+		return Arr::to_options( edd_get_download_types() );
 	}
 
 	/**
@@ -115,7 +124,7 @@ class Options {
 		// Remove 'other' (custom) as it doesn't make sense for conditions
 		unset( $edd_options['other'] );
 
-		return Format::options( $edd_options );
+		return Arr::to_options( $edd_options );
 	}
 
 	/**
@@ -124,7 +133,7 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_order_statuses(): array {
-		return Format::options( edd_get_payment_statuses() );
+		return Arr::to_options( edd_get_payment_statuses() );
 	}
 
 	/**
@@ -133,7 +142,7 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_gateways(): array {
-		return Format::options( edd_get_payment_gateways(), 'admin_label' );
+		return Arr::to_options( edd_get_payment_gateways(), 'admin_label' );
 	}
 
 	/**
@@ -142,7 +151,7 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_currencies(): array {
-		return Format::options( edd_get_currencies() );
+		return Arr::to_options( edd_get_currencies() );
 	}
 
 }

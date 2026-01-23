@@ -16,11 +16,11 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\Conditions\EDD;
 
 /**
- * Class Core
+ * Class Conditions
  *
  * Provides all Easy Digital Downloads conditions.
  */
-class Core {
+class Conditions {
 
 	/**
 	 * Get all EDD conditions.

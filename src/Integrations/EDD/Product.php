@@ -42,6 +42,10 @@ class Product {
 		return $args;
 	}
 
+	/** -------------------------------------------------------------------------
+	 * Core Product Methods
+	 * ---------------------------------------------------------------------- */
+
 	/**
 	 * Get product post object.
 	 *
@@ -72,9 +76,7 @@ class Product {
 	 * @return int
 	 */
 	public static function get_author( array $args ): int {
-		$post = self::get( $args );
-
-		return (int) ( $post?->post_author ?? 0 );
+		return Post::get_author( self::normalize_args( $args ) );
 	}
 
 	/**
@@ -85,9 +87,7 @@ class Product {
 	 * @return string
 	 */
 	public static function get_status( array $args ): string {
-		$post = self::get( $args );
-
-		return $post ? get_post_status( $post ) : '';
+		return Post::get_status( self::normalize_args( $args ) );
 	}
 
 	/**
@@ -98,15 +98,7 @@ class Product {
 	 * @return int
 	 */
 	public static function get_age( array $args ): int {
-		$post = self::get( $args );
-
-		if ( ! $post || empty( $post->post_date ) ) {
-			return 0;
-		}
-
-		$parsed = Parse::number_unit( $args );
-
-		return DateTime::get_age( $post->post_date, $parsed['unit'] );
+		return Post::get_age( self::normalize_args( $args ) );
 	}
 
 	/**
@@ -118,16 +110,93 @@ class Product {
 	 * @return array<int>
 	 */
 	public static function get_terms( array $args, string $taxonomy ): array {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id ) {
-			return [];
-		}
-
-		$terms = wp_get_object_terms( $product_id, $taxonomy, [ 'fields' => 'ids' ] );
-
-		return is_array( $terms ) && ! is_wp_error( $terms ) ? $terms : [];
+		return Post::get_terms( self::normalize_args( $args ), $taxonomy );
 	}
+
+	/**
+	 * Check if product has a featured image.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function has_featured_image( array $args ): bool {
+		return Post::has_featured_image( self::normalize_args( $args ) );
+	}
+
+	/**
+	 * Get word count of product description.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_word_count( array $args ): int {
+		return Post::get_word_count( self::normalize_args( $args ) );
+	}
+
+	/**
+	 * Check if product has an excerpt.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function has_excerpt( array $args ): bool {
+		return Post::has_excerpt( self::normalize_args( $args ) );
+	}
+
+	/**
+	 * Check if product contains a specific shortcode.
+	 *
+	 * @param array       $args       The condition arguments.
+	 * @param string|null $user_value The shortcode tag to check for.
+	 *
+	 * @return bool
+	 */
+	public static function has_shortcode( array $args, ?string $user_value ): bool {
+		return Post::has_shortcode( self::normalize_args( $args ), $user_value );
+	}
+
+	/**
+	 * Check if product contains a specific Gutenberg block.
+	 *
+	 * @param array       $args       The condition arguments.
+	 * @param string|null $user_value The block name to check for.
+	 *
+	 * @return bool
+	 */
+	public static function has_block( array $args, ?string $user_value ): bool {
+		return Post::has_block( self::normalize_args( $args ), $user_value );
+	}
+
+	/**
+	 * Get product meta value as text.
+	 *
+	 * @param array       $args       The condition arguments.
+	 * @param string|null $user_value The user value in format "meta_key:value".
+	 *
+	 * @return string
+	 */
+	public static function get_meta_text( array $args, ?string $user_value ): string {
+		return Post::get_meta_text( self::normalize_args( $args ), $user_value );
+	}
+
+	/**
+	 * Get product meta value as number.
+	 *
+	 * @param array       $args       The condition arguments.
+	 * @param string|null $user_value The user value in format "meta_key:value".
+	 *
+	 * @return float
+	 */
+	public static function get_meta_number( array $args, ?string $user_value ): float {
+		return Post::get_meta_number( self::normalize_args( $args ), $user_value );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * EDD Product Type & Pricing
+	 * ---------------------------------------------------------------------- */
 
 	/**
 	 * Get product type.
@@ -181,25 +250,6 @@ class Product {
 	}
 
 	/**
-	 * Get variable prices array.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return array
-	 */
-	public static function get_variable_prices( array $args ): array {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! function_exists( 'edd_get_variable_prices' ) ) {
-			return [];
-		}
-
-		$prices = edd_get_variable_prices( $product_id );
-
-		return is_array( $prices ) ? $prices : [];
-	}
-
-	/**
 	 * Get price option count for variable priced products.
 	 *
 	 * @param array $args The condition arguments.
@@ -207,7 +257,15 @@ class Product {
 	 * @return int
 	 */
 	public static function get_price_option_count( array $args ): int {
-		return count( self::get_variable_prices( $args ) );
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_get_variable_prices' ) ) {
+			return 0;
+		}
+
+		$prices = edd_get_variable_prices( $product_id );
+
+		return is_array( $prices ) ? count( $prices ) : 0;
 	}
 
 	/**
@@ -227,6 +285,10 @@ class Product {
 		return edd_is_free_download( $product_id );
 	}
 
+	/** -------------------------------------------------------------------------
+	 * Bundle Methods
+	 * ---------------------------------------------------------------------- */
+
 	/**
 	 * Check if product is a bundle.
 	 *
@@ -245,25 +307,6 @@ class Product {
 	}
 
 	/**
-	 * Get bundled products.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return array
-	 */
-	public static function get_bundled_products( array $args ): array {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! function_exists( 'edd_get_bundled_products' ) ) {
-			return [];
-		}
-
-		$bundled = edd_get_bundled_products( $product_id );
-
-		return is_array( $bundled ) ? $bundled : [];
-	}
-
-	/**
 	 * Get bundle product count.
 	 *
 	 * @param array $args The condition arguments.
@@ -271,8 +314,20 @@ class Product {
 	 * @return int
 	 */
 	public static function get_bundle_count( array $args ): int {
-		return count( self::get_bundled_products( $args ) );
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_get_bundled_products' ) ) {
+			return 0;
+		}
+
+		$bundled = edd_get_bundled_products( $product_id );
+
+		return is_array( $bundled ) ? count( $bundled ) : 0;
 	}
+
+	/** -------------------------------------------------------------------------
+	 * File & Download Methods
+	 * ---------------------------------------------------------------------- */
 
 	/**
 	 * Check if product has purchase notes.
@@ -294,25 +349,6 @@ class Product {
 	}
 
 	/**
-	 * Get downloadable files.
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return array
-	 */
-	public static function get_files( array $args ): array {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! function_exists( 'edd_get_download_files' ) ) {
-			return [];
-		}
-
-		$files = edd_get_download_files( $product_id );
-
-		return is_array( $files ) ? $files : [];
-	}
-
-	/**
 	 * Get file count.
 	 *
 	 * @param array $args The condition arguments.
@@ -320,7 +356,15 @@ class Product {
 	 * @return int
 	 */
 	public static function get_file_count( array $args ): int {
-		return count( self::get_files( $args ) );
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_get_download_files' ) ) {
+			return 0;
+		}
+
+		$files = edd_get_download_files( $product_id );
+
+		return is_array( $files ) ? count( $files ) : 0;
 	}
 
 	/**
@@ -331,7 +375,7 @@ class Product {
 	 * @return bool
 	 */
 	public static function has_files( array $args ): bool {
-		return ! empty( self::get_files( $args ) );
+		return self::get_file_count( $args ) > 0;
 	}
 
 	/**
@@ -361,6 +405,10 @@ class Product {
 	public static function has_download_limit( array $args ): bool {
 		return self::get_download_limit( $args ) > 0;
 	}
+
+	/** -------------------------------------------------------------------------
+	 * Sales & Earnings Methods
+	 * ---------------------------------------------------------------------- */
 
 	/**
 	 * Get total sales count.
@@ -412,7 +460,7 @@ class Product {
 
 		$parsed = Parse::number_unit( $args );
 
-		return Stats::get_product_sales( $product_id, null, $parsed['unit'], $parsed['number'] );
+		return Stats::get_product_sales( $product_id, null, $parsed['unit'] );
 	}
 
 	/**
@@ -431,192 +479,12 @@ class Product {
 
 		$parsed = Parse::number_unit( $args );
 
-		return Stats::get_product_earnings( $product_id, null, $parsed['unit'], $parsed['number'] );
+		return Stats::get_product_earnings( $product_id, null, $parsed['unit'] );
 	}
 
-	/**
-	 * Check if licensing is enabled (requires EDD Software Licensing).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function has_licensing( array $args ): bool {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
-			return false;
-		}
-
-		$download = new \EDD_SL_Download( $product_id );
-
-		return $download->licensing_enabled();
-	}
-
-	/**
-	 * Get license activation limit (requires EDD Software Licensing).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return int
-	 */
-	public static function get_license_limit( array $args ): int {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
-			return 0;
-		}
-
-		$download = new \EDD_SL_Download( $product_id );
-
-		return (int) $download->get_activation_limit();
-	}
-
-	/**
-	 * Check if product has a license limit (requires EDD Software Licensing).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function has_license_limit( array $args ): bool {
-		return self::get_license_limit( $args ) > 0;
-	}
-
-	/**
-	 * Check if product is recurring (requires EDD Recurring).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function is_recurring( array $args ): bool {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-			return false;
-		}
-
-		return EDD_Recurring()->is_recurring( $product_id );
-	}
-
-	/**
-	 * Get recurring billing period (requires EDD Recurring).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return string
-	 */
-	public static function get_billing_period( array $args ): string {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-			return '';
-		}
-
-		return EDD_Recurring()->get_period_single( $product_id );
-	}
-
-	/**
-	 * Check if product has free trial (requires EDD Recurring).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function has_free_trial( array $args ): bool {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-			return false;
-		}
-
-		return EDD_Recurring()->has_free_trial( $product_id );
-	}
-
-	/**
-	 * Check if product has signup fee (requires EDD Recurring).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function has_signup_fee( array $args ): bool {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-			return false;
-		}
-
-		$fee = EDD_Recurring()->get_signup_fee_single( $product_id );
-
-		return $fee > 0;
-	}
-
-	/**
-	 * Get signup fee amount (requires EDD Recurring).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return float
-	 */
-	public static function get_signup_fee( array $args ): float {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-			return 0.0;
-		}
-
-		return (float) EDD_Recurring()->get_signup_fee_single( $product_id );
-	}
-
-	/**
-	 * Get trial period duration (requires EDD Recurring).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return array{quantity: int, unit: string}
-	 */
-	public static function get_trial_period( array $args ): array {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-			return [ 'quantity' => 0, 'unit' => '' ];
-		}
-
-		return [
-			'quantity' => (int) EDD_Recurring()->get_trial_quantity_single( $product_id ),
-			'unit'     => EDD_Recurring()->get_trial_unit_single( $product_id ),
-		];
-	}
-
-	/**
-	 * Get billing times/limit (requires EDD Recurring).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return int 0 for unlimited, otherwise the number of times.
-	 */
-	public static function get_billing_times( array $args ): int {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id || ! function_exists( 'EDD_Recurring' ) ) {
-			return 0;
-		}
-
-		return (int) EDD_Recurring()->get_times_single( $product_id );
-	}
-
-	/**
-	 * Check if product has unlimited billing (requires EDD Recurring).
-	 *
-	 * @param array $args The condition arguments.
-	 *
-	 * @return bool
-	 */
-	public static function has_unlimited_billing( array $args ): bool {
-		return self::get_billing_times( $args ) === 0;
-	}
+	/** -------------------------------------------------------------------------
+	 * Taxonomy Methods
+	 * ---------------------------------------------------------------------- */
 
 	/**
 	 * Get product categories.
@@ -640,107 +508,298 @@ class Product {
 		return self::get_terms( $args, 'download_tag' );
 	}
 
+	/** -------------------------------------------------------------------------
+	 * Software Licensing Methods (requires EDD Software Licensing)
+	 * ---------------------------------------------------------------------- */
+
 	/**
-	 * Check if product has specific category.
+	 * Check if licensing is enabled.
 	 *
-	 * @param array    $args        The condition arguments.
-	 * @param int|string $category_id The category ID or slug.
+	 * @param array $args The condition arguments.
 	 *
 	 * @return bool
 	 */
-	public static function has_category( array $args, int|string $category_id ): bool {
+	public static function has_licensing( array $args ): bool {
 		$product_id = self::get_id( $args );
 
-		if ( ! $product_id ) {
+		if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
 			return false;
 		}
 
-		return has_term( $category_id, 'download_category', $product_id );
+		$download = new \EDD_SL_Download( $product_id );
+
+		return $download->licensing_enabled();
 	}
 
 	/**
-	 * Check if product has specific tag.
+	 * Get license activation limit.
 	 *
-	 * @param array    $args   The condition arguments.
-	 * @param int|string $tag_id The tag ID or slug.
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_license_limit( array $args ): int {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
+			return 0;
+		}
+
+		$download = new \EDD_SL_Download( $product_id );
+
+		return (int) $download->get_activation_limit();
+	}
+
+	/**
+	 * Check if product has a license limit.
+	 *
+	 * @param array $args The condition arguments.
 	 *
 	 * @return bool
 	 */
-	public static function has_tag( array $args, int|string $tag_id ): bool {
-		$product_id = self::get_id( $args );
-
-		if ( ! $product_id ) {
-			return false;
-		}
-
-		return has_term( $tag_id, 'download_tag', $product_id );
+	public static function has_license_limit( array $args ): bool {
+		return self::get_license_limit( $args ) > 0;
 	}
 
 	/**
-	 * Get product SKU (if using an SKU extension).
+	 * Check if license is lifetime (never expires).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_lifetime_license( array $args ): bool {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
+			return false;
+		}
+
+		$download = new \EDD_SL_Download( $product_id );
+
+		return $download->is_lifetime();
+	}
+
+	/**
+	 * Get license expiration length (number).
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int The expiration length number (e.g., 1 for "1 year").
+	 */
+	public static function get_license_exp_length( array $args ): int {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
+			return 0;
+		}
+
+		$download = new \EDD_SL_Download( $product_id );
+
+		return (int) $download->get_expiration_length();
+	}
+
+	/**
+	 * Get license expiration unit.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string The expiration unit (years, months, weeks, days).
+	 */
+	public static function get_license_exp_unit( array $args ): string {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
+			return '';
+		}
+
+		$download = new \EDD_SL_Download( $product_id );
+
+		return (string) $download->get_expiration_unit();
+	}
+
+	/**
+	 * Check if product has beta releases enabled.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function has_beta( array $args ): bool {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
+			return false;
+		}
+
+		$download = new \EDD_SL_Download( $product_id );
+
+		return $download->has_beta();
+	}
+
+	/**
+	 * Get the current stable version.
 	 *
 	 * @param array $args The condition arguments.
 	 *
 	 * @return string
 	 */
-	public static function get_sku( array $args ): string {
+	public static function get_version( array $args ): string {
 		$product_id = self::get_id( $args );
 
-		if ( ! $product_id ) {
+		if ( ! $product_id || ! class_exists( 'EDD_SL_Download' ) ) {
 			return '';
 		}
 
-		// Check common SKU meta keys
-		$sku = get_post_meta( $product_id, 'edd_sku', true );
+		$download = new \EDD_SL_Download( $product_id );
 
-		if ( empty( $sku ) ) {
-			$sku = get_post_meta( $product_id, '_edd_sku', true );
-		}
-
-		return (string) $sku;
+		return (string) $download->get_version();
 	}
 
+	/** -------------------------------------------------------------------------
+	 * Recurring/Subscription Methods (requires EDD Recurring)
+	 * ---------------------------------------------------------------------- */
+
 	/**
-	 * Check if product is featured.
+	 * Check if product is recurring.
 	 *
 	 * @param array $args The condition arguments.
 	 *
 	 * @return bool
 	 */
-	public static function is_featured( array $args ): bool {
+	public static function is_recurring( array $args ): bool {
 		$product_id = self::get_id( $args );
 
-		if ( ! $product_id ) {
+		if ( ! $product_id || ! function_exists( 'edd_recurring' ) ) {
 			return false;
 		}
 
-		// Check common featured meta keys
-		$featured = get_post_meta( $product_id, 'edd_feature_download', true );
-
-		if ( empty( $featured ) ) {
-			$featured = get_post_meta( $product_id, '_edd_feature_download', true );
-		}
-
-		return ! empty( $featured );
+		return edd_recurring()->is_recurring( $product_id );
 	}
 
 	/**
-	 * Get product meta value.
+	 * Get recurring billing period.
 	 *
-	 * @param array  $args     The condition arguments.
-	 * @param string $meta_key The meta key.
-	 * @param bool   $single   Whether to return a single value.
+	 * @param array $args The condition arguments.
 	 *
-	 * @return mixed
+	 * @return string The billing period (day, week, month, quarter, semi-year, year).
 	 */
-	public static function get_meta( array $args, string $meta_key, bool $single = true ): mixed {
+	public static function get_billing_period( array $args ): string {
 		$product_id = self::get_id( $args );
 
-		if ( ! $product_id ) {
-			return $single ? '' : [];
+		if ( ! $product_id || ! function_exists( 'edd_recurring' ) ) {
+			return '';
 		}
 
-		return get_post_meta( $product_id, $meta_key, $single );
+		return (string) edd_recurring()->get_period_single( $product_id );
+	}
+
+	/**
+	 * Get billing times/limit.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int 0 for unlimited, otherwise the number of times.
+	 */
+	public static function get_billing_times( array $args ): int {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_recurring' ) ) {
+			return 0;
+		}
+
+		return (int) edd_recurring()->get_times_single( $product_id );
+	}
+
+	/**
+	 * Check if product has free trial.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function has_free_trial( array $args ): bool {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_recurring' ) ) {
+			return false;
+		}
+
+		return edd_recurring()->has_free_trial( $product_id );
+	}
+
+	/**
+	 * Get trial period quantity.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int The trial period quantity (e.g., 14 for "14 days").
+	 */
+	public static function get_trial_quantity( array $args ): int {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_recurring' ) ) {
+			return 0;
+		}
+
+		$trial = edd_recurring()->get_trial_period( $product_id );
+
+		if ( empty( $trial ) || ! is_array( $trial ) ) {
+			return 0;
+		}
+
+		return (int) ( $trial['quantity'] ?? 0 );
+	}
+
+	/**
+	 * Get trial period unit.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string The trial period unit (day, week, month, year).
+	 */
+	public static function get_trial_unit( array $args ): string {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_recurring' ) ) {
+			return '';
+		}
+
+		$trial = edd_recurring()->get_trial_period( $product_id );
+
+		if ( empty( $trial ) || ! is_array( $trial ) ) {
+			return '';
+		}
+
+		return (string) ( $trial['unit'] ?? '' );
+	}
+
+	/**
+	 * Check if product has signup fee.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function has_signup_fee( array $args ): bool {
+		return self::get_signup_fee( $args ) > 0;
+	}
+
+	/**
+	 * Get signup fee amount.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 */
+	public static function get_signup_fee( array $args ): float {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_recurring' ) ) {
+			return 0.0;
+		}
+
+		return (float) edd_recurring()->get_signup_fee_single( $product_id );
 	}
 
 }

@@ -58,6 +58,42 @@ class Periods {
 		];
 	}
 
+	/** Billing/Subscription Periods **********************************************/
+
+	/**
+	 * Get billing period options.
+	 *
+	 * Used for subscription/recurring billing cycle conditions.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_billing_periods(): array {
+		return [
+			[ 'value' => 'day', 'label' => __( 'Daily', 'arraypress' ) ],
+			[ 'value' => 'week', 'label' => __( 'Weekly', 'arraypress' ) ],
+			[ 'value' => 'month', 'label' => __( 'Monthly', 'arraypress' ) ],
+			[ 'value' => 'quarter', 'label' => __( 'Quarterly', 'arraypress' ) ],
+			[ 'value' => 'semi-year', 'label' => __( 'Semi-Yearly', 'arraypress' ) ],
+			[ 'value' => 'year', 'label' => __( 'Yearly', 'arraypress' ) ],
+		];
+	}
+
+	/**
+	 * Get license expiration units.
+	 *
+	 * Used for software license expiration conditions.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_license_exp_units(): array {
+		return [
+			[ 'value' => 'days', 'label' => __( 'Days', 'arraypress' ) ],
+			[ 'value' => 'weeks', 'label' => __( 'Weeks', 'arraypress' ) ],
+			[ 'value' => 'months', 'label' => __( 'Months', 'arraypress' ) ],
+			[ 'value' => 'years', 'label' => __( 'Years', 'arraypress' ) ],
+		];
+	}
+
 	/** Calendar Options **********************************************************/
 
 	/**
