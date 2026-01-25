@@ -122,7 +122,7 @@ class Commission {
 				'multiple'      => true,
 				'placeholder'   => __( 'Search products...', 'arraypress' ),
 				'description'   => __( 'The product the commission is for.', 'arraypress' ),
-				'operators'     => Operators::collection(),
+				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => CommissionHelper::get_product_id( $args ),
 				'required_args' => [ 'commission_id' ],
 			],
