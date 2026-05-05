@@ -35,7 +35,7 @@ class Email {
 		$group = __( 'Email', 'arraypress' );
 
 		return [
-			'email_is_freemail'          => [
+			'email_is_freemail'           => [
 				'label'         => __( 'Is Free Email Provider', 'arraypress' ),
 				'group'         => $group,
 				'type'          => 'boolean',
@@ -43,17 +43,39 @@ class Email {
 				'compare_value' => fn( $args ) => EmailHelper::is_freemail( $args ),
 				'required_args' => [ 'email' ],
 			],
-			'email_provider_domain'      => [
-				'label'         => __( 'Email Provider Domain', 'arraypress' ),
+			'email_domain'                => [
+				'label'         => __( 'Email Domain', 'arraypress' ),
 				'group'         => $group,
 				'type'          => 'tags',
 				'placeholder'   => __( 'e.g. mailinator.com, proton.me', 'arraypress' ),
 				'operators'     => Operators::tags_exact(),
-				'description'   => __( 'Match the email domain against a list (e.g. provider watchlist).', 'arraypress' ),
+				'description'   => __( 'Match the email domain against a list (e.g. disposable-provider watchlist).', 'arraypress' ),
 				'compare_value' => fn( $args ) => EmailHelper::get_domain( $args ),
 				'required_args' => [ 'email' ],
 			],
-			'email_tld'                  => [
+			'email_has_plus_alias'        => [
+				'label'         => __( 'Has Plus Alias', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'boolean',
+				'description'   => __( 'Check for sub-addressing (foo+tag@example.com). Common evasion technique.', 'arraypress' ),
+				'compare_value' => fn( $args ) => EmailHelper::has_plus_alias( $args ),
+				'required_args' => [ 'email' ],
+			],
+			'email_local_suspicion_score' => [
+				'label'         => __( 'Local Part Suspicion Score', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 60', 'arraypress' ),
+				'min'           => 0,
+				'max'           => 100,
+				'step'          => 1,
+				'description'   => __( 'Composite 0-100 score combining digit density, length, plus-alias, dot-stuffing, and excessive specials. Higher = more suspicious. ≥60 → review, ≥80 → likely auto-generated.', 'arraypress' ),
+				'compare_value' => fn( $args ) => EmailHelper::get_local_suspicion_score( $args ),
+				'required_args' => [ 'email' ],
+			],
+
+			// Granular signals — kept for power users / consumer-plugin filters.
+			'email_tld'                   => [
 				'label'         => __( 'Email TLD', 'arraypress' ),
 				'group'         => $group,
 				'type'          => 'tags',
@@ -63,7 +85,7 @@ class Email {
 				'compare_value' => fn( $args ) => EmailHelper::get_tld( $args ),
 				'required_args' => [ 'email' ],
 			],
-			'email_local_length'         => [
+			'email_local_length'          => [
 				'label'         => __( 'Email Local Part Length', 'arraypress' ),
 				'group'         => $group,
 				'type'          => 'number',
@@ -74,23 +96,7 @@ class Email {
 				'compare_value' => fn( $args ) => EmailHelper::get_local_length( $args ),
 				'required_args' => [ 'email' ],
 			],
-			'email_has_plus_alias'       => [
-				'label'         => __( 'Has Plus Alias', 'arraypress' ),
-				'group'         => $group,
-				'type'          => 'boolean',
-				'description'   => __( 'Check for sub-addressing (foo+tag@example.com). Common evasion technique.', 'arraypress' ),
-				'compare_value' => fn( $args ) => EmailHelper::has_plus_alias( $args ),
-				'required_args' => [ 'email' ],
-			],
-			'email_has_dot_aliasing'     => [
-				'label'         => __( 'Has Gmail Dot Aliasing', 'arraypress' ),
-				'group'         => $group,
-				'type'          => 'boolean',
-				'description'   => __( 'Check if a Gmail address uses dots in the local-part (Gmail ignores them — common evasion).', 'arraypress' ),
-				'compare_value' => fn( $args ) => EmailHelper::has_dot_aliasing( $args ),
-				'required_args' => [ 'email' ],
-			],
-			'email_local_digit_density'  => [
+			'email_local_digit_density'   => [
 				'label'         => __( 'Local Part Digit Density (%)', 'arraypress' ),
 				'group'         => $group,
 				'type'          => 'number',
