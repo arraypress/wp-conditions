@@ -162,8 +162,17 @@ class MetaBoxRenderer {
             ];
         }
 
-        // Sort groups alphabetically
+        // Sort groups alphabetically.
         ksort( $grouped );
+
+        // Sort items within each group alphabetically by label so long
+        // groups (e.g. EDD Order, ProxyCheck) aren't a wall of randomly
+        // ordered options. strnatcasecmp keeps numeric labels in numeric
+        // order — "Top 10" sorts before "Top 100".
+        foreach ( $grouped as &$items ) {
+            usort( $items, static fn( $a, $b ) => strnatcasecmp( $a['label'], $b['label'] ) );
+        }
+        unset( $items );
 
         $html = '';
         foreach ( $grouped as $group => $items ) {
