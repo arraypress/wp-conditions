@@ -113,6 +113,90 @@ class Payment {
 				'compare_value' => fn( $args ) => (int) ( $args['velocity_distinct_emails_by_card_fingerprint'] ?? 0 ),
 				'required_args' => [ 'card_fingerprint', 'velocity_distinct_emails_by_card_fingerprint' ],
 			],
+
+			// PayPal Orders v2 capture-time signals. Available post-payment
+			// only — callers are expected to populate these from a PayPal
+			// webhook handler (PAYMENT.CAPTURE.COMPLETED) on the order.
+			'paypal_seller_protection'   => [
+				'label'         => __( 'PayPal Seller Protection', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select levels...', 'arraypress' ),
+				'description'   => __( 'PayPal\'s own verdict on whether the seller is protected (ELIGIBLE / PARTIALLY_ELIGIBLE / NOT_ELIGIBLE). Strongest single signal PayPal exposes post-capture.', 'arraypress' ),
+				'operators'     => Operators::collection_any_none(),
+				'options'       => fn() => self::get_paypal_seller_protection_levels(),
+				'compare_value' => fn( $args ) => strtoupper( (string) ( $args['paypal_seller_protection'] ?? '' ) ),
+				'required_args' => [ 'paypal_seller_protection' ],
+			],
+			'paypal_avs_code'            => [
+				'label'         => __( 'PayPal AVS Code', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'tags',
+				'placeholder'   => __( 'e.g. N, A, Z (mismatch codes)', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
+				'description'   => __( 'Single-letter Address Verification System response. Match codes (Y/D/F/M/X) indicate a verified billing address; mismatches (N/A/Z) correlate with stolen cards.', 'arraypress' ),
+				'compare_value' => fn( $args ) => strtoupper( (string) ( $args['paypal_avs_code'] ?? '' ) ),
+				'required_args' => [ 'paypal_avs_code' ],
+			],
+			'paypal_cvv_code'            => [
+				'label'         => __( 'PayPal CVV Code', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'tags',
+				'placeholder'   => __( 'e.g. N, P (no match / not processed)', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
+				'description'   => __( 'Single-letter CVV verification response. M = match, N = no match, P = not processed, S = should have been provided, U = unavailable.', 'arraypress' ),
+				'compare_value' => fn( $args ) => strtoupper( (string) ( $args['paypal_cvv_code'] ?? '' ) ),
+				'required_args' => [ 'paypal_cvv_code' ],
+			],
+			'paypal_payer_country'       => [
+				'label'         => __( 'PayPal Payer Country', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select countries...', 'arraypress' ),
+				'description'   => __( 'ISO-2 country of the PayPal account that placed the order.', 'arraypress' ),
+				'operators'     => Operators::collection_any_none(),
+				'options'       => fn() => function_exists( '\\ArrayPress\\Countries\\Countries::get_options' ) ? \ArrayPress\Countries\Countries::get_options() : [],
+				'compare_value' => fn( $args ) => strtoupper( (string) ( $args['paypal_payer_country'] ?? '' ) ),
+				'required_args' => [ 'paypal_payer_country' ],
+			],
+			'paypal_payer_country_matches_billing' => [
+				'label'         => __( 'PayPal Payer Country Matches Billing', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'boolean',
+				'description'   => __( 'Whether the PayPal account country matches the billing address country. Mismatches are a fraud signal.', 'arraypress' ),
+				'compare_value' => function ( $args ) {
+					$payer   = strtoupper( (string) ( $args['paypal_payer_country'] ?? '' ) );
+					$billing = strtoupper( (string) ( $args['billing_country'] ?? '' ) );
+
+					return $payer !== '' && $billing !== '' && $payer === $billing;
+				},
+				'required_args' => [ 'paypal_payer_country', 'billing_country' ],
+			],
+			'paypal_decline_reason'      => [
+				'label'         => __( 'PayPal Decline Reason', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'tags',
+				'placeholder'   => __( 'e.g. DECLINED_BY_RISK_FRAUD_FILTERS', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
+				'description'   => __( 'PayPal status_details.reason value. DECLINED_BY_RISK_FRAUD_FILTERS means PayPal\'s own filters caught the transaction.', 'arraypress' ),
+				'compare_value' => fn( $args ) => strtoupper( (string) ( $args['paypal_decline_reason'] ?? '' ) ),
+				'required_args' => [ 'paypal_decline_reason' ],
+			],
+		];
+	}
+
+	/**
+	 * PayPal seller_protection.status values.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	private static function get_paypal_seller_protection_levels(): array {
+		return [
+			[ 'value' => 'ELIGIBLE', 'label' => __( 'Eligible', 'arraypress' ) ],
+			[ 'value' => 'PARTIALLY_ELIGIBLE', 'label' => __( 'Partially Eligible', 'arraypress' ) ],
+			[ 'value' => 'NOT_ELIGIBLE', 'label' => __( 'Not Eligible', 'arraypress' ) ],
 		];
 	}
 
