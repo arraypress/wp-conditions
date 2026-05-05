@@ -70,10 +70,14 @@ class PostType {
 	private function register_post_type(): void {
 		$labels = $this->get_labels();
 
+		// `show_ui` defaults to true so post-new.php / post.php screens
+		// remain functional even when `show_in_menu` is false (the
+		// "hidden but functional" pattern — useful when a separate admin
+		// page surfaces the CPT via tabs or list tables).
 		$args = [
 			'labels'              => $labels,
 			'public'              => false,
-			'show_ui'             => $this->config['show_in_menu'] !== false,
+			'show_ui'             => $this->config['show_ui'] ?? true,
 			'show_in_menu'        => $this->determine_menu_visibility(),
 			'menu_icon'           => $this->config['menu_icon'],
 			'capability_type'     => 'post',
