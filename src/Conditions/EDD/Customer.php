@@ -200,6 +200,22 @@ class Customer {
 				'compare_value' => fn( $args ) => CustomerHelper::get_unique_ip_count( $args ),
 				'required_args' => [],
 			],
+			'edd_customer_ip_country_changed'   => [
+				'label'         => __( 'IP Country Changed', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'True when the current checkout\'s IP country differs from every one of the customer\'s 5 most recent orders. Strong signal for account takeover and stolen-card use — most legitimate customers stay in one country across orders even when their raw IP changes (mobile, coffee shops, VPN). Returns false when there\'s no order history to compare against.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CustomerHelper::is_ip_country_changed( $args ),
+				'required_args' => [ 'ip_country' ],
+			],
+			'edd_customer_user_agent_changed'   => [
+				'label'         => __( 'User-Agent Changed', 'arraypress' ),
+				'group'         => __( 'Customer', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'True when the current checkout\'s User-Agent matches none of the customer\'s 5 most recent orders. Catches "different device" patterns useful for review-tier rules; less actionable for blocking since legitimate users rotate browsers and OS upgrades bump the UA string. Returns false when no past UAs are recorded.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CustomerHelper::is_user_agent_changed( $args ),
+				'required_args' => [ 'user_agent' ],
+			],
 			'edd_customer_refund_count'         => [
 				'label'         => __( 'Refund Count', 'arraypress' ),
 				'group'         => __( 'Customer', 'arraypress' ),

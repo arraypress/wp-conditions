@@ -318,6 +318,135 @@ class Customer {
 	}
 
 	/**
+	 * Whether the current request's User-Agent differs from the
+	 * customer's most-recent orders' User-Agents.
+	 *
+	 * Returns false when there's no history to compare against, no UA
+	 * captured on past orders, or the current UA isn't supplied — i.e.
+	 * defaults to "no drift detected" rather than firing on missing
+	 * data. Past UAs are read from the `_edd_user_agent` order meta
+	 * that the host plugin persists at order-build time.
+	 *
+	 * Comparison is exact-string equality, so a Chrome version bump
+	 * counts as a change. For coarser comparison (browser+OS only),
+	 * read `_edd_user_agent_parsed` instead — but most fraud signals
+	 * benefit from the strictness of raw-string comparison.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $args The condition arguments. Reads `user_agent`,
+	 *                    `customer_id`. `customer_id` falls back to the
+	 *                    current logged-in customer.
+	 *
+	 * @return bool True when the UA has drifted; false otherwise.
+	 */
+	public static function is_user_agent_changed( array $args ): bool {
+		$current_ua = (string) ( $args['user_agent'] ?? '' );
+		if ( $current_ua === '' ) {
+			return false;
+		}
+
+		$customer_id = $args['customer_id'] ?? self::get_current_id();
+		if ( ! $customer_id ) {
+			return false;
+		}
+
+		$orders = edd_get_orders( [
+			'customer_id' => $customer_id,
+			'status__in'  => edd_get_complete_order_statuses(),
+			'number'      => 5,
+			'orderby'     => 'date_created',
+			'order'       => 'DESC',
+		] );
+
+		if ( empty( $orders ) ) {
+			return false;
+		}
+
+		$past_uas = [];
+		foreach ( $orders as $order ) {
+			$ua = (string) edd_get_order_meta( $order->id, '_edd_user_agent', true );
+			if ( $ua !== '' ) {
+				$past_uas[] = $ua;
+			}
+		}
+
+		if ( empty( $past_uas ) ) {
+			return false;
+		}
+
+		return ! in_array( $current_ua, $past_uas, true );
+	}
+
+	/**
+	 * Whether the current request's IP country differs from the
+	 * customer's most-recent orders' IP countries.
+	 *
+	 * IP country drift is a strong signal for account takeover or
+	 * stolen-card use — most legitimate customers stay in one country
+	 * across orders even when their raw IP changes (mobile carriers,
+	 * coffee shops, VPN-toggled-off, etc.).
+	 *
+	 * Past country is resolved from `_edd_ip_country` order meta
+	 * (written by the host plugin when available), falling back to the
+	 * order's billing country. The fallback isn't perfect — fraudsters
+	 * can fake the address — but it's the next-best signal we have for
+	 * orders predating IP-country capture.
+	 *
+	 * Returns false when either the current or all past countries are
+	 * unresolvable, defaulting to "no drift detected" on missing data.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $args The condition arguments. Reads `ip_country`,
+	 *                    `customer_id`. `customer_id` falls back to the
+	 *                    current logged-in customer.
+	 *
+	 * @return bool True when the country has drifted; false otherwise.
+	 */
+	public static function is_ip_country_changed( array $args ): bool {
+		$current_country = strtoupper( (string) ( $args['ip_country'] ?? '' ) );
+		if ( $current_country === '' ) {
+			return false;
+		}
+
+		$customer_id = $args['customer_id'] ?? self::get_current_id();
+		if ( ! $customer_id ) {
+			return false;
+		}
+
+		$orders = edd_get_orders( [
+			'customer_id' => $customer_id,
+			'status__in'  => edd_get_complete_order_statuses(),
+			'number'      => 5,
+			'orderby'     => 'date_created',
+			'order'       => 'DESC',
+		] );
+
+		if ( empty( $orders ) ) {
+			return false;
+		}
+
+		$past_countries = [];
+		foreach ( $orders as $order ) {
+			$country = (string) edd_get_order_meta( $order->id, '_edd_ip_country', true );
+			if ( $country === '' ) {
+				$country = (string) ( $order->address->country ?? '' );
+			}
+			$country = strtoupper( $country );
+			if ( $country !== '' ) {
+				$past_countries[] = $country;
+			}
+		}
+
+		if ( empty( $past_countries ) ) {
+			return false;
+		}
+
+		return ! in_array( $current_country, $past_countries, true );
+	}
+
+	/**
 	 * Get refund count.
 	 *
 	 * @param array $args The condition arguments.
