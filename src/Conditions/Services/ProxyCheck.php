@@ -18,7 +18,7 @@ namespace ArrayPress\Conditions\Conditions\Services;
 use ArrayPress\Conditions\Options\Network;
 use ArrayPress\Conditions\Clients\ProxyCheck as ProxyCheckHelper;
 use ArrayPress\Conditions\Operators;
-use ArrayPress\Countries\Countries;
+use ArrayPress\Conditions\Helpers\Geo as GeoHelper;
 
 /**
  * Class ProxyCheck
@@ -110,7 +110,7 @@ class ProxyCheck {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'The country of the IP address.', 'arraypress' ),
-				'options'       => Countries::get_options(),
+				'options'       => GeoHelper::get_country_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_country_code( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
@@ -122,7 +122,7 @@ class ProxyCheck {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select continents...', 'arraypress' ),
 				'description'   => __( 'The continent of the IP address.', 'arraypress' ),
-				'options'       => Countries::get_continent_options(),
+				'options'       => GeoHelper::get_continent_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_continent_code( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],

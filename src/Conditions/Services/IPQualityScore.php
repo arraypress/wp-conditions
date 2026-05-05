@@ -17,7 +17,7 @@ namespace ArrayPress\Conditions\Conditions\Services;
 
 use ArrayPress\Conditions\Clients\IPQualityScore as IPQSHelper;
 use ArrayPress\Conditions\Operators;
-use ArrayPress\Countries\Countries;
+use ArrayPress\Conditions\Helpers\Geo as GeoHelper;
 use ArrayPress\Conditions\Options\Network;
 
 /**
@@ -114,7 +114,7 @@ class IPQualityScore {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'The country of the IP address.', 'arraypress' ),
-				'options'       => Countries::get_options(),
+				'options'       => GeoHelper::get_country_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => IPQSHelper::get_country( $args ),
 				'required_args' => [ 'ip', 'ipqs_api_key' ],

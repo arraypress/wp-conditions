@@ -20,7 +20,6 @@ namespace ArrayPress\Conditions\Conditions\Core;
 
 use ArrayPress\Conditions\Helpers\Geo as GeoHelper;
 use ArrayPress\Conditions\Operators;
-use ArrayPress\Countries\Countries;
 
 /**
  * Class Geo
@@ -62,7 +61,7 @@ class Geo {
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'Match the billing country against a list (e.g. high-risk-country watchlist).', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => Countries::get_options(),
+				'options'       => fn() => GeoHelper::get_country_options(),
 				'compare_value' => fn( $args ) => strtoupper( (string) ( $args['billing_country'] ?? '' ) ),
 				'required_args' => [ 'billing_country' ],
 			],
@@ -74,7 +73,7 @@ class Geo {
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'Match the IP-derived country against a list (e.g. high-risk-country watchlist).', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => Countries::get_options(),
+				'options'       => fn() => GeoHelper::get_country_options(),
 				'compare_value' => fn( $args ) => strtoupper( (string) ( $args['ip_country'] ?? '' ) ),
 				'required_args' => [ 'ip_country' ],
 			],

@@ -157,7 +157,7 @@ class Payment {
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'ISO-2 country of the PayPal account that placed the order.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => function_exists( '\\ArrayPress\\Countries\\Countries::get_options' ) ? \ArrayPress\Countries\Countries::get_options() : [],
+				'options'       => fn() => \ArrayPress\Conditions\Helpers\Geo::get_country_options(),
 				'compare_value' => fn( $args ) => strtoupper( (string) ( $args['paypal_payer_country'] ?? '' ) ),
 				'required_args' => [ 'paypal_payer_country' ],
 			],

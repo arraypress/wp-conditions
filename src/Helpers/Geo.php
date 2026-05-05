@@ -102,6 +102,54 @@ class Geo {
 	}
 
 	/**
+	 * Get all countries as [{value, label}, ...] suitable for select options.
+	 *
+	 * Wraps `arraypress/wp-countries` Countries::all(), which returns
+	 * `code => name` pairs, into the value/label shape every other
+	 * select-option helper in this library uses.
+	 *
+	 * @since  1.0.0
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_country_options(): array {
+		if ( ! class_exists( '\\ArrayPress\\Countries\\Countries' ) ) {
+			return [];
+		}
+
+		$out = [];
+		foreach ( \ArrayPress\Countries\Countries::all() as $code => $name ) {
+			$out[] = [
+				'value' => (string) $code,
+				'label' => (string) $name,
+			];
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Get all continents as [{value, label}, ...].
+	 *
+	 * @since  1.0.0
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_continent_options(): array {
+		if ( ! class_exists( '\\ArrayPress\\Countries\\Countries' ) ) {
+			return [];
+		}
+
+		$out = [];
+		foreach ( \ArrayPress\Countries\Countries::get_continent_codes() as $code => $name ) {
+			$out[] = [
+				'value' => (string) $code,
+				'label' => (string) $name,
+			];
+		}
+
+		return $out;
+	}
+
+	/**
 	 * Normalize an ISO-2 country code (uppercase, trimmed).
 	 *
 	 * @param mixed $value Raw value from args.
