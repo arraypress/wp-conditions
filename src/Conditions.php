@@ -63,7 +63,11 @@ class Conditions {
 			Core\User::get_all(),
 			Core\Post::get_all(),
 			Core\Request::get_all(),
-			Core\Context::get_all()
+			Core\Context::get_all(),
+			Core\Email::get_all(),
+			Core\Geo::get_all(),
+			Core\Velocity::get_all(),
+			Core\Payment::get_all()
 		);
 	}
 

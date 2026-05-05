@@ -177,6 +177,30 @@ class Request {
 				'compare_value' => fn( $args ) => $args['is_bot'] ?? UserAgent::is_bot(),
 				'required_args' => [],
 			],
+			'user_agent_is_headless' => [
+				'label'         => __( 'Is Headless Browser', 'arraypress' ),
+				'group'         => __( 'Request', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check for headless browser / automation framework signatures (HeadlessChrome, Puppeteer, Selenium, Playwright, etc).', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['user_agent_is_headless'] ?? RequestHelper::is_user_agent_headless( $args ),
+				'required_args' => [],
+			],
+			'user_agent_is_empty' => [
+				'label'         => __( 'User-Agent Is Empty', 'arraypress' ),
+				'group'         => __( 'Request', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check whether the User-Agent header is missing or empty. Legitimate browsers always send one.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['user_agent_is_empty'] ?? RequestHelper::is_user_agent_empty( $args ),
+				'required_args' => [],
+			],
+			'user_agent_is_outdated_browser' => [
+				'label'         => __( 'Is Outdated Browser', 'arraypress' ),
+				'group'         => __( 'Request', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Check whether the User-Agent advertises an outdated browser (IE, Chrome <90, Firefox <78, Safari <13). Heuristic only.', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['user_agent_is_outdated_browser'] ?? RequestHelper::is_user_agent_outdated_browser( $args ),
+				'required_args' => [],
+			],
 
 			// Referrer
 			'referrer_url'         => [
