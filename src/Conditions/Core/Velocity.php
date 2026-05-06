@@ -62,6 +62,30 @@ class Velocity {
 				'compare_value' => fn( $args ) => VelocityHelper::count_orders_by_email( $args ),
 				'required_args' => [ 'email' ],
 			],
+			'velocity_same_product_orders_by_ip' => [
+				'label'         => __( 'Same-Product Orders by IP', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'number_unit',
+				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'units'         => Periods::get_units(),
+				'description'   => __( 'How many recent orders from this IP contain the same product as the current cart. The classic card-testing fingerprint: fraudsters pick the cheapest item and hammer checkout with stolen cards. Pair with `Cart Total < $10` for a high-precision rule that almost never trips legitimate repeat-purchases. Suggested: ≥3 in 10 minutes = block.', 'arraypress' ),
+				'compare_value' => fn( $args ) => VelocityHelper::count_same_product_orders_by_ip( $args ),
+				'required_args' => [ 'ip' ],
+			],
+			'velocity_same_product_orders_by_email' => [
+				'label'         => __( 'Same-Product Orders by Email', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'number_unit',
+				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'units'         => Periods::get_units(),
+				'description'   => __( 'How many recent orders from this email contain the same product as the current cart. Less sensitive than the by-IP variant since fraudsters often rotate emails, but useful for catching mid-volume abusers who reuse one address.', 'arraypress' ),
+				'compare_value' => fn( $args ) => VelocityHelper::count_same_product_orders_by_email( $args ),
+				'required_args' => [ 'email' ],
+			],
 
 			// Cross-entity (fraud rings)
 			'velocity_distinct_emails_by_ip'    => [

@@ -308,6 +308,112 @@ class Velocity {
 	}
 
 	/**
+	 * Count distinct orders containing the same product as the current
+	 * cart, placed from this IP within the window.
+	 *
+	 * Targets the classic card-testing pattern: a fraudster picks the
+	 * cheapest product on the store and hammers checkout with stolen
+	 * cards. Returns the **maximum** count across products in the cart
+	 * — so a cart containing a single test product compares against
+	 * just that product's history, while a multi-item cart triggers if
+	 * any one item has been bought repeatedly from the same IP.
+	 *
+	 * Args:
+	 *  - ip          (required) — current request's IP.
+	 *  - product_ids (optional) — pre-resolved list. Falls back to
+	 *                             `edd_get_cart_contents()` when absent.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $args Condition args.
+	 *
+	 * @return int
+	 */
+	public static function count_same_product_orders_by_ip( array $args ): int {
+		if ( isset( $args['velocity_same_product_orders_by_ip'] ) ) {
+			return (int) $args['velocity_same_product_orders_by_ip'];
+		}
+
+		$ip = (string) ( $args['ip'] ?? '' );
+		if ( $ip === '' ) {
+			return 0;
+		}
+
+		$product_ids = self::resolve_product_ids( $args );
+		if ( empty( $product_ids ) ) {
+			return 0;
+		}
+
+		[ $number, $unit ] = self::resolve_window( $args );
+
+		$filtered = apply_filters( 'wp_conditions_velocity_same_product_orders_by_ip', null, $ip, $product_ids, $number, $unit );
+		if ( $filtered !== null ) {
+			return (int) $filtered;
+		}
+
+		return self::edd_count_same_product( 'ip', $ip, $product_ids, $number, $unit );
+	}
+
+	/**
+	 * Count distinct orders containing the same product as the current
+	 * cart, placed by this email within the window. See
+	 * {@see count_same_product_orders_by_ip()} for the underlying signal.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $args Condition args.
+	 *
+	 * @return int
+	 */
+	public static function count_same_product_orders_by_email( array $args ): int {
+		if ( isset( $args['velocity_same_product_orders_by_email'] ) ) {
+			return (int) $args['velocity_same_product_orders_by_email'];
+		}
+
+		$email = (string) ( $args['email'] ?? '' );
+		if ( $email === '' ) {
+			return 0;
+		}
+
+		$product_ids = self::resolve_product_ids( $args );
+		if ( empty( $product_ids ) ) {
+			return 0;
+		}
+
+		[ $number, $unit ] = self::resolve_window( $args );
+
+		$filtered = apply_filters( 'wp_conditions_velocity_same_product_orders_by_email', null, $email, $product_ids, $number, $unit );
+		if ( $filtered !== null ) {
+			return (int) $filtered;
+		}
+
+		return self::edd_count_same_product( 'email', $email, $product_ids, $number, $unit );
+	}
+
+	/**
+	 * Resolve product IDs from `$args['product_ids']` first, then fall
+	 * back to the live cart. Returns an empty array when neither yields.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $args Condition args.
+	 *
+	 * @return array<int>
+	 */
+	private static function resolve_product_ids( array $args ): array {
+		$ids = $args['product_ids'] ?? null;
+
+		if ( ! is_array( $ids ) || empty( $ids ) ) {
+			if ( function_exists( 'edd_get_cart_contents' ) ) {
+				$contents = edd_get_cart_contents() ?: [];
+				$ids      = array_unique( array_column( $contents, 'id' ) );
+			}
+		}
+
+		return array_filter( array_map( 'intval', (array) $ids ) );
+	}
+
+	/**
 	 * Count blocked checkout attempts for this email within the window.
 	 *
 	 * @param array $args Condition args.
@@ -396,6 +502,65 @@ class Velocity {
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		return (int) $wpdb->get_var( $wpdb->prepare( $sql, ...$bindings ) );
+	}
+
+	/**
+	 * Count distinct orders containing any of the given product IDs that
+	 * match the identifier (ip/email) within the time window. Returns
+	 * the MAX count across products — so the result is "the most
+	 * frequently bought product matches X distinct orders".
+	 *
+	 * Joins `wp_edd_orders` with `wp_edd_order_items`. Bails to zero if
+	 * either table is missing.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string     $column      The orders-table column to filter on (`ip` / `email`).
+	 * @param string     $value       Identifier value.
+	 * @param array<int> $product_ids Candidate product IDs.
+	 * @param int        $number      Window amount.
+	 * @param string     $unit        Window unit.
+	 *
+	 * @return int
+	 */
+	private static function edd_count_same_product( string $column, string $value, array $product_ids, int $number, string $unit ): int {
+		global $wpdb;
+
+		$orders_table = $wpdb->prefix . 'edd_orders';
+		$items_table  = $wpdb->prefix . 'edd_order_items';
+
+		// Sanity: skip when either table is missing (e.g. EDD inactive).
+		static $has_tables = null;
+		if ( $has_tables === null ) {
+			$has_tables = (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $orders_table ) )
+				&& (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $items_table ) );
+		}
+		if ( ! $has_tables ) {
+			return 0;
+		}
+
+		// IDs were already cast to int in resolve_product_ids(); a final
+		// implode is safe to inline into SQL.
+		$product_ids = array_filter( array_map( 'intval', $product_ids ) );
+		if ( empty( $product_ids ) ) {
+			return 0;
+		}
+		$product_ids_sql = implode( ',', $product_ids );
+
+		$interval = self::to_interval( $number, $unit );
+
+		$sql = "SELECT MAX(c) FROM (
+			SELECT COUNT(DISTINCT o.id) AS c
+			FROM {$orders_table} o
+			INNER JOIN {$items_table} oi ON oi.order_id = o.id
+			WHERE o.{$column} = %s
+			  AND oi.product_id IN ({$product_ids_sql})
+			  AND o.date_created >= ( UTC_TIMESTAMP() - {$interval} )
+			GROUP BY oi.product_id
+		) sub";
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $value ) );
 	}
 
 }
