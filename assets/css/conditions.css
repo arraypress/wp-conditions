@@ -227,6 +227,14 @@
     max-width: none;
     margin: 0;
     height: 30px;
+    /* WP admin's <select> and <input> have different default
+       box-sizing + vertical metrics — pin both so a boolean
+       condition's "Yes/No" dropdown lines up with the number/text
+       inputs in adjacent rows. Doesn't touch Select2-managed
+       widgets (those have their own height rule below). */
+    box-sizing: border-box;
+    line-height: 1.4;
+    vertical-align: middle;
 }
 
 .condition-row select:disabled,
