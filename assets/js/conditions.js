@@ -820,15 +820,23 @@
     }
 
     /**
-     * Update tooltip based on condition description
+     * Update tooltip based on condition description.
+     *
+     * Always keep the tooltip icon visible — when no condition is
+     * picked yet, fall back to the placeholder text the template
+     * stamps on initial render. Hiding the icon when the row is empty
+     * caused a width pop when the user finally chose a condition.
      */
     function updateTooltip($row, condition) {
         const $tooltip = $row.find('.condition-tooltip');
 
         if (condition && condition.description) {
-            $tooltip.attr('data-tip', condition.description).show();
+            $tooltip.attr('data-tip', condition.description);
         } else {
-            $tooltip.removeAttr('data-tip').hide();
+            $tooltip.attr(
+                'data-tip',
+                $tooltip.data('placeholder') || 'Select a condition to see what it matches.'
+            );
         }
     }
 

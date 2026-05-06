@@ -124,7 +124,7 @@ class MetaBoxRenderer {
                                placeholder="<?php esc_attr_e( 'Select a condition first', 'arraypress' ); ?>">
                     </div>
 
-                    <span class="condition-tooltip" style="display: none;">
+                    <span class="condition-tooltip" data-tip="<?php esc_attr_e( 'Select a condition to see what it matches.', 'arraypress' ); ?>">
                         <span class="dashicons dashicons-info-outline"></span>
                     </span>
                 </div>
