@@ -89,6 +89,42 @@ class Payment {
 				'compare_value' => fn( $args ) => (int) ( $args['stripe_risk_score'] ?? 0 ),
 				'required_args' => [ 'stripe_risk_score' ],
 			],
+			'square_risk_level'                      => [
+				'label'         => __( 'Square Risk Level', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select risk levels...', 'arraypress' ),
+				'description'   => __( 'Square\'s own risk verdict on the payment — Pending (still evaluating), Normal (low risk), Moderate (suspicious), High (likely fraud). Square applies this automatically on every payment. "High" is a strong block trigger; "Moderate" a typical review trigger.', 'arraypress' ),
+				'operators'     => Operators::collection_any_none(),
+				'options'       => fn() => self::get_square_risk_levels(),
+				'compare_value' => fn( $args ) => strtolower( (string) ( $args['square_risk_level'] ?? '' ) ),
+				'required_args' => [ 'square_risk_level' ],
+			],
+			'square_avs_status'                      => [
+				'label'         => __( 'Square AVS Status', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select AVS results...', 'arraypress' ),
+				'description'   => __( 'Square\'s AVS (Address Verification System) result — accepted, rejected, or not checked. Rejected AVS on a high-value order is a strong review signal.', 'arraypress' ),
+				'operators'     => Operators::collection_any_none(),
+				'options'       => fn() => self::get_square_avs_cvv_options(),
+				'compare_value' => fn( $args ) => strtoupper( (string) ( $args['square_avs_status'] ?? '' ) ),
+				'required_args' => [ 'square_avs_status' ],
+			],
+			'square_cvv_status'                      => [
+				'label'         => __( 'Square CVV Status', 'arraypress' ),
+				'group'         => $group,
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select CVV results...', 'arraypress' ),
+				'description'   => __( 'Square\'s CVV result — accepted, rejected, or not checked. Rejected CVV is highly correlated with stolen-card use; "not checked" usually means contactless or a card-on-file payment.', 'arraypress' ),
+				'operators'     => Operators::collection_any_none(),
+				'options'       => fn() => self::get_square_avs_cvv_options(),
+				'compare_value' => fn( $args ) => strtoupper( (string) ( $args['square_cvv_status'] ?? '' ) ),
+				'required_args' => [ 'square_cvv_status' ],
+			],
 			'velocity_orders_by_card_fingerprint'    => [
 				'label'         => __( 'Orders by Card Fingerprint', 'arraypress' ),
 				'group'         => $group,
@@ -243,6 +279,45 @@ class Payment {
 			[ 'value' => 'elevated', 'label' => __( 'Elevated', 'arraypress' ) ],
 			[ 'value' => 'highest', 'label' => __( 'Highest', 'arraypress' ) ],
 			[ 'value' => 'not_assessed', 'label' => __( 'Not Assessed', 'arraypress' ) ],
+		];
+	}
+
+	/**
+	 * Square risk level options.
+	 *
+	 * Values match Square's `risk_evaluation.risk_level` payload
+	 * shape verbatim — uppercase. Comparison in the rule editor
+	 * normalises both sides to lowercase, so the dropdown shows
+	 * proper casing while the underlying value matches the API.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	private static function get_square_risk_levels(): array {
+		return [
+			[ 'value' => 'pending',  'label' => __( 'Pending', 'arraypress' ) ],
+			[ 'value' => 'normal',   'label' => __( 'Normal', 'arraypress' ) ],
+			[ 'value' => 'moderate', 'label' => __( 'Moderate', 'arraypress' ) ],
+			[ 'value' => 'high',     'label' => __( 'High', 'arraypress' ) ],
+		];
+	}
+
+	/**
+	 * Square AVS / CVV status options.
+	 *
+	 * Same enum used for both fields — Square returns
+	 * `AVS_ACCEPTED` / `AVS_REJECTED` / `AVS_NOT_CHECKED` and the
+	 * matching CVV trio.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	private static function get_square_avs_cvv_options(): array {
+		return [
+			[ 'value' => 'AVS_ACCEPTED',    'label' => __( 'AVS / CVV Accepted', 'arraypress' ) ],
+			[ 'value' => 'AVS_REJECTED',    'label' => __( 'AVS / CVV Rejected', 'arraypress' ) ],
+			[ 'value' => 'AVS_NOT_CHECKED', 'label' => __( 'AVS / CVV Not Checked', 'arraypress' ) ],
+			[ 'value' => 'CVV_ACCEPTED',    'label' => __( 'CVV Accepted', 'arraypress' ) ],
+			[ 'value' => 'CVV_REJECTED',    'label' => __( 'CVV Rejected', 'arraypress' ) ],
+			[ 'value' => 'CVV_NOT_CHECKED', 'label' => __( 'CVV Not Checked', 'arraypress' ) ],
 		];
 	}
 
