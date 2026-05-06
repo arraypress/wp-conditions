@@ -221,7 +221,7 @@ class Post {
 	private static function get_content_conditions(): array {
 		return [
 			'has_featured_image'  => [
-				'label'         => __( 'Has Featured Image', 'arraypress' ),
+				'label'         => __( 'Featured Image', 'arraypress' ),
 				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the post has a featured image.', 'arraypress' ),
@@ -251,7 +251,7 @@ class Post {
 				'required_args' => [ 'post_id' ],
 			],
 			'is_sticky'           => [
-				'label'         => __( 'Is Sticky', 'arraypress' ),
+				'label'         => __( 'Sticky', 'arraypress' ),
 				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the post is sticky.', 'arraypress' ),
@@ -259,7 +259,7 @@ class Post {
 				'required_args' => [ 'post_id' ],
 			],
 			'has_excerpt'         => [
-				'label'         => __( 'Has Excerpt', 'arraypress' ),
+				'label'         => __( 'Excerpt', 'arraypress' ),
 				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the post has a manual excerpt.', 'arraypress' ),
@@ -278,7 +278,7 @@ class Post {
 				'required_args' => [ 'post_id' ],
 			],
 			'has_shortcode'       => [
-				'label'         => __( 'Has Shortcode', 'arraypress' ),
+				'label'         => __( 'Contains Shortcode', 'arraypress' ),
 				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. gallery', 'arraypress' ),
@@ -288,7 +288,7 @@ class Post {
 				'required_args' => [ 'post_id' ],
 			],
 			'has_block'           => [
-				'label'         => __( 'Has Block', 'arraypress' ),
+				'label'         => __( 'Contains Block', 'arraypress' ),
 				'group'         => __( 'Post', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. core/image', 'arraypress' ),

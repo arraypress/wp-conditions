@@ -45,7 +45,7 @@ class Context {
 	private static function get_page_conditions(): array {
 		return [
 			'is_front_page' => [
-				'label'         => __( 'Is Front Page', 'arraypress' ),
+				'label'         => __( 'Front Page', 'arraypress' ),
 				'group'         => __( 'Page', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on the site front page.', 'arraypress' ),
@@ -53,7 +53,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_home'       => [
-				'label'         => __( 'Is Blog Home', 'arraypress' ),
+				'label'         => __( 'Blog Home', 'arraypress' ),
 				'group'         => __( 'Page', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on the blog posts index page.', 'arraypress' ),
@@ -61,7 +61,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_singular'   => [
-				'label'         => __( 'Is Singular', 'arraypress' ),
+				'label'         => __( 'Singular', 'arraypress' ),
 				'group'         => __( 'Page', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on any single post, page, or custom post type.', 'arraypress' ),
@@ -69,7 +69,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_single'     => [
-				'label'         => __( 'Is Single Post', 'arraypress' ),
+				'label'         => __( 'Single Post', 'arraypress' ),
 				'group'         => __( 'Page', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a single post page.', 'arraypress' ),
@@ -77,7 +77,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_page'       => [
-				'label'         => __( 'Is Page', 'arraypress' ),
+				'label'         => __( 'Page', 'arraypress' ),
 				'group'         => __( 'Page', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a static page.', 'arraypress' ),
@@ -85,7 +85,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_attachment' => [
-				'label'         => __( 'Is Attachment', 'arraypress' ),
+				'label'         => __( 'Attachment', 'arraypress' ),
 				'group'         => __( 'Page', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on an attachment page.', 'arraypress' ),
@@ -93,7 +93,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_search'     => [
-				'label'         => __( 'Is Search Results', 'arraypress' ),
+				'label'         => __( 'Search Results', 'arraypress' ),
 				'group'         => __( 'Page', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on the search results page.', 'arraypress' ),
@@ -101,7 +101,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_404'        => [
-				'label'         => __( 'Is 404 Page', 'arraypress' ),
+				'label'         => __( '404 Page', 'arraypress' ),
 				'group'         => __( 'Page', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a 404 error page.', 'arraypress' ),
@@ -109,7 +109,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_preview'    => [
-				'label'         => __( 'Is Preview', 'arraypress' ),
+				'label'         => __( 'Preview', 'arraypress' ),
 				'group'         => __( 'Page', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if viewing a post preview.', 'arraypress' ),
@@ -117,7 +117,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_paged'      => [
-				'label'         => __( 'Is Paged', 'arraypress' ),
+				'label'         => __( 'Paged', 'arraypress' ),
 				'group'         => __( 'Page', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a paginated page (page 2+).', 'arraypress' ),
@@ -135,7 +135,7 @@ class Context {
 	private static function get_archive_conditions(): array {
 		return [
 			'is_archive'           => [
-				'label'         => __( 'Is Archive', 'arraypress' ),
+				'label'         => __( 'Archive', 'arraypress' ),
 				'group'         => __( 'Archive', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on any archive page.', 'arraypress' ),
@@ -143,7 +143,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_post_type_archive' => [
-				'label'         => __( 'Is Post Type Archive', 'arraypress' ),
+				'label'         => __( 'Post Type Archive', 'arraypress' ),
 				'group'         => __( 'Archive', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a custom post type archive page.', 'arraypress' ),
@@ -151,7 +151,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_category'          => [
-				'label'         => __( 'Is Category Archive', 'arraypress' ),
+				'label'         => __( 'Category Archive', 'arraypress' ),
 				'group'         => __( 'Archive', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a category archive page.', 'arraypress' ),
@@ -159,7 +159,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_tag'               => [
-				'label'         => __( 'Is Tag Archive', 'arraypress' ),
+				'label'         => __( 'Tag Archive', 'arraypress' ),
 				'group'         => __( 'Archive', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a tag archive page.', 'arraypress' ),
@@ -167,7 +167,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_tax'               => [
-				'label'         => __( 'Is Taxonomy Archive', 'arraypress' ),
+				'label'         => __( 'Taxonomy Archive', 'arraypress' ),
 				'group'         => __( 'Archive', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a custom taxonomy archive page.', 'arraypress' ),
@@ -175,7 +175,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_author'            => [
-				'label'         => __( 'Is Author Archive', 'arraypress' ),
+				'label'         => __( 'Author Archive', 'arraypress' ),
 				'group'         => __( 'Archive', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on an author archive page.', 'arraypress' ),
@@ -183,7 +183,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_date'              => [
-				'label'         => __( 'Is Date Archive', 'arraypress' ),
+				'label'         => __( 'Date Archive', 'arraypress' ),
 				'group'         => __( 'Archive', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a date-based archive page.', 'arraypress' ),
@@ -191,7 +191,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_year'              => [
-				'label'         => __( 'Is Year Archive', 'arraypress' ),
+				'label'         => __( 'Year Archive', 'arraypress' ),
 				'group'         => __( 'Archive', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a yearly archive page.', 'arraypress' ),
@@ -199,7 +199,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_month'             => [
-				'label'         => __( 'Is Month Archive', 'arraypress' ),
+				'label'         => __( 'Month Archive', 'arraypress' ),
 				'group'         => __( 'Archive', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a monthly archive page.', 'arraypress' ),
@@ -207,7 +207,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_day'               => [
-				'label'         => __( 'Is Day Archive', 'arraypress' ),
+				'label'         => __( 'Day Archive', 'arraypress' ),
 				'group'         => __( 'Archive', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if on a daily archive page.', 'arraypress' ),
@@ -225,7 +225,7 @@ class Context {
 	private static function get_request_conditions(): array {
 		return [
 			'is_admin'              => [
-				'label'         => __( 'Is Admin Area', 'arraypress' ),
+				'label'         => __( 'Admin Area', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if in the WordPress admin area.', 'arraypress' ),
@@ -233,7 +233,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_network_admin'      => [
-				'label'         => __( 'Is Network Admin', 'arraypress' ),
+				'label'         => __( 'Network Admin', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if in the network admin area (multisite).', 'arraypress' ),
@@ -241,7 +241,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_ajax'               => [
-				'label'         => __( 'Is AJAX Request', 'arraypress' ),
+				'label'         => __( 'AJAX Request', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is an AJAX request.', 'arraypress' ),
@@ -249,7 +249,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_rest'               => [
-				'label'         => __( 'Is REST Request', 'arraypress' ),
+				'label'         => __( 'REST Request', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is a REST API request.', 'arraypress' ),
@@ -257,7 +257,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_cron'               => [
-				'label'         => __( 'Is Cron Job', 'arraypress' ),
+				'label'         => __( 'Cron Job', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is a cron job execution.', 'arraypress' ),
@@ -265,7 +265,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_cli'                => [
-				'label'         => __( 'Is WP-CLI', 'arraypress' ),
+				'label'         => __( 'WP-CLI', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if running from WP-CLI command line.', 'arraypress' ),
@@ -273,7 +273,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_feed'               => [
-				'label'         => __( 'Is Feed', 'arraypress' ),
+				'label'         => __( 'Feed', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is an RSS/Atom feed request.', 'arraypress' ),
@@ -281,7 +281,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_customizer_preview' => [
-				'label'         => __( 'Is Customizer Preview', 'arraypress' ),
+				'label'         => __( 'Customizer Preview', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if viewing the customizer preview.', 'arraypress' ),
@@ -289,7 +289,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_embed'              => [
-				'label'         => __( 'Is Embed', 'arraypress' ),
+				'label'         => __( 'Embed', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is an oEmbed request.', 'arraypress' ),
@@ -307,7 +307,7 @@ class Context {
 	private static function get_environment_conditions(): array {
 		return [
 			'is_ssl'       => [
-				'label'         => __( 'Is SSL/HTTPS', 'arraypress' ),
+				'label'         => __( 'SSL/HTTPS', 'arraypress' ),
 				'group'         => __( 'Environment', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the connection is using SSL/HTTPS.', 'arraypress' ),
@@ -315,7 +315,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_multisite' => [
-				'label'         => __( 'Is Multisite', 'arraypress' ),
+				'label'         => __( 'Multisite', 'arraypress' ),
 				'group'         => __( 'Environment', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is a multisite installation.', 'arraypress' ),
@@ -323,7 +323,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_main_site' => [
-				'label'         => __( 'Is Main Site', 'arraypress' ),
+				'label'         => __( 'Main Site', 'arraypress' ),
 				'group'         => __( 'Environment', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if this is the main site in a multisite network.', 'arraypress' ),
@@ -331,7 +331,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_debug'     => [
-				'label'         => __( 'Is Debug Mode', 'arraypress' ),
+				'label'         => __( 'Debug Mode', 'arraypress' ),
 				'group'         => __( 'Environment', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if WP_DEBUG is enabled.', 'arraypress' ),
@@ -348,7 +348,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_local'     => [
-				'label'         => __( 'Is Local Environment', 'arraypress' ),
+				'label'         => __( 'Local Environment', 'arraypress' ),
 				'group'         => __( 'Environment', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if running in a local/development environment.', 'arraypress' ),
@@ -356,7 +356,7 @@ class Context {
 				'required_args' => [],
 			],
 			'is_rtl'       => [
-				'label'         => __( 'Is RTL Language', 'arraypress' ),
+				'label'         => __( 'RTL Language', 'arraypress' ),
 				'group'         => __( 'Environment', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the current locale is right-to-left.', 'arraypress' ),

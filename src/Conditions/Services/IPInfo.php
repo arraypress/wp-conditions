@@ -57,7 +57,7 @@ class IPInfo {
 				'required_args' => [ 'ip', 'ipinfo_api_key' ],
 			],
 			'ipinfo_is_eu'         => [
-				'label'         => __( 'Is EU', 'arraypress' ),
+				'label'         => __( 'EU Country', 'arraypress' ),
 				'group'         => __( 'IPInfo', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP geolocates to an EU member state. Convenience for GDPR-aware rules or EU-only fulfilment.', 'arraypress' ),
@@ -91,7 +91,7 @@ class IPInfo {
 
 			// Privacy Detection
 			'ipinfo_is_vpn'        => [
-				'label'         => __( 'Is VPN', 'arraypress' ),
+				'label'         => __( 'VPN', 'arraypress' ),
 				'group'         => __( 'IPInfo', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP is identified as a commercial VPN exit node. Privacy-conscious customers do use VPNs legitimately — pair with another signal (high cart total, new customer) before blocking outright.', 'arraypress' ),
@@ -99,7 +99,7 @@ class IPInfo {
 				'required_args' => [ 'ip', 'ipinfo_api_key' ],
 			],
 			'ipinfo_is_proxy'      => [
-				'label'         => __( 'Is Proxy', 'arraypress' ),
+				'label'         => __( 'Proxy', 'arraypress' ),
 				'group'         => __( 'IPInfo', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP is on IPInfo\'s proxy list — public web proxies, anonymising relays, residential-proxy networks. Use "Is Suspicious" for the broader privacy/anonymity check.', 'arraypress' ),
@@ -107,7 +107,7 @@ class IPInfo {
 				'required_args' => [ 'ip', 'ipinfo_api_key' ],
 			],
 			'ipinfo_is_tor'        => [
-				'label'         => __( 'Is Tor', 'arraypress' ),
+				'label'         => __( 'Tor', 'arraypress' ),
 				'group'         => __( 'IPInfo', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP is a Tor exit node. Stronger fraud signal than VPN — Tor traffic on commerce checkouts is rare for legitimate buyers.', 'arraypress' ),
@@ -115,7 +115,7 @@ class IPInfo {
 				'required_args' => [ 'ip', 'ipinfo_api_key' ],
 			],
 			'ipinfo_is_relay'      => [
-				'label'         => __( 'Is Relay', 'arraypress' ),
+				'label'         => __( 'Privacy Relay', 'arraypress' ),
 				'group'         => __( 'IPInfo', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP is part of an anonymising relay service — most commonly iCloud Private Relay used by Apple devices. Many legitimate iOS/macOS customers route through Private Relay; treat this as a soft signal, not a block trigger.', 'arraypress' ),
@@ -123,7 +123,7 @@ class IPInfo {
 				'required_args' => [ 'ip', 'ipinfo_api_key' ],
 			],
 			'ipinfo_is_hosting'    => [
-				'label'         => __( 'Is Hosting/Datacenter', 'arraypress' ),
+				'label'         => __( 'Hosting/Datacenter', 'arraypress' ),
 				'group'         => __( 'IPInfo', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP belongs to a hosting provider or datacentre (AWS, Google Cloud, OVH, DigitalOcean, etc.). Strong fraud signal on a checkout — legitimate customers don\'t buy from server IPs.', 'arraypress' ),
@@ -131,7 +131,7 @@ class IPInfo {
 				'required_args' => [ 'ip', 'ipinfo_api_key' ],
 			],
 			'ipinfo_is_suspicious' => [
-				'label'         => __( 'Is Suspicious', 'arraypress' ),
+				'label'         => __( 'Suspicious', 'arraypress' ),
 				'group'         => __( 'IPInfo', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Convenience boolean — true when ANY of: VPN / proxy / Tor / hosting. Catches the most common evasion techniques in one check.', 'arraypress' ),

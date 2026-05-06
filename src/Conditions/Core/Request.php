@@ -170,7 +170,7 @@ class Request {
 				'required_args' => [],
 			],
 			'is_bot'               => [
-				'label'         => __( 'Is Bot/Crawler', 'arraypress' ),
+				'label'         => __( 'Bot/Crawler', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the User-Agent matches a known bot or crawler (Googlebot, Bingbot, Ahrefs, etc.). Bots don\'t generally make checkout submissions, but if one does it\'s either scraping or fraud automation.', 'arraypress' ),
@@ -178,7 +178,7 @@ class Request {
 				'required_args' => [],
 			],
 			'user_agent_is_headless' => [
-				'label'         => __( 'Is Headless Browser', 'arraypress' ),
+				'label'         => __( 'Headless Browser', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the User-Agent contains a known automation-framework signature (HeadlessChrome, Puppeteer, Selenium, Playwright, PhantomJS, Cypress, etc). Real human checkouts almost never use a headless browser. Strong block signal — sophisticated fraudsters spoof the UA, but most don\'t bother.', 'arraypress' ),
@@ -186,7 +186,7 @@ class Request {
 				'required_args' => [],
 			],
 			'user_agent_is_empty' => [
-				'label'         => __( 'User-Agent Is Empty', 'arraypress' ),
+				'label'         => __( 'Empty User-Agent', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the User-Agent header is missing or empty. Legitimate browsers always send one — a checkout request without one is almost certainly a script. Strong block signal.', 'arraypress' ),
@@ -194,7 +194,7 @@ class Request {
 				'required_args' => [],
 			],
 			'user_agent_is_outdated_browser' => [
-				'label'         => __( 'Is Outdated Browser', 'arraypress' ),
+				'label'         => __( 'Outdated Browser', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the User-Agent advertises a browser version that\'s years out of date (any IE, Chrome <90, Firefox <78, Safari <13). Common for bots that pin to old UA strings to evade detection. Heuristic — some legit users on locked-down enterprise systems will trip this.', 'arraypress' ),
@@ -267,7 +267,7 @@ class Request {
 				'required_args' => [],
 			],
 			'has_referrer'         => [
-				'label'         => __( 'Has Referrer', 'arraypress' ),
+				'label'         => __( 'Referrer Present', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the visitor has any referrer (not direct traffic).', 'arraypress' ),
@@ -275,7 +275,7 @@ class Request {
 				'required_args' => [],
 			],
 			'is_external_referrer' => [
-				'label'         => __( 'Is External Referrer', 'arraypress' ),
+				'label'         => __( 'External Referrer', 'arraypress' ),
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the visitor came from an external website.', 'arraypress' ),

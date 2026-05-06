@@ -34,7 +34,7 @@ class User {
 		return [
 			// Identity
 			'is_logged_in'       => [
-				'label'         => __( 'Is Logged In', 'arraypress' ),
+				'label'         => __( 'Logged In', 'arraypress' ),
 				'group'         => __( 'User', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the user is logged in.', 'arraypress' ),

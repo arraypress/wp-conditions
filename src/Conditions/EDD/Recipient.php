@@ -126,7 +126,7 @@ class Recipient {
 				'required_args' => [],
 			],
 			'edd_recipient_is_vendor'       => [
-				'label'         => __( 'Is Vendor', 'arraypress' ),
+				'label'         => __( 'Vendor', 'arraypress' ),
 				'group'         => __( 'Recipient', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the user is a registered vendor.', 'arraypress' ),

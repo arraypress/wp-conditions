@@ -144,7 +144,7 @@ class DateTime {
 				'required_args' => [],
 			],
 			'is_weekend'        => [
-				'label'         => __( 'Is Weekend', 'arraypress' ),
+				'label'         => __( 'Weekend', 'arraypress' ),
 				'group'         => __( 'Date & Time', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if today is Saturday or Sunday.', 'arraypress' ),
@@ -152,7 +152,7 @@ class DateTime {
 				'required_args' => [],
 			],
 			'is_weekday'        => [
-				'label'         => __( 'Is Weekday', 'arraypress' ),
+				'label'         => __( 'Weekday', 'arraypress' ),
 				'group'         => __( 'Date & Time', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if today is Monday through Friday.', 'arraypress' ),
@@ -160,7 +160,7 @@ class DateTime {
 				'required_args' => [],
 			],
 			'is_business_hours' => [
-				'label'         => __( 'Is Business Hours', 'arraypress' ),
+				'label'         => __( 'Business Hours', 'arraypress' ),
 				'group'         => __( 'Date & Time', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if current time is Monday-Friday 9am-5pm.', 'arraypress' ),

@@ -103,7 +103,7 @@ class Order {
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_has_discount'    => [
-				'label'         => __( 'Has Discount', 'arraypress' ),
+				'label'         => __( 'Discount Applied', 'arraypress' ),
 				'group'         => $money,
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the order has any discount applied.', 'arraypress' ),
@@ -362,7 +362,7 @@ class Order {
 		// Subscription conditions (requires EDD Recurring).
 		if ( function_exists( 'edd_recurring' ) || class_exists( 'EDD_Subscriptions_DB' ) ) {
 			$conditions['edd_order_is_renewal']         = [
-				'label'         => __( 'Is Renewal', 'arraypress' ),
+				'label'         => __( 'Renewal', 'arraypress' ),
 				'group'         => $subscriptions,
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the order is a subscription renewal.', 'arraypress' ),

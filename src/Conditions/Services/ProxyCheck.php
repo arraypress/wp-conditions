@@ -48,7 +48,7 @@ class ProxyCheck {
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
 			'proxycheck_is_high_risk'        => [
-				'label'         => __( 'Is High Risk', 'arraypress' ),
+				'label'         => __( 'High Risk', 'arraypress' ),
 				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Convenience boolean — true when ProxyCheck\'s risk score is 50 or above. Equivalent to writing "Risk Score >= 50" but easier to read in rules.', 'arraypress' ),
@@ -58,7 +58,7 @@ class ProxyCheck {
 
 			// Detection
 			'proxycheck_is_proxy'            => [
-				'label'         => __( 'Is Proxy', 'arraypress' ),
+				'label'         => __( 'Proxy', 'arraypress' ),
 				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP is on ProxyCheck\'s proxy list — typically datacentre / hosting / public proxy IPs. Use "Is Suspicious" if you want to catch both proxies and VPNs in one check.', 'arraypress' ),
@@ -66,7 +66,7 @@ class ProxyCheck {
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
 			'proxycheck_is_vpn'              => [
-				'label'         => __( 'Is VPN', 'arraypress' ),
+				'label'         => __( 'VPN', 'arraypress' ),
 				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP is identified as a commercial VPN exit node (NordVPN, ExpressVPN, etc.). Many legitimate privacy-conscious customers use VPNs, so consider pairing with another signal (high cart total, new customer) before blocking outright.', 'arraypress' ),
@@ -74,7 +74,7 @@ class ProxyCheck {
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
 			'proxycheck_is_suspicious'       => [
-				'label'         => __( 'Is Suspicious', 'arraypress' ),
+				'label'         => __( 'Suspicious', 'arraypress' ),
 				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Convenience boolean — true when the IP is either a proxy OR a VPN. Catches the most common evasion attempts in one check.', 'arraypress' ),
@@ -128,7 +128,7 @@ class ProxyCheck {
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
 			'proxycheck_is_eu'               => [
-				'label'         => __( 'Is EU Country', 'arraypress' ),
+				'label'         => __( 'EU Country', 'arraypress' ),
 				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP geolocates to an EU member state. Convenience for GDPR-aware rules or EU-only fulfilment.', 'arraypress' ),
@@ -179,7 +179,7 @@ class ProxyCheck {
 
 			// Email
 			'proxycheck_is_disposable_email' => [
-				'label'         => __( 'Is Disposable Email', 'arraypress' ),
+				'label'         => __( 'Disposable Email', 'arraypress' ),
 				'group'         => __( 'ProxyCheck', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the email domain is on ProxyCheck\'s disposable-provider list (Mailinator, 10MinuteMail, Guerrilla Mail, etc.). Strong fraud signal — legitimate customers rarely use throwaway addresses.', 'arraypress' ),

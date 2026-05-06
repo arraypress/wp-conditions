@@ -97,7 +97,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_is_bundle'          => [
-				'label'         => __( 'Is Bundle', 'arraypress' ),
+				'label'         => __( 'Bundle', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product is a bundle.', 'arraypress' ),
@@ -155,7 +155,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_variable_prices' => [
-				'label'         => __( 'Has Variable Prices', 'arraypress' ),
+				'label'         => __( 'Variable Pricing', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has variable pricing enabled.', 'arraypress' ),
@@ -163,7 +163,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_is_free'            => [
-				'label'         => __( 'Is Free', 'arraypress' ),
+				'label'         => __( 'Free Product', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product is free.', 'arraypress' ),
@@ -214,7 +214,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_download_limit' => [
-				'label'         => __( 'Has Download Limit', 'arraypress' ),
+				'label'         => __( 'Download Limit Set', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has a download limit set.', 'arraypress' ),
@@ -224,7 +224,7 @@ class Product {
 
 			// Content
 			'edd_product_has_featured_image' => [
-				'label'         => __( 'Has Featured Image', 'arraypress' ),
+				'label'         => __( 'Featured Image', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has a featured image.', 'arraypress' ),
@@ -232,7 +232,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_excerpt'        => [
-				'label'         => __( 'Has Excerpt', 'arraypress' ),
+				'label'         => __( 'Excerpt', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has a short description.', 'arraypress' ),
@@ -240,7 +240,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_notes'          => [
-				'label'         => __( 'Has Purchase Notes', 'arraypress' ),
+				'label'         => __( 'Purchase Notes', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has purchase notes.', 'arraypress' ),
@@ -259,7 +259,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_shortcode'      => [
-				'label'         => __( 'Has Shortcode', 'arraypress' ),
+				'label'         => __( 'Contains Shortcode', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. gallery', 'arraypress' ),
@@ -269,7 +269,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			],
 			'edd_product_has_block'          => [
-				'label'         => __( 'Has Block', 'arraypress' ),
+				'label'         => __( 'Contains Block', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'text',
 				'placeholder'   => __( 'e.g. core/image', 'arraypress' ),
@@ -370,7 +370,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			];
 			$conditions['edd_product_has_license_limit']  = [
-				'label'         => __( 'Has Activation Limit', 'arraypress' ),
+				'label'         => __( 'Activation Limit Set', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if there is an activation limit (not unlimited).', 'arraypress' ),
@@ -378,7 +378,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			];
 			$conditions['edd_product_is_lifetime']        = [
-				'label'         => __( 'Is Lifetime License', 'arraypress' ),
+				'label'         => __( 'Lifetime License', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the license never expires.', 'arraypress' ),
@@ -409,7 +409,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			];
 			$conditions['edd_product_has_beta']           = [
-				'label'         => __( 'Has Beta Releases', 'arraypress' ),
+				'label'         => __( 'Beta Releases', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if beta releases are enabled.', 'arraypress' ),
@@ -430,7 +430,7 @@ class Product {
 		// Recurring conditions (requires EDD Recurring)
 		if ( function_exists( 'edd_recurring' ) ) {
 			$conditions['edd_product_is_recurring']   = [
-				'label'         => __( 'Is Recurring', 'arraypress' ),
+				'label'         => __( 'Recurring', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product is a subscription.', 'arraypress' ),
@@ -461,7 +461,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			];
 			$conditions['edd_product_has_free_trial'] = [
-				'label'         => __( 'Has Free Trial', 'arraypress' ),
+				'label'         => __( 'Free Trial', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product offers a free trial.', 'arraypress' ),
@@ -492,7 +492,7 @@ class Product {
 				'required_args' => [ 'product_id' ],
 			];
 			$conditions['edd_product_has_signup_fee'] = [
-				'label'         => __( 'Has Signup Fee', 'arraypress' ),
+				'label'         => __( 'Signup Fee', 'arraypress' ),
 				'group'         => __( 'Product', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the product has a signup fee.', 'arraypress' ),

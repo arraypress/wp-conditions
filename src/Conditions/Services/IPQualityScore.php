@@ -48,7 +48,7 @@ class IPQualityScore {
 				'required_args' => [ 'ip', 'ipqs_api_key' ],
 			],
 			'ipqs_is_high_risk'        => [
-				'label'         => __( 'Is High Risk', 'arraypress' ),
+				'label'         => __( 'High Risk', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Convenience boolean — true when IPQS fraud score is 75 or above. Equivalent to writing "Fraud Score >= 75".', 'arraypress' ),
@@ -58,7 +58,7 @@ class IPQualityScore {
 
 			// Detection
 			'ipqs_is_proxy'            => [
-				'label'         => __( 'Is Proxy', 'arraypress' ),
+				'label'         => __( 'Proxy', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP is on IPQS\'s proxy list — datacentre, hosting, or public proxy IPs. Use "Is Suspicious" for the broader proxy + VPN + Tor + abuse check.', 'arraypress' ),
@@ -66,7 +66,7 @@ class IPQualityScore {
 				'required_args' => [ 'ip', 'ipqs_api_key' ],
 			],
 			'ipqs_is_vpn'              => [
-				'label'         => __( 'Is VPN', 'arraypress' ),
+				'label'         => __( 'VPN', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP is identified as a commercial VPN exit node. Privacy-conscious customers do use VPNs legitimately — pair with another signal (high cart total, new customer) before blocking outright.', 'arraypress' ),
@@ -74,7 +74,7 @@ class IPQualityScore {
 				'required_args' => [ 'ip', 'ipqs_api_key' ],
 			],
 			'ipqs_is_tor'              => [
-				'label'         => __( 'Is Tor', 'arraypress' ),
+				'label'         => __( 'Tor', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP is a Tor exit node. Stronger fraud signal than VPN — Tor traffic on commerce checkouts is rare for legitimate buyers.', 'arraypress' ),
@@ -82,7 +82,7 @@ class IPQualityScore {
 				'required_args' => [ 'ip', 'ipqs_api_key' ],
 			],
 			'ipqs_is_bot'              => [
-				'label'         => __( 'Is Bot', 'arraypress' ),
+				'label'         => __( 'Bot/Automation', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the IP exhibits bot/automation traffic patterns (scraping, credential stuffing, automated checkout attempts). Strong block signal.', 'arraypress' ),
@@ -90,7 +90,7 @@ class IPQualityScore {
 				'required_args' => [ 'ip', 'ipqs_api_key' ],
 			],
 			'ipqs_recent_abuse'        => [
-				'label'         => __( 'Has Recent Abuse', 'arraypress' ),
+				'label'         => __( 'Recent Abuse', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when IPQS has seen abuse reports for this IP in the recent past (typically last 90 days) — chargebacks, spam, account takeovers reported by other sites in their network.', 'arraypress' ),
@@ -98,7 +98,7 @@ class IPQualityScore {
 				'required_args' => [ 'ip', 'ipqs_api_key' ],
 			],
 			'ipqs_is_suspicious'       => [
-				'label'         => __( 'Is Suspicious', 'arraypress' ),
+				'label'         => __( 'Suspicious', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Convenience boolean — true when ANY of: proxy / VPN / Tor / recent abuse. Catches the most common evasion techniques in one check.', 'arraypress' ),
@@ -156,7 +156,7 @@ class IPQualityScore {
 
 			// Email Validation
 			'ipqs_is_disposable_email' => [
-				'label'         => __( 'Is Disposable Email', 'arraypress' ),
+				'label'         => __( 'Disposable Email', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the email domain is on IPQS\'s disposable-provider list (Mailinator, 10MinuteMail, Guerrilla Mail, etc.). Strong fraud signal — legitimate customers rarely use throwaway addresses.', 'arraypress' ),
@@ -164,7 +164,7 @@ class IPQualityScore {
 				'required_args' => [ 'email', 'ipqs_api_key' ],
 			],
 			'ipqs_is_valid_email'      => [
-				'label'         => __( 'Is Valid Email', 'arraypress' ),
+				'label'         => __( 'Valid Email', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the email passes IPQS validation (good MX records, deliverable mailbox, not a syntax error). Combine with the boolean operator "no" to catch malformed/undeliverable addresses.', 'arraypress' ),
@@ -172,7 +172,7 @@ class IPQualityScore {
 				'required_args' => [ 'email', 'ipqs_api_key' ],
 			],
 			'ipqs_is_leaked_email'     => [
-				'label'         => __( 'Is Leaked Email', 'arraypress' ),
+				'label'         => __( 'Leaked Email', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the email has appeared in known data breaches (HaveIBeenPwned-style). Useful for ATO (account takeover) detection — leaked emails on new high-value orders deserve extra scrutiny.', 'arraypress' ),
@@ -180,7 +180,7 @@ class IPQualityScore {
 				'required_args' => [ 'email', 'ipqs_api_key' ],
 			],
 			'ipqs_is_risky_email'      => [
-				'label'         => __( 'Is Risky Email', 'arraypress' ),
+				'label'         => __( 'Risky Email', 'arraypress' ),
 				'group'         => __( 'IPQualityScore', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'Convenience boolean — true when ANY of: disposable, invalid, or leaked. Catches the broadest set of bad-email signals in one check.', 'arraypress' ),

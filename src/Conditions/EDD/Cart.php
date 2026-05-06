@@ -109,7 +109,7 @@ class Cart {
 				'required_args' => [],
 			],
 			'edd_cart_has_discount'    => [
-				'label'         => __( 'Has Discount', 'arraypress' ),
+				'label'         => __( 'Discount Applied', 'arraypress' ),
 				'group'         => $money,
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the cart has any discount applied.', 'arraypress' ),
@@ -225,7 +225,7 @@ class Cart {
 				'required_args' => [],
 			];
 			$conditions['edd_cart_has_subscription']   = [
-				'label'         => __( 'Has Subscription', 'arraypress' ),
+				'label'         => __( 'Subscription in Cart', 'arraypress' ),
 				'group'         => $subscriptions,
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the cart contains any subscription products.', 'arraypress' ),
@@ -259,7 +259,7 @@ class Cart {
 				'required_args' => [],
 			];
 			$conditions['edd_cart_has_renewal']   = [
-				'label'         => __( 'Has Renewal', 'arraypress' ),
+				'label'         => __( 'Renewal in Cart', 'arraypress' ),
 				'group'         => $licensing,
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the cart contains any license renewals.', 'arraypress' ),
