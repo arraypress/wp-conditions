@@ -45,7 +45,7 @@ class Customer {
 		return [
 			// Profile — who they are.
 			'edd_customer_segment'              => [
-				'label'         => __( 'Segment', 'arraypress' ),
+				'label'         => __( 'Customer Type', 'arraypress' ),
 				'group'         => $profile,
 				'type'          => 'select',
 				'multiple'      => true,
@@ -87,7 +87,7 @@ class Customer {
 
 			// Purchases — what they've spent / when / how often.
 			'edd_customer_order_count'          => [
-				'label'         => __( 'Order Count', 'arraypress' ),
+				'label'         => __( 'Lifetime Orders', 'arraypress' ),
 				'group'         => $purchases,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 5', 'arraypress' ),

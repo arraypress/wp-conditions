@@ -119,7 +119,7 @@ class Cart {
 
 			// Items — counts + contents.
 			'edd_cart_quantity'        => [
-				'label'         => __( 'Item Count', 'arraypress' ),
+				'label'         => __( 'Total Items', 'arraypress' ),
 				'group'         => $items,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 5', 'arraypress' ),
@@ -130,7 +130,7 @@ class Cart {
 				'required_args' => [],
 			],
 			'edd_cart_unique_products' => [
-				'label'         => __( 'Unique Product Count', 'arraypress' ),
+				'label'         => __( 'Distinct Products', 'arraypress' ),
 				'group'         => $items,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 3', 'arraypress' ),

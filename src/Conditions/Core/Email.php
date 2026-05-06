@@ -36,7 +36,7 @@ class Email {
 
 		return [
 			'email_is_freemail'           => [
-				'label'         => __( 'Is Free Email Provider', 'arraypress' ),
+				'label'         => __( 'Free Email Provider', 'arraypress' ),
 				'group'         => $group,
 				'type'          => 'boolean',
 				'description'   => __( 'True when the email is from a free webmail provider — Gmail, Yahoo, Hotmail/Outlook, iCloud, Proton, AOL, mail.com, etc. Most fraudsters use freemail because it\'s anonymous and free; legitimate B2B customers tend to use their own domain. Strong combined signal — not enough to block alone, but powerful when paired with high cart total or new customer.', 'arraypress' ),
@@ -54,7 +54,7 @@ class Email {
 				'required_args' => [ 'email' ],
 			],
 			'email_has_plus_alias'        => [
-				'label'         => __( 'Has Plus Alias', 'arraypress' ),
+				'label'         => __( 'Plus-Alias Email', 'arraypress' ),
 				'group'         => $group,
 				'type'          => 'boolean',
 				'description'   => __( 'True when the email uses sub-addressing — `alice+promo@gmail.com` for example. Most providers route `+anything` back to the base inbox, which fraudsters exploit to create "different" emails that all reach the same mailbox. Soft signal — many legitimate customers use this for organisation. Pair with another signal.', 'arraypress' ),
@@ -62,7 +62,7 @@ class Email {
 				'required_args' => [ 'email' ],
 			],
 			'email_local_suspicion_score' => [
-				'label'         => __( 'Local Part Suspicion Score', 'arraypress' ),
+				'label'         => __( 'Email Risk Score', 'arraypress' ),
 				'group'         => $group,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 60', 'arraypress' ),

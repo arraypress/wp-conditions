@@ -37,7 +37,7 @@ class Order {
 	 */
 	public static function get_all(): array {
 		$money         = __( 'Order: Money', 'arraypress' );
-		$identity      = __( 'Order: Identity', 'arraypress' );
+		$identity      = __( 'Order: Details', 'arraypress' );
 		$items         = __( 'Order: Items', 'arraypress' );
 		$address       = __( 'Order: Address', 'arraypress' );
 		$customer      = __( 'Order: Customer', 'arraypress' );
@@ -149,7 +149,7 @@ class Order {
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_mode'            => [
-				'label'         => __( 'Mode', 'arraypress' ),
+				'label'         => __( 'Live/Test Mode', 'arraypress' ),
 				'group'         => $identity,
 				'type'          => 'select',
 				'multiple'      => false,
@@ -207,7 +207,7 @@ class Order {
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_item_count'      => [
-				'label'         => __( 'Item Count', 'arraypress' ),
+				'label'         => __( 'Total Items', 'arraypress' ),
 				'group'         => $items,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
@@ -218,7 +218,7 @@ class Order {
 				'required_args' => [ 'order_id' ],
 			],
 			'edd_order_unique_products' => [
-				'label'         => __( 'Unique Product Count', 'arraypress' ),
+				'label'         => __( 'Distinct Products', 'arraypress' ),
 				'group'         => $items,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
@@ -370,7 +370,7 @@ class Order {
 				'required_args' => [ 'order_id' ],
 			];
 			$conditions['edd_order_is_subscription']    = [
-				'label'         => __( 'Is Initial Subscription', 'arraypress' ),
+				'label'         => __( 'First Subscription Payment', 'arraypress' ),
 				'group'         => $subscriptions,
 				'type'          => 'boolean',
 				'description'   => __( 'Check if the order is an initial subscription payment.', 'arraypress' ),
