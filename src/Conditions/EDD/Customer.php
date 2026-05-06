@@ -2,6 +2,12 @@
 /**
  * EDD Customer Conditions
  *
+ * Sub-grouped under "Customer: Profile / Purchases / Catalogue / Risk"
+ * so the rule editor's group dropdown stays scannable rather than
+ * dumping nineteen items under a single "Customer" header. Group
+ * strings are local variables so reorganising in the future is one
+ * edit per section, not nineteen.
+ *
  * @package     ArrayPress\Conditions\Conditions\Integrations\EDD
  * @copyright   Copyright (c) 2026, ArrayPress Limited
  * @license     GPL-2.0-or-later
@@ -31,11 +37,16 @@ class Customer {
 	 * @return array<string, array>
 	 */
 	public static function get_all(): array {
+		$profile   = __( 'Customer: Profile', 'arraypress' );
+		$purchases = __( 'Customer: Purchases', 'arraypress' );
+		$catalogue = __( 'Customer: Catalogue', 'arraypress' );
+		$risk      = __( 'Customer: Risk', 'arraypress' );
+
 		return [
-			// Profile
+			// Profile — who they are.
 			'edd_customer_segment'              => [
 				'label'         => __( 'Segment', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $profile,
 				'type'          => 'select',
 				'multiple'      => true,
 				'placeholder'   => __( 'Select segment...', 'arraypress' ),
@@ -47,7 +58,7 @@ class Customer {
 			],
 			'edd_customer_email'                => [
 				'label'         => __( 'Email', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $profile,
 				'type'          => 'email',
 				'placeholder'   => __( 'e.g. john@test.com, @gmail.com, .edu', 'arraypress' ),
 				'description'   => __( 'Match the customer\'s email address using full email, @domain, .tld, or partial domain patterns. Examples: `john@test.com` (exact), `@gmail.com` (any Gmail), `.edu` (any educational TLD), `temp` (substring match).', 'arraypress' ),
@@ -56,7 +67,7 @@ class Customer {
 			],
 			'edd_customer_date_created'         => [
 				'label'         => __( 'Date Registered', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $profile,
 				'type'          => 'date',
 				'description'   => __( 'The date the customer account was created.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CustomerHelper::get_date_created( $args ),
@@ -64,7 +75,7 @@ class Customer {
 			],
 			'edd_customer_account_age'          => [
 				'label'         => __( 'Account Age', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $profile,
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
 				'min'           => 0,
@@ -74,10 +85,10 @@ class Customer {
 				'required_args' => [],
 			],
 
-			// Purchase History
+			// Purchases — what they've spent / when / how often.
 			'edd_customer_order_count'          => [
 				'label'         => __( 'Order Count', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $purchases,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 5', 'arraypress' ),
 				'min'           => 0,
@@ -88,7 +99,7 @@ class Customer {
 			],
 			'edd_customer_total_spent'          => [
 				'label'         => __( 'Total Spent', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $purchases,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 500.00', 'arraypress' ),
 				'min'           => 0,
@@ -99,7 +110,7 @@ class Customer {
 			],
 			'edd_customer_avg_order_value'      => [
 				'label'         => __( 'Average Order Value', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $purchases,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 50.00', 'arraypress' ),
 				'min'           => 0,
@@ -108,47 +119,9 @@ class Customer {
 				'compare_value' => fn( $args ) => CustomerHelper::get_average_order_value( $args ),
 				'required_args' => [],
 			],
-			'edd_customer_purchased_products'   => [
-				'label'         => __( 'Purchased Products', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
-				'type'          => 'post',
-				'post_type'     => 'download',
-				'multiple'      => true,
-				'placeholder'   => __( 'Search products...', 'arraypress' ),
-				'description'   => __( 'Check if the customer has purchased specific products.', 'arraypress' ),
-				'operators'     => Operators::collection(),
-				'compare_value' => fn( $args ) => CustomerHelper::get_product_ids( $args ),
-				'required_args' => [],
-			],
-			'edd_customer_purchased_categories' => [
-				'label'         => __( 'Purchased Categories', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
-				'type'          => 'term',
-				'taxonomy'      => 'download_category',
-				'multiple'      => true,
-				'placeholder'   => __( 'Search categories...', 'arraypress' ),
-				'description'   => __( 'Check if the customer has purchased from specific categories.', 'arraypress' ),
-				'operators'     => Operators::collection(),
-				'compare_value' => fn( $args ) => CustomerHelper::get_term_ids( $args, 'download_category' ),
-				'required_args' => [],
-			],
-			'edd_customer_purchased_tags'       => [
-				'label'         => __( 'Purchased Tags', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
-				'type'          => 'term',
-				'taxonomy'      => 'download_tag',
-				'multiple'      => true,
-				'placeholder'   => __( 'Search tags...', 'arraypress' ),
-				'description'   => __( 'Check if the customer has purchased products with specific tags.', 'arraypress' ),
-				'operators'     => Operators::collection(),
-				'compare_value' => fn( $args ) => CustomerHelper::get_term_ids( $args, 'download_tag' ),
-				'required_args' => [],
-			],
-
-			// Activity
 			'edd_customer_last_order_date'      => [
 				'label'         => __( 'Last Order Date', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $purchases,
 				'type'          => 'date',
 				'description'   => __( 'The date of the customer\'s most recent order.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CustomerHelper::get_last_order_date( $args ),
@@ -156,7 +129,7 @@ class Customer {
 			],
 			'edd_customer_days_since_order'     => [
 				'label'         => __( 'Days Since Last Order', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $purchases,
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
 				'min'           => 0,
@@ -167,7 +140,7 @@ class Customer {
 			],
 			'edd_customer_orders_in_period'     => [
 				'label'         => __( 'Orders in Period', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $purchases,
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
 				'min'           => 0,
@@ -179,7 +152,7 @@ class Customer {
 			],
 			'edd_customer_spend_in_period'      => [
 				'label'         => __( 'Spend in Period', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $purchases,
 				'type'          => 'number_unit',
 				'placeholder'   => __( 'e.g. 100.00', 'arraypress' ),
 				'min'           => 0,
@@ -189,9 +162,49 @@ class Customer {
 				'compare_value' => fn( $args ) => CustomerHelper::get_spend_in_period( $args ),
 				'required_args' => [],
 			],
+
+			// Catalogue — what they've bought.
+			'edd_customer_purchased_products'   => [
+				'label'         => __( 'Purchased Products', 'arraypress' ),
+				'group'         => $catalogue,
+				'type'          => 'post',
+				'post_type'     => 'download',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search products...', 'arraypress' ),
+				'description'   => __( 'Check if the customer has purchased specific products.', 'arraypress' ),
+				'operators'     => Operators::collection(),
+				'compare_value' => fn( $args ) => CustomerHelper::get_product_ids( $args ),
+				'required_args' => [],
+			],
+			'edd_customer_purchased_categories' => [
+				'label'         => __( 'Purchased Categories', 'arraypress' ),
+				'group'         => $catalogue,
+				'type'          => 'term',
+				'taxonomy'      => 'download_category',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search categories...', 'arraypress' ),
+				'description'   => __( 'Check if the customer has purchased from specific categories.', 'arraypress' ),
+				'operators'     => Operators::collection(),
+				'compare_value' => fn( $args ) => CustomerHelper::get_term_ids( $args, 'download_category' ),
+				'required_args' => [],
+			],
+			'edd_customer_purchased_tags'       => [
+				'label'         => __( 'Purchased Tags', 'arraypress' ),
+				'group'         => $catalogue,
+				'type'          => 'term',
+				'taxonomy'      => 'download_tag',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search tags...', 'arraypress' ),
+				'description'   => __( 'Check if the customer has purchased products with specific tags.', 'arraypress' ),
+				'operators'     => Operators::collection(),
+				'compare_value' => fn( $args ) => CustomerHelper::get_term_ids( $args, 'download_tag' ),
+				'required_args' => [],
+			],
+
+			// Risk — fraud-specific signals.
 			'edd_customer_ip_count'             => [
 				'label'         => __( 'Unique IP Count', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $risk,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
 				'min'           => 0,
@@ -202,7 +215,7 @@ class Customer {
 			],
 			'edd_customer_ip_country_changed'   => [
 				'label'         => __( 'IP Country Changed', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $risk,
 				'type'          => 'boolean',
 				'description'   => __( 'True when the current checkout\'s IP country differs from every one of the customer\'s 5 most recent orders. Strong signal for account takeover and stolen-card use — most legitimate customers stay in one country across orders even when their raw IP changes (mobile, coffee shops, VPN). Returns false when there\'s no order history to compare against.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CustomerHelper::is_ip_country_changed( $args ),
@@ -210,7 +223,7 @@ class Customer {
 			],
 			'edd_customer_user_agent_changed'   => [
 				'label'         => __( 'User-Agent Changed', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $risk,
 				'type'          => 'boolean',
 				'description'   => __( 'True when the current checkout\'s User-Agent matches none of the customer\'s 5 most recent orders. Catches "different device" patterns useful for review-tier rules; less actionable for blocking since legitimate users rotate browsers and OS upgrades bump the UA string. Returns false when no past UAs are recorded.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CustomerHelper::is_user_agent_changed( $args ),
@@ -218,7 +231,7 @@ class Customer {
 			],
 			'edd_customer_refund_count'         => [
 				'label'         => __( 'Refund Count', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $risk,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 2', 'arraypress' ),
 				'min'           => 0,
@@ -229,7 +242,7 @@ class Customer {
 			],
 			'edd_customer_refund_rate'          => [
 				'label'         => __( 'Refund Rate (%)', 'arraypress' ),
-				'group'         => __( 'Customer', 'arraypress' ),
+				'group'         => $risk,
 				'type'          => 'number',
 				'placeholder'   => __( 'e.g. 10', 'arraypress' ),
 				'min'           => 0,
