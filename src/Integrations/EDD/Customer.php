@@ -76,15 +76,24 @@ class Customer {
 	public static function get_segment( array $args ): string {
 		$customer = self::get( $args );
 
+		// No customer record yet (brand-new email at checkout, before
+		// the order is created) — they're a first-time buyer by
+		// definition. Returning '' here would cause "Customer Type IS
+		// first_time" to silently miss the very customers it's most
+		// useful for.
 		if ( ! $customer ) {
-			return '';
-		}
-
-		if ( (int) $customer->purchase_count === 1 ) {
 			return 'first_time';
 		}
 
-		return 'returning';
+		// `purchase_count` is the count of completed orders. At REVIEW
+		// pass the current order is already counted, so subtract it
+		// to get "orders prior to this one".
+		$count = (int) $customer->purchase_count;
+		if ( ! empty( $args['order_id'] ) ) {
+			$count = max( 0, $count - 1 );
+		}
+
+		return $count === 0 ? 'first_time' : 'returning';
 	}
 
 	/**
@@ -553,8 +562,13 @@ class Customer {
 	public static function get_days_since_last_order( array $args ): int {
 		$last_order_date = self::get_last_order_date( $args );
 
+		// No prior order — return a sentinel high value so "less
+		// than" comparisons fail safe. A brand-new customer should
+		// not match "Days Since Last Order < 7" just because the
+		// helper returned 0; semantically the answer is "infinity
+		// days, they've never had a last order".
 		if ( empty( $last_order_date ) ) {
-			return 0;
+			return PHP_INT_MAX;
 		}
 
 		$parsed = Parse::number_unit( $args );
