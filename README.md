@@ -533,6 +533,22 @@ When Easy Digital Downloads is active, additional conditions are available:
 
 **Recipient:** Total/paid/unpaid earnings, sales counts, account age, vendor status, commission rate, payout method
 
+### Service Conditions (Third-Party APIs)
+
+Opt-in conditions backed by external lookup services. Each provider's conditions only fire when the matching API key is present in the evaluation `$args` (e.g. `proxycheck_api_key`). Responses are cached per request so multiple rules referencing the same provider only spend one API call.
+
+**ProxyCheck.io:** Risk score, proxy/VPN/Tor detection, country/continent/city, ASN/provider/organisation, network type (Hosting/Residential/Mobile/Business), VPN operator (with sibling-operator matching for shared infra like Mullvad/Hide.me), no-logs / accepts-crypto / accepts-anonymous / free-VPN policies, disposable email check.
+
+**IPQualityScore:** Fraud score, proxy/VPN/Tor, abuse velocity, recent abuse, bot status, ISP/organisation/ASN, country/region/city, mobile/connection type.
+
+**IPInfo:** Country/region/city, ASN, organisation, hosting/proxy/VPN/Tor flags, mobile, abuser flag.
+
+**MaxMind minFraud:** Risk score, IP risk, email/billing/shipping risks, distance signals.
+
+**AbuseIPDB:** Confidence-of-abuse score, total reports, hosting flag, country.
+
+**Square:** Risk-evaluation level (low/moderate/high), AVS / CVV codes.
+
 ## Creating Custom Conditions
 
 ### Array-Based (Inline)
