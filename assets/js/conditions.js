@@ -192,7 +192,12 @@
      */
     function renderTextInput(name, condition, value) {
         const placeholder = condition.placeholder || '';
-        return '<input type="text" class="value-input" name="' + name + '" value="' + escapeHtml(value || '') + '" placeholder="' + escapeHtml(placeholder) + '">';
+        // Don't `value || ''` — that falsy-coerces a stored `0` to
+        // empty, which makes "first-time customer" rules
+        // (`order_count == 0`) render with an empty input that
+        // looks like the rule has no value. escapeHtml handles
+        // null/undefined cleanly so passing through is safe.
+        return '<input type="text" class="value-input" name="' + name + '" value="' + escapeHtml(value) + '" placeholder="' + escapeHtml(placeholder) + '">';
     }
 
     /**
@@ -204,7 +209,7 @@
         const max = condition.max !== undefined ? ' max="' + condition.max + '"' : '';
         const step = condition.step !== undefined ? ' step="' + condition.step + '"' : ' step="any"';
 
-        return '<input type="number" class="value-input" name="' + name + '" value="' + escapeHtml(value || '') + '"' + min + max + step + ' placeholder="' + escapeHtml(placeholder) + '">';
+        return '<input type="number" class="value-input" name="' + name + '" value="' + escapeHtml(value) + '"' + min + max + step + ' placeholder="' + escapeHtml(placeholder) + '">';
     }
 
     /**
@@ -220,7 +225,7 @@
         const step = condition.step !== undefined ? ' step="' + condition.step + '"' : ' step="any"';
 
         let html = '<div class="number-with-unit">';
-        html += '<input type="number" class="number-input" name="' + name + '[number]" value="' + escapeHtml(numValue || '') + '"' + min + max + step + ' placeholder="' + escapeHtml(placeholder) + '">';
+        html += '<input type="number" class="number-input" name="' + name + '[number]" value="' + escapeHtml(numValue) + '"' + min + max + step + ' placeholder="' + escapeHtml(placeholder) + '">';
         html += '<select class="unit-select" name="' + name + '[unit]">';
 
         units.forEach(function (unit) {
@@ -244,7 +249,7 @@
         const placeholder = condition.placeholder || '';
 
         let html = '<div class="text-with-unit">';
-        html += '<input type="text" class="text-input" name="' + name + '[text]" value="' + escapeHtml(textValue || '') + '" placeholder="' + escapeHtml(placeholder) + '">';
+        html += '<input type="text" class="text-input" name="' + name + '[text]" value="' + escapeHtml(textValue) + '" placeholder="' + escapeHtml(placeholder) + '">';
         html += '<select class="unit-select" name="' + name + '[unit]">';
 
         units.forEach(function (unit) {
@@ -436,7 +441,7 @@
      */
     function renderDateInput(name, condition, value) {
         const placeholder = condition.placeholder || '';
-        return '<input type="date" class="value-input" name="' + name + '" value="' + escapeHtml(value || '') + '" placeholder="' + escapeHtml(placeholder) + '">';
+        return '<input type="date" class="value-input" name="' + name + '" value="' + escapeHtml(value) + '" placeholder="' + escapeHtml(placeholder) + '">';
     }
 
     /**
@@ -444,7 +449,7 @@
      */
     function renderTimeInput(name, condition, value) {
         const placeholder = condition.placeholder || '';
-        return '<input type="time" class="value-input" name="' + name + '" value="' + escapeHtml(value || '') + '" placeholder="' + escapeHtml(placeholder) + '">';
+        return '<input type="time" class="value-input" name="' + name + '" value="' + escapeHtml(value) + '" placeholder="' + escapeHtml(placeholder) + '">';
     }
 
     /**
