@@ -176,6 +176,67 @@ class ProxyCheck {
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_organisation( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],
 			],
+			'proxycheck_network_type'        => [
+				'label'         => __( 'Network Type', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select network types...', 'arraypress' ),
+				'description'   => __( 'Underlying connection type of the IP — Hosting (datacentre), Residential, Mobile, Business. Distinct from "Proxy Type": a residential connection on a VPN reports network=Residential and type=VPN. Hosting traffic at a checkout is almost always automated.', 'arraypress' ),
+				'options'       => [
+					[ 'value' => 'Hosting', 'label' => __( 'Hosting', 'arraypress' ) ],
+					[ 'value' => 'Residential', 'label' => __( 'Residential', 'arraypress' ) ],
+					[ 'value' => 'Mobile', 'label' => __( 'Mobile', 'arraypress' ) ],
+					[ 'value' => 'Business', 'label' => __( 'Business', 'arraypress' ) ],
+				],
+				'operators'     => Operators::collection_any_none(),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::get_network_type( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+
+			// Operator (VPN provider)
+			'proxycheck_operator'            => [
+				'label'         => __( 'VPN Operator', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'tags',
+				'placeholder'   => __( 'e.g., Mullvad, NordVPN', 'arraypress' ),
+				'operators'     => Operators::tags_exact(),
+				'description'   => __( 'Commercial VPN provider name (Mullvad, NordVPN, ExpressVPN, etc.). Matches both the primary operator AND any sibling operators sharing the same exit infrastructure — e.g. a rule for "Mullvad" still matches IPs whose primary record is Hide.me with Mullvad listed in additional_operators.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::get_operator_names( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+			'proxycheck_no_logs_policy'      => [
+				'label'         => __( 'No-Logs Policy', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'True when the VPN operator advertises a no-logs policy. Strong privacy-VPN signal — a no-logs operator is the preferred choice for anyone trying to avoid being identified after the fact, including fraudsters.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::is_no_logs_policy( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+			'proxycheck_accepts_crypto'      => [
+				'label'         => __( 'Accepts Crypto Payments', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'True when the VPN operator accepts crypto payments. Combined with no-logs and a high cart total, this is a textbook stolen-card-from-a-privacy-VPN pattern.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::accepts_crypto_payments( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+			'proxycheck_accepts_anonymous'   => [
+				'label'         => __( 'Accepts Anonymous Payments', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'True when the VPN operator accepts cash / gift-card / other untraceable payment methods. Same fraud-correlation reasoning as crypto — no payment audit trail tying the user to an identity.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::accepts_anonymous_payments( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
+			'proxycheck_is_free_vpn'         => [
+				'label'         => __( 'Free VPN', 'arraypress' ),
+				'group'         => __( 'ProxyCheck', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'True when the VPN is free-to-use (no paid tier required). Free VPNs over-index for fraud — there is no payment card on file with the operator that could tie the user to a real identity.', 'arraypress' ),
+				'compare_value' => fn( $args ) => ProxyCheckHelper::is_free_vpn( $args ),
+				'required_args' => [ 'ip', 'proxycheck_api_key' ],
+			],
 
 			// Email
 			'proxycheck_is_disposable_email' => [

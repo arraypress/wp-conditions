@@ -465,6 +465,198 @@ class ProxyCheck {
 	}
 
 	/** -------------------------------------------------------------------------
+	 * Operator / Policy Methods (VPN flag)
+	 *
+	 * These all rely on ProxyCheck's `operator` block being populated,
+	 * which only happens when the IP is a known commercial VPN AND the
+	 * `vpn=1` query flag is set on the request (it is — see
+	 * `get_ip_result()`). For non-VPN IPs the methods return safe
+	 * defaults (false / '' / []) so rules don't accidentally match
+	 * residential traffic.
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Get the operator name (the VPN provider).
+	 *
+	 * Example: "Hide.me", "NordVPN", "Mullvad". Empty string when the
+	 * IP is not a tracked commercial VPN.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_operator_name( array $args ): string {
+		$details = self::get_operator_details_array( $args );
+
+		return (string) ( $details['name'] ?? '' );
+	}
+
+	/**
+	 * Get all operator names for this IP — primary plus any
+	 * `additional_operators` siblings.
+	 *
+	 * ProxyCheck attaches `additional_operators` to operators that
+	 * share infrastructure but market under different brand names.
+	 * The classic case is Mullvad's exit nodes being shared with
+	 * Hide.me — Hide.me is the primary, Mullvad is in
+	 * `additional_operators`. Returning every brand here lets a rule
+	 * targeting "Mullvad" match the shared exit even though the
+	 * primary record says Hide.me.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string[] Lowercased names. Empty array on non-VPN IPs.
+	 */
+	public static function get_operator_names( array $args ): array {
+		$result = self::get_ip_result( $args );
+
+		if ( ! $result || ! method_exists( $result, 'get_all' ) ) {
+			return [];
+		}
+
+		$raw      = $result->get_all();
+		$ip       = self::get_ip( $args );
+		$operator = $raw[ $ip ]['operator'] ?? null;
+
+		if ( ! is_array( $operator ) ) {
+			return [];
+		}
+
+		$names = [];
+
+		if ( isset( $operator['name'] ) && $operator['name'] !== '' ) {
+			$names[] = strtolower( (string) $operator['name'] );
+		}
+
+		foreach ( (array) ( $operator['additional_operators'] ?? [] ) as $sibling ) {
+			if ( $sibling === '' ) {
+				continue;
+			}
+			$names[] = strtolower( (string) $sibling );
+		}
+
+		return array_values( array_unique( $names ) );
+	}
+
+	/**
+	 * Check if the operator advertises a no-logs policy.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_no_logs_policy( array $args ): bool {
+		$policies = self::get_operator_policies_array( $args );
+
+		return ! empty( $policies['no_logs'] );
+	}
+
+	/**
+	 * Check if the operator accepts crypto payments.
+	 *
+	 * Strong privacy-VPN signal — paired with a high cart total this is
+	 * a textbook fraud pattern.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function accepts_crypto_payments( array $args ): bool {
+		$policies = self::get_operator_policies_array( $args );
+
+		return ! empty( $policies['accepts_crypto_payments'] );
+	}
+
+	/**
+	 * Check if the operator accepts anonymous (cash / gift card) payments.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function accepts_anonymous_payments( array $args ): bool {
+		$policies = self::get_operator_policies_array( $args );
+
+		return ! empty( $policies['accepts_anonymous_payments'] );
+	}
+
+	/**
+	 * Check if this is a free VPN (no-cost service).
+	 *
+	 * Free VPNs over-index for fraud because there's no payment card
+	 * audit trail tying the user to an identity.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_free_vpn( array $args ): bool {
+		$policies = self::get_operator_policies_array( $args );
+
+		return ! empty( $policies['free_vpn'] );
+	}
+
+	/**
+	 * Get the network type — Hosting / Residential / Mobile / Business.
+	 *
+	 * Distinct from `get_type()` (which is the proxy type — VPN, TOR,
+	 * SOCKS). Network type describes the IP's underlying connectivity:
+	 * a residential connection on a VPN still reports `network.type =
+	 * Residential` while `type = VPN`. Hosting traffic at a checkout
+	 * is almost always automated.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string Empty string when not exposed.
+	 */
+	public static function get_network_type( array $args ): string {
+		$result = self::get_ip_result( $args );
+
+		if ( ! $result || ! method_exists( $result, 'get_all' ) ) {
+			return '';
+		}
+
+		$raw = $result->get_all();
+		$ip  = self::get_ip( $args );
+
+		return (string) ( $raw[ $ip ]['network']['type'] ?? '' );
+	}
+
+	/**
+	 * Internal: get the operator details array (name, anonymity,
+	 * popularity, policies).
+	 *
+	 * Wraps `get_operator_details()` on the response, returning [] on
+	 * non-VPN IPs so callers can safely chain `?? null`.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array
+	 */
+	private static function get_operator_details_array( array $args ): array {
+		$result = self::get_ip_result( $args );
+
+		if ( ! $result || ! method_exists( $result, 'get_operator_details' ) ) {
+			return [];
+		}
+
+		return (array) ( $result->get_operator_details() ?? [] );
+	}
+
+	/**
+	 * Internal: get the operator policies array.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array
+	 */
+	private static function get_operator_policies_array( array $args ): array {
+		$details = self::get_operator_details_array( $args );
+
+		return (array) ( $details['policies'] ?? [] );
+	}
+
+	/** -------------------------------------------------------------------------
 	 * Email Validation Methods
 	 * ------------------------------------------------------------------------ */
 

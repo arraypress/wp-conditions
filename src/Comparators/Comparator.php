@@ -280,8 +280,16 @@ class Comparator {
 	 * @return bool
 	 */
 	private function compare_tags( string $operator, mixed $user_value, mixed $compare_value ): bool {
-		$tags          = (array) $user_value;
-		$compare_value = strtolower( (string) $compare_value );
+		$tags = (array) $user_value;
+
+		// Compare values can be a scalar (one provider/operator name) OR
+		// an array (e.g. ProxyCheck's primary operator name PLUS its
+		// `additional_operators` siblings — Mullvad is registered as
+		// `additional_operators` of Hide.me's exit nodes, so a rule
+		// targeting "Mullvad" needs to match either side).
+		$compare_values = is_array( $compare_value ) ? $compare_value : [ $compare_value ];
+		$compare_values = array_map( fn( $v ) => strtolower( (string) $v ), $compare_values );
+		$compare_values = array_filter( $compare_values, fn( $v ) => $v !== '' );
 
 		// Determine match type from operator
 		$match_type = 'ends'; // default
@@ -300,7 +308,7 @@ class Comparator {
 			}
 		}
 
-		// Check if compare_value matches any of the tags
+		// Match if ANY tag matches ANY compare-value entry.
 		$matches_any = false;
 		foreach ( $tags as $tag ) {
 			$tag = strtolower( trim( $tag ) );
@@ -308,17 +316,19 @@ class Comparator {
 				continue;
 			}
 
-			$matched = match ( $match_type ) {
-				'starts' => str_starts_with( $compare_value, $tag ),
-				'ends' => str_ends_with( $compare_value, $tag ),
-				'contains' => str_contains( $compare_value, $tag ),
-				'exact' => $compare_value === $tag,
-				default => str_ends_with( $compare_value, $tag ),
-			};
+			foreach ( $compare_values as $value ) {
+				$matched = match ( $match_type ) {
+					'starts' => str_starts_with( $value, $tag ),
+					'ends' => str_ends_with( $value, $tag ),
+					'contains' => str_contains( $value, $tag ),
+					'exact' => $value === $tag,
+					default => str_ends_with( $value, $tag ),
+				};
 
-			if ( $matched ) {
-				$matches_any = true;
-				break;
+				if ( $matched ) {
+					$matches_any = true;
+					break 2;
+				}
 			}
 		}
 
