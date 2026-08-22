@@ -167,7 +167,7 @@ class Matcher {
 		// false; this makes a group with no *evaluable* rules agree.
 		return $evaluated > 0;
 	}
-	
+
 	/**
 	 * Check a single rule.
 	 *
@@ -288,5 +288,4 @@ class Matcher {
 
 		return get_posts( $args );
 	}
-
 }

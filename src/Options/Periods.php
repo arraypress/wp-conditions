@@ -33,12 +33,30 @@ class Periods {
 	 */
 	public static function get_units(): array {
 		return [
-			[ 'value' => 'minute', 'label' => __( 'Minute(s)', 'arraypress' ) ],
-			[ 'value' => 'hour', 'label' => __( 'Hour(s)', 'arraypress' ) ],
-			[ 'value' => 'day', 'label' => __( 'Day(s)', 'arraypress' ) ],
-			[ 'value' => 'week', 'label' => __( 'Week(s)', 'arraypress' ) ],
-			[ 'value' => 'month', 'label' => __( 'Month(s)', 'arraypress' ) ],
-			[ 'value' => 'year', 'label' => __( 'Year(s)', 'arraypress' ) ],
+			[
+				'value' => 'minute',
+				'label' => __( 'Minute(s)', 'arraypress' ),
+			],
+			[
+				'value' => 'hour',
+				'label' => __( 'Hour(s)', 'arraypress' ),
+			],
+			[
+				'value' => 'day',
+				'label' => __( 'Day(s)', 'arraypress' ),
+			],
+			[
+				'value' => 'week',
+				'label' => __( 'Week(s)', 'arraypress' ),
+			],
+			[
+				'value' => 'month',
+				'label' => __( 'Month(s)', 'arraypress' ),
+			],
+			[
+				'value' => 'year',
+				'label' => __( 'Year(s)', 'arraypress' ),
+			],
 		];
 	}
 
@@ -51,10 +69,22 @@ class Periods {
 	 */
 	public static function get_age_units(): array {
 		return [
-			[ 'value' => 'day', 'label' => __( 'Day(s)', 'arraypress' ) ],
-			[ 'value' => 'week', 'label' => __( 'Week(s)', 'arraypress' ) ],
-			[ 'value' => 'month', 'label' => __( 'Month(s)', 'arraypress' ) ],
-			[ 'value' => 'year', 'label' => __( 'Year(s)', 'arraypress' ) ],
+			[
+				'value' => 'day',
+				'label' => __( 'Day(s)', 'arraypress' ),
+			],
+			[
+				'value' => 'week',
+				'label' => __( 'Week(s)', 'arraypress' ),
+			],
+			[
+				'value' => 'month',
+				'label' => __( 'Month(s)', 'arraypress' ),
+			],
+			[
+				'value' => 'year',
+				'label' => __( 'Year(s)', 'arraypress' ),
+			],
 		];
 	}
 
@@ -69,12 +99,30 @@ class Periods {
 	 */
 	public static function get_billing_periods(): array {
 		return [
-			[ 'value' => 'day', 'label' => __( 'Daily', 'arraypress' ) ],
-			[ 'value' => 'week', 'label' => __( 'Weekly', 'arraypress' ) ],
-			[ 'value' => 'month', 'label' => __( 'Monthly', 'arraypress' ) ],
-			[ 'value' => 'quarter', 'label' => __( 'Quarterly', 'arraypress' ) ],
-			[ 'value' => 'semi-year', 'label' => __( 'Semi-Yearly', 'arraypress' ) ],
-			[ 'value' => 'year', 'label' => __( 'Yearly', 'arraypress' ) ],
+			[
+				'value' => 'day',
+				'label' => __( 'Daily', 'arraypress' ),
+			],
+			[
+				'value' => 'week',
+				'label' => __( 'Weekly', 'arraypress' ),
+			],
+			[
+				'value' => 'month',
+				'label' => __( 'Monthly', 'arraypress' ),
+			],
+			[
+				'value' => 'quarter',
+				'label' => __( 'Quarterly', 'arraypress' ),
+			],
+			[
+				'value' => 'semi-year',
+				'label' => __( 'Semi-Yearly', 'arraypress' ),
+			],
+			[
+				'value' => 'year',
+				'label' => __( 'Yearly', 'arraypress' ),
+			],
 		];
 	}
 
@@ -87,10 +135,22 @@ class Periods {
 	 */
 	public static function get_license_exp_units(): array {
 		return [
-			[ 'value' => 'days', 'label' => __( 'Days', 'arraypress' ) ],
-			[ 'value' => 'weeks', 'label' => __( 'Weeks', 'arraypress' ) ],
-			[ 'value' => 'months', 'label' => __( 'Months', 'arraypress' ) ],
-			[ 'value' => 'years', 'label' => __( 'Years', 'arraypress' ) ],
+			[
+				'value' => 'days',
+				'label' => __( 'Days', 'arraypress' ),
+			],
+			[
+				'value' => 'weeks',
+				'label' => __( 'Weeks', 'arraypress' ),
+			],
+			[
+				'value' => 'months',
+				'label' => __( 'Months', 'arraypress' ),
+			],
+			[
+				'value' => 'years',
+				'label' => __( 'Years', 'arraypress' ),
+			],
 		];
 	}
 
@@ -103,18 +163,54 @@ class Periods {
 	 */
 	public static function get_months(): array {
 		return [
-			[ 'value' => '1', 'label' => __( 'January', 'arraypress' ) ],
-			[ 'value' => '2', 'label' => __( 'February', 'arraypress' ) ],
-			[ 'value' => '3', 'label' => __( 'March', 'arraypress' ) ],
-			[ 'value' => '4', 'label' => __( 'April', 'arraypress' ) ],
-			[ 'value' => '5', 'label' => __( 'May', 'arraypress' ) ],
-			[ 'value' => '6', 'label' => __( 'June', 'arraypress' ) ],
-			[ 'value' => '7', 'label' => __( 'July', 'arraypress' ) ],
-			[ 'value' => '8', 'label' => __( 'August', 'arraypress' ) ],
-			[ 'value' => '9', 'label' => __( 'September', 'arraypress' ) ],
-			[ 'value' => '10', 'label' => __( 'October', 'arraypress' ) ],
-			[ 'value' => '11', 'label' => __( 'November', 'arraypress' ) ],
-			[ 'value' => '12', 'label' => __( 'December', 'arraypress' ) ],
+			[
+				'value' => '1',
+				'label' => __( 'January', 'arraypress' ),
+			],
+			[
+				'value' => '2',
+				'label' => __( 'February', 'arraypress' ),
+			],
+			[
+				'value' => '3',
+				'label' => __( 'March', 'arraypress' ),
+			],
+			[
+				'value' => '4',
+				'label' => __( 'April', 'arraypress' ),
+			],
+			[
+				'value' => '5',
+				'label' => __( 'May', 'arraypress' ),
+			],
+			[
+				'value' => '6',
+				'label' => __( 'June', 'arraypress' ),
+			],
+			[
+				'value' => '7',
+				'label' => __( 'July', 'arraypress' ),
+			],
+			[
+				'value' => '8',
+				'label' => __( 'August', 'arraypress' ),
+			],
+			[
+				'value' => '9',
+				'label' => __( 'September', 'arraypress' ),
+			],
+			[
+				'value' => '10',
+				'label' => __( 'October', 'arraypress' ),
+			],
+			[
+				'value' => '11',
+				'label' => __( 'November', 'arraypress' ),
+			],
+			[
+				'value' => '12',
+				'label' => __( 'December', 'arraypress' ),
+			],
 		];
 	}
 
@@ -125,10 +221,22 @@ class Periods {
 	 */
 	public static function get_quarters(): array {
 		return [
-			[ 'value' => '1', 'label' => __( 'Q1 (Jan - Mar)', 'arraypress' ) ],
-			[ 'value' => '2', 'label' => __( 'Q2 (Apr - Jun)', 'arraypress' ) ],
-			[ 'value' => '3', 'label' => __( 'Q3 (Jul - Sep)', 'arraypress' ) ],
-			[ 'value' => '4', 'label' => __( 'Q4 (Oct - Dec)', 'arraypress' ) ],
+			[
+				'value' => '1',
+				'label' => __( 'Q1 (Jan - Mar)', 'arraypress' ),
+			],
+			[
+				'value' => '2',
+				'label' => __( 'Q2 (Apr - Jun)', 'arraypress' ),
+			],
+			[
+				'value' => '3',
+				'label' => __( 'Q3 (Jul - Sep)', 'arraypress' ),
+			],
+			[
+				'value' => '4',
+				'label' => __( 'Q4 (Oct - Dec)', 'arraypress' ),
+			],
 		];
 	}
 
@@ -141,13 +249,34 @@ class Periods {
 	 */
 	public static function get_days_of_week(): array {
 		return [
-			[ 'value' => '1', 'label' => __( 'Monday', 'arraypress' ) ],
-			[ 'value' => '2', 'label' => __( 'Tuesday', 'arraypress' ) ],
-			[ 'value' => '3', 'label' => __( 'Wednesday', 'arraypress' ) ],
-			[ 'value' => '4', 'label' => __( 'Thursday', 'arraypress' ) ],
-			[ 'value' => '5', 'label' => __( 'Friday', 'arraypress' ) ],
-			[ 'value' => '6', 'label' => __( 'Saturday', 'arraypress' ) ],
-			[ 'value' => '7', 'label' => __( 'Sunday', 'arraypress' ) ],
+			[
+				'value' => '1',
+				'label' => __( 'Monday', 'arraypress' ),
+			],
+			[
+				'value' => '2',
+				'label' => __( 'Tuesday', 'arraypress' ),
+			],
+			[
+				'value' => '3',
+				'label' => __( 'Wednesday', 'arraypress' ),
+			],
+			[
+				'value' => '4',
+				'label' => __( 'Thursday', 'arraypress' ),
+			],
+			[
+				'value' => '5',
+				'label' => __( 'Friday', 'arraypress' ),
+			],
+			[
+				'value' => '6',
+				'label' => __( 'Saturday', 'arraypress' ),
+			],
+			[
+				'value' => '7',
+				'label' => __( 'Sunday', 'arraypress' ),
+			],
 		];
 	}
 
@@ -158,13 +287,30 @@ class Periods {
 	 */
 	public static function get_times_of_day(): array {
 		return [
-			[ 'value' => 'early_morning', 'label' => __( 'Early Morning (5am - 8am)', 'arraypress' ) ],
-			[ 'value' => 'morning', 'label' => __( 'Morning (8am - 12pm)', 'arraypress' ) ],
-			[ 'value' => 'afternoon', 'label' => __( 'Afternoon (12pm - 5pm)', 'arraypress' ) ],
-			[ 'value' => 'evening', 'label' => __( 'Evening (5pm - 9pm)', 'arraypress' ) ],
-			[ 'value' => 'night', 'label' => __( 'Night (9pm - 12am)', 'arraypress' ) ],
-			[ 'value' => 'late_night', 'label' => __( 'Late Night (12am - 5am)', 'arraypress' ) ],
+			[
+				'value' => 'early_morning',
+				'label' => __( 'Early Morning (5am - 8am)', 'arraypress' ),
+			],
+			[
+				'value' => 'morning',
+				'label' => __( 'Morning (8am - 12pm)', 'arraypress' ),
+			],
+			[
+				'value' => 'afternoon',
+				'label' => __( 'Afternoon (12pm - 5pm)', 'arraypress' ),
+			],
+			[
+				'value' => 'evening',
+				'label' => __( 'Evening (5pm - 9pm)', 'arraypress' ),
+			],
+			[
+				'value' => 'night',
+				'label' => __( 'Night (9pm - 12am)', 'arraypress' ),
+			],
+			[
+				'value' => 'late_night',
+				'label' => __( 'Late Night (12am - 5am)', 'arraypress' ),
+			],
 		];
 	}
-
 }

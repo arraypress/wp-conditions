@@ -56,6 +56,7 @@ class Users {
 				if ( ! Registry::is_role_allowed( $r ) ) {
 					return new WP_Error(
 						'forbidden',
+						/* translators: %s: role slug the request asked for. */
 						sprintf( __( 'Role "%s" not allowed.', 'arraypress' ), $r ),
 						[ 'status' => 403 ]
 					);
@@ -69,8 +70,8 @@ class Users {
 		if ( ! empty( $search ) ) {
 			$args['search']         = '*' . $search . '*';
 			$args['search_columns'] = [ 'user_login', 'user_email', 'display_name' ];
-		} // Include mode (lookup specific IDs)
-		elseif ( ! empty( $include ) ) {
+		} elseif ( ! empty( $include ) ) {
+			// Lookup mode: resolve specific IDs back to labels.
 			$args['include'] = wp_parse_id_list( $include );
 			$args['number']  = count( $args['include'] );
 			$args['orderby'] = 'include';
@@ -93,5 +94,4 @@ class Users {
 
 		return new WP_REST_Response( $results, 200 );
 	}
-
 }

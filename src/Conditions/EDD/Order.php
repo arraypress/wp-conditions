@@ -570,5 +570,4 @@ class Order {
 
 		return $conditions;
 	}
-
 }

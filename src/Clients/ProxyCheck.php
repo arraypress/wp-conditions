@@ -687,5 +687,4 @@ class ProxyCheck {
 		self::$email_results = [];
 		self::$client        = null;
 	}
-
 }

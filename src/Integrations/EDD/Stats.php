@@ -375,5 +375,4 @@ class Stats {
 
 		return (int) $stats->get_file_download_count();
 	}
-
 }

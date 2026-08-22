@@ -69,8 +69,8 @@ class Terms {
 		// Search mode
 		if ( ! empty( $search ) ) {
 			$args['search'] = $search;
-		} // Include mode (lookup specific IDs)
-		elseif ( ! empty( $include ) ) {
+		} elseif ( ! empty( $include ) ) {
+			// Lookup mode: resolve specific IDs back to labels.
 			$args['include'] = wp_parse_id_list( $include );
 			$args['number']  = 0; // No limit when looking up specific IDs
 			$args['orderby'] = 'include';
@@ -124,5 +124,4 @@ class Terms {
 
 		return $label;
 	}
-
 }

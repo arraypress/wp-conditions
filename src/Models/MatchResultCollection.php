@@ -173,5 +173,4 @@ class MatchResultCollection implements Countable, IteratorAggregate {
 	public function map( callable $callback ): array {
 		return array_map( $callback, $this->results );
 	}
-
 }

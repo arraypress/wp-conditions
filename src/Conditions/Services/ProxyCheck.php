@@ -184,10 +184,22 @@ class ProxyCheck {
 				'placeholder'   => __( 'Select network types...', 'arraypress' ),
 				'description'   => __( 'Underlying connection type of the IP — Hosting (datacentre), Residential, Mobile, Business. Distinct from "Proxy Type": a residential connection on a VPN reports network=Residential and type=VPN. Hosting traffic at a checkout is almost always automated.', 'arraypress' ),
 				'options'       => [
-					[ 'value' => 'Hosting', 'label' => __( 'Hosting', 'arraypress' ) ],
-					[ 'value' => 'Residential', 'label' => __( 'Residential', 'arraypress' ) ],
-					[ 'value' => 'Mobile', 'label' => __( 'Mobile', 'arraypress' ) ],
-					[ 'value' => 'Business', 'label' => __( 'Business', 'arraypress' ) ],
+					[
+						'value' => 'Hosting',
+						'label' => __( 'Hosting', 'arraypress' ),
+					],
+					[
+						'value' => 'Residential',
+						'label' => __( 'Residential', 'arraypress' ),
+					],
+					[
+						'value' => 'Mobile',
+						'label' => __( 'Mobile', 'arraypress' ),
+					],
+					[
+						'value' => 'Business',
+						'label' => __( 'Business', 'arraypress' ),
+					],
 				],
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_network_type( $args ),
@@ -249,5 +261,4 @@ class ProxyCheck {
 			],
 		];
 	}
-
 }

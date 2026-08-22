@@ -199,3 +199,5 @@ if ( ! function_exists( 'get_locale' ) ) {
 }
 
 require_once __DIR__ . '/wc-stubs.php';
+
+require_once __DIR__ . '/edd-stubs.php';

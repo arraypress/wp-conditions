@@ -131,6 +131,12 @@ class PostType {
 		$singular = $this->config['labels']['singular'];
 		$plural   = $this->config['labels']['plural'];
 
+		/*
+		 * Every placeholder below is the post type's own singular or plural
+		 * name, which is what the variable beside it is called. Twenty
+		 * identical translators comments would say less than this one does.
+		 */
+		// phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment
 		$labels = [
 			'name'                  => $plural,
 			'singular_name'         => $singular,
@@ -152,6 +158,7 @@ class PostType {
 			'items_list_navigation' => sprintf( __( '%s list navigation', 'arraypress' ), $plural ),
 			'items_list'            => sprintf( __( '%s list', 'arraypress' ), $plural ),
 		];
+		// phpcs:enable WordPress.WP.I18n.MissingTranslatorsComment
 
 		/**
 		 * Filter the post type labels.
@@ -199,16 +206,23 @@ class PostType {
 
 		$singular = $this->config['labels']['singular'];
 
+		// Same as the labels above: the placeholder is the post type's own name
+		// wherever it is not already carrying its own translators comment.
+		// phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment
 		$messages[ $this->set_id ] = [
 			0  => '', // Unused. Messages start at index 1.
 			1  => sprintf( __( '%s updated.', 'arraypress' ), $singular ),
 			2  => __( 'Custom field updated.', 'arraypress' ),
 			3  => __( 'Custom field deleted.', 'arraypress' ),
 			4  => sprintf( __( '%s updated.', 'arraypress' ), $singular ),
+			// Read-only, same as the trash notice: WordPress redirected here.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			5  => isset( $_GET['revision'] )
 				? sprintf(
-					__( '%s restored to revision from %s.', 'arraypress' ),
+					/* translators: 1: post type singular name, 2: revision title. */
+					__( '%1$s restored to revision from %2$s.', 'arraypress' ),
 					$singular,
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					wp_post_revision_title( (int) $_GET['revision'], false )
 				)
 				: false,
@@ -216,12 +230,14 @@ class PostType {
 			7  => sprintf( __( '%s saved.', 'arraypress' ), $singular ),
 			8  => sprintf( __( '%s submitted.', 'arraypress' ), $singular ),
 			9  => sprintf(
-				__( '%s scheduled for: %s.', 'arraypress' ),
+				/* translators: 1: post type singular name, 2: formatted date. */
+				__( '%1$s scheduled for: %2$s.', 'arraypress' ),
 				$singular,
 				date_i18n( __( 'M j, Y @ G:i', 'arraypress' ), strtotime( $post->post_date ) )
 			),
 			10 => sprintf( __( '%s draft updated.', 'arraypress' ), $singular ),
 		];
+		// phpcs:enable WordPress.WP.I18n.MissingTranslatorsComment
 
 		/**
 		 * Filter the post updated messages.
@@ -311,15 +327,23 @@ class PostType {
 	 * @return void
 	 */
 	public function display_trash_notice(): void {
-		if ( empty( $_GET["{$this->set_id}_trashed"] ) ) {
+		// Read-only: this renders the notice WordPress redirected here to show,
+		// after its own trash handler already ran and checked its own nonce.
+		// Nothing is written, so there is nothing here for a nonce to protect.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( empty( $_GET[ "{$this->set_id}_trashed" ] ) ) {
 			return;
 		}
 
-		$ids = isset( $_GET['ids'] ) ? array_map( 'absint', explode( ',', $_GET['ids'] ) ) : [];
+		$ids = isset( $_GET['ids'] )
+			? array_map( 'absint', explode( ',', sanitize_text_field( wp_unslash( $_GET['ids'] ) ) ) )
+			: [];
 
 		if ( empty( $ids ) ) {
 			return;
 		}
+
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$singular = $this->config['labels']['singular'];
 		$plural   = $this->config['labels']['plural'];
@@ -332,9 +356,10 @@ class PostType {
 		);
 
 		$message = sprintf(
+			/* translators: 1: number of items, 2: post type name, singular or plural to match. */
 			_n(
-				'%d %s moved to the Trash.',
-				'%d %s moved to the Trash.',
+				'%1$d %2$s moved to the Trash.',
+				'%1$d %2$s moved to the Trash.',
 				$count,
 				'arraypress'
 			),
@@ -367,5 +392,4 @@ class PostType {
 	public function get_config(): array {
 		return $this->config;
 	}
-
 }

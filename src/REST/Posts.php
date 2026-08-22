@@ -61,8 +61,8 @@ class Posts {
 		// Search mode
 		if ( ! empty( $search ) ) {
 			$args['s'] = $search;
-		} // Include mode (lookup specific IDs)
-		elseif ( ! empty( $include ) ) {
+		} elseif ( ! empty( $include ) ) {
+			// Lookup mode: resolve specific IDs back to labels.
 			$args['post__in']       = wp_parse_id_list( $include );
 			$args['posts_per_page'] = count( $args['post__in'] );
 			$args['orderby']        = 'post__in';
@@ -85,5 +85,4 @@ class Posts {
 
 		return new WP_REST_Response( $results, 200 );
 	}
-
 }

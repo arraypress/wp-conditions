@@ -182,7 +182,7 @@ class Customer {
 				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 1,
-				'description'   => __( 'Days since the customer last paid for something. A customer who has never ordered reports 0, which reads the same as one who ordered today — pair with Lifetime Orders when that matters.', 'arraypress' ),
+				'description'   => __( 'Days since the customer last paid for something. A customer who has never ordered counts as infinitely long ago rather than zero — otherwise "less than 7 days" would match every first-time buyer.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CustomerHelper::get_days_since_last_order(),
 				'required_args' => [],
 			],

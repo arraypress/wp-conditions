@@ -243,5 +243,4 @@ class Sanitizer {
 
 		return in_array( $operator, $allowed, true ) ? $operator : '';
 	}
-
 }

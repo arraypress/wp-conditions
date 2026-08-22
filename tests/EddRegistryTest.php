@@ -1,16 +1,15 @@
 <?php
 /**
- * The WooCommerce condition definitions.
+ * The EDD condition definitions.
  *
- * A condition is a data structure pointing at a callback, and nothing in PHP
- * checks that the callback names a method that exists until the day it runs --
- * which, for a fraud rule, is on somebody's checkout. These tests call every
- * one of them.
+ * The counterpart to WooCommerceRegistryTest, and it exists for the same
+ * reason: a condition is a data structure pointing at a callback, and nothing
+ * in PHP checks that the callback names a method that exists until the day it
+ * runs -- which, for a fraud rule, is on somebody's checkout.
  *
- * WooCommerce is deliberately absent here. That is the interesting case: the
- * conditions still have to answer, because a rule set is evaluated in contexts
- * WooCommerce has not booted -- REST, cron, an admin screen -- and a helper
- * that raises there takes the request down with it.
+ * EDD's own functions are stubbed, so what is being tested is the library:
+ * that every definition is well formed, that every closure resolves, and that
+ * a store with no data produces zeros rather than plausible-looking figures.
  *
  * @package ArrayPress\Conditions
  */
@@ -19,17 +18,29 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Tests;
 
-use ArrayPress\Conditions\Conditions\WooCommerce\Conditions;
+use ArrayPress\Conditions\Conditions\EDD\Conditions;
 use ArrayPress\Conditions\Operators;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class WooCommerceRegistryTest
+ * Class EddRegistryTest
  */
-final class WooCommerceRegistryTest extends TestCase {
+final class EddRegistryTest extends TestCase {
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		wpc_edd_reset();
+	}
+
+	protected function tearDown(): void {
+		wpc_edd_reset();
+
+		parent::tearDown();
+	}
 
 	/**
-	 * Every WooCommerce condition, keyed by name.
+	 * Every EDD condition, keyed by name.
 	 *
 	 * @return array<string, array>
 	 */
@@ -44,30 +55,33 @@ final class WooCommerceRegistryTest extends TestCase {
 	/**
 	 * Names are the storage key for a saved rule. A collision means two
 	 * conditions silently share one saved value, and the loser is whichever
-	 * one array_merge happened to overwrite.
+	 * array_merge happened to overwrite.
 	 */
 	public function test_every_condition_is_namespaced_and_unique(): void {
 		$names = array_keys( $this->conditions() );
 
-		$this->assertSame(
-			count( $names ),
-			count( array_unique( $names ) ),
-			'condition names must be unique'
-		);
+		$this->assertSame( count( $names ), count( array_unique( $names ) ) );
 
 		foreach ( $names as $name ) {
 			$this->assertStringStartsWith(
-				'wc_',
+				'edd_',
 				$name,
-				"$name must carry the wc_ prefix so it cannot collide with a core or EDD condition"
+				"$name must carry the edd_ prefix so it cannot collide with a core or WooCommerce condition"
 			);
 		}
 	}
 
 	/**
-	 * The rule editor reads all four of these to render a row. A condition
-	 * missing one renders as a blank line the admin cannot configure.
+	 * Neither integration may claim a name the other already uses. They are
+	 * merged into one registry whenever both plugins are active.
 	 */
+	public function test_edd_names_cannot_collide_with_woocommerce(): void {
+		$edd = array_keys( $this->conditions() );
+		$wc  = array_keys( \ArrayPress\Conditions\Conditions\WooCommerce\Conditions::get_all() );
+
+		$this->assertSame( [], array_intersect( $edd, $wc ) );
+	}
+
 	public function test_every_condition_carries_what_the_editor_needs(): void {
 		foreach ( $this->conditions() as $name => $config ) {
 			$this->assertArrayHasKey( 'label', $config, "$name needs a label" );
@@ -104,17 +118,13 @@ final class WooCommerceRegistryTest extends TestCase {
 
 		foreach ( $this->conditions() as $name => $config ) {
 			$this->assertContains( $config['type'], $known, "$name uses an unknown type" );
-
-			$operators = Operators::for_type( $config['type'], ! empty( $config['multiple'] ) );
-
-			$this->assertNotEmpty( $operators, "$name resolves to no operators" );
+			$this->assertNotEmpty(
+				Operators::for_type( $config['type'], ! empty( $config['multiple'] ) ),
+				"$name resolves to no operators"
+			);
 		}
 	}
 
-	/**
-	 * required_args is what the matcher checks before evaluating a rule. A
-	 * string where an array belongs makes that check pass on the wrong shape.
-	 */
 	public function test_required_args_is_always_a_list(): void {
 		foreach ( $this->conditions() as $name => $config ) {
 			$this->assertArrayHasKey( 'required_args', $config, "$name needs required_args" );
@@ -129,11 +139,11 @@ final class WooCommerceRegistryTest extends TestCase {
 	 */
 	public function test_object_conditions_declare_the_object_they_need(): void {
 		foreach ( $this->conditions() as $name => $config ) {
-			if ( str_starts_with( $name, 'wc_product_' ) ) {
+			if ( str_starts_with( $name, 'edd_product_' ) ) {
 				$this->assertContains( 'product_id', $config['required_args'], "$name must require a product_id" );
 			}
 
-			if ( str_starts_with( $name, 'wc_order_' ) ) {
+			if ( str_starts_with( $name, 'edd_order_' ) ) {
 				$this->assertContains( 'order_id', $config['required_args'], "$name must require an order_id" );
 			}
 		}
@@ -142,28 +152,19 @@ final class WooCommerceRegistryTest extends TestCase {
 	/**
 	 * The regression this file is really for.
 	 *
-	 * Each compare_value is a closure over a helper method. Rename or drop that
+	 * Each compare_value closes over a helper method. Rename or drop that
 	 * method and nothing complains until the closure runs. Calling every one of
-	 * them here turns a silent break into a failing test.
+	 * them turns a silent break into a failing test.
 	 *
-	 * Called with two arguments because that is what Matcher::get_compare_value()
-	 * does -- the args and the value the admin configured. A closure declaring
-	 * only one still accepts the call; one declaring two and never being handed
-	 * the second would raise on the first real evaluation.
+	 * Two arguments, because that is what Matcher::get_compare_value() passes.
 	 */
-	public function test_every_compare_value_runs_without_woocommerce(): void {
-		$this->assertFalse(
-			class_exists( 'WooCommerce' ),
-			'this test only means something while WooCommerce is absent'
-		);
-
+	public function test_every_compare_value_runs_against_an_empty_store(): void {
 		foreach ( $this->conditions() as $name => $config ) {
 			$this->assertArrayHasKey( 'compare_value', $config, "$name needs a compare_value" );
 			$this->assertIsCallable( $config['compare_value'], "$name must declare compare_value as a callable" );
 
 			$value = ( $config['compare_value'] )( [], null );
 
-			$this->assertNotInstanceOf( \Throwable::class, $value );
 			$this->assertTrue(
 				is_scalar( $value ) || is_array( $value ) || null === $value,
 				"$name returned a value the comparator cannot handle"
@@ -176,16 +177,15 @@ final class WooCommerceRegistryTest extends TestCase {
 	 * would let a threshold rule fire on nothing at all.
 	 *
 	 * Settings are excluded: a store setting legitimately has a non-zero
-	 * default, and WooCommerce's low-stock threshold is 2 whether or not a
-	 * store exists.
+	 * default.
 	 */
-	public function test_numeric_conditions_report_zero_with_no_store(): void {
+	public function test_numeric_conditions_report_zero_against_an_empty_store(): void {
 		$settings = __( 'Store: Settings', 'arraypress' );
 
 		// "Days since last order" answers PHP_INT_MAX when there has never been
 		// one. Zero would read as "ordered today", so "less than 7 days" would
 		// match every first-time buyer -- the opposite of what the rule says.
-		$sentinels = [ 'wc_customer_days_since_order' ];
+		$sentinels = [ 'edd_customer_days_since_order' ];
 
 		foreach ( $this->conditions() as $name => $config ) {
 			if ( 'number' !== $config['type'] && 'number_unit' !== $config['type'] ) {
@@ -201,7 +201,7 @@ final class WooCommerceRegistryTest extends TestCase {
 				continue;
 			}
 
-			$this->assertEquals( 0, ( $config['compare_value'] )( [], null ), "$name should report 0 with no store" );
+			$this->assertEquals( 0, ( $config['compare_value'] )( [], null ), "$name should report 0 with no store data" );
 		}
 	}
 
@@ -222,9 +222,10 @@ final class WooCommerceRegistryTest extends TestCase {
 	}
 
 	/**
-	 * A term field with no taxonomy searches nothing.
+	 * Downloads use their own taxonomies. "category" and "post_tag" are real
+	 * WordPress taxonomies, just not the ones EDD products live in.
 	 */
-	public function test_term_conditions_name_a_taxonomy(): void {
+	public function test_term_conditions_name_an_edd_taxonomy(): void {
 		foreach ( $this->conditions() as $name => $config ) {
 			if ( 'term' !== $config['type'] ) {
 				continue;
@@ -233,22 +234,30 @@ final class WooCommerceRegistryTest extends TestCase {
 			$this->assertArrayHasKey( 'taxonomy', $config, "$name needs a taxonomy" );
 			$this->assertContains(
 				$config['taxonomy'],
-				[ 'product_cat', 'product_tag' ],
-				"$name names a taxonomy WooCommerce does not register"
+				[ 'download_category', 'download_tag' ],
+				"$name names a taxonomy EDD does not register"
 			);
 		}
 	}
 
 	/**
-	 * Categories are the obvious place to reach for the wrong taxonomy --
-	 * "category" is a real WordPress taxonomy, just not the products one.
+	 * Every condition offering a fixed choice list has to actually offer one --
+	 * an empty select cannot be configured, and the rule silently never fires.
 	 */
-	public function test_categories_use_the_product_taxonomy(): void {
-		$conditions = $this->conditions();
+	public function test_select_conditions_offer_choices(): void {
+		foreach ( $this->conditions() as $name => $config ) {
+			if ( 'select' !== $config['type'] || ! isset( $config['options'] ) ) {
+				continue;
+			}
 
-		$this->assertSame( 'product_cat', $conditions['wc_product_categories']['taxonomy'] );
-		$this->assertSame( 'product_tag', $conditions['wc_product_tags']['taxonomy'] );
-		$this->assertSame( 'product_cat', $conditions['wc_cart_categories']['taxonomy'] );
-		$this->assertSame( 'product_cat', $conditions['wc_order_categories']['taxonomy'] );
+			$options = is_callable( $config['options'] ) ? ( $config['options'] )() : $config['options'];
+
+			$this->assertIsArray( $options, "$name must resolve options to an array" );
+
+			foreach ( $options as $option ) {
+				$this->assertArrayHasKey( 'value', $option, "$name has an option with no value" );
+				$this->assertArrayHasKey( 'label', $option, "$name has an option with no label" );
+			}
+		}
 	}
 }

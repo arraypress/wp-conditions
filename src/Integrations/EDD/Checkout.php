@@ -38,7 +38,7 @@ class Checkout {
 	public static function get_gateway( array $args ): string {
 		$posted = $args['posted'] ?? [];
 
-		$gateway = Arr::get_first( $posted, [ 'edd-gateway' ] );
+		$gateway = Arr::get_first( $posted, [ 'edd-gateway' ], '' );
 
 		if ( $gateway ) {
 			return $gateway;
@@ -66,7 +66,7 @@ class Checkout {
 		return Arr::get_first( $args['posted'] ?? [], [
 			'edd_email',
 			'edd-email',
-		] );
+		], '' );
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Checkout {
 		return Arr::get_first( $args['posted'] ?? [], [
 			'edd_first',
 			'edd-first',
-		] );
+		], '' );
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Checkout {
 		return Arr::get_first( $args['posted'] ?? [], [
 			'edd_last',
 			'edd-last',
-		] );
+		], '' );
 	}
 
 	/** -------------------------------------------------------------------------
@@ -113,7 +113,7 @@ class Checkout {
 			'billing_country',
 			'edd_address.country',
 			'card_country',
-		] );
+		], '' );
 	}
 
 	/**
@@ -128,7 +128,7 @@ class Checkout {
 			'billing_state',
 			'edd_address.state',
 			'card_state',
-		] );
+		], '' );
 	}
 
 	/**
@@ -143,7 +143,7 @@ class Checkout {
 			'billing_city',
 			'edd_address.city',
 			'card_city',
-		] );
+		], '' );
 	}
 
 	/**
@@ -158,7 +158,7 @@ class Checkout {
 			'billing_zip',
 			'edd_address.zip',
 			'card_zip',
-		] );
+		], '' );
 	}
 
 	/**
@@ -173,7 +173,7 @@ class Checkout {
 			'card_address',
 			'edd_address.line1',
 			'billing_address_1',
-		] );
+		], '' );
 	}
 
 	/**
@@ -188,7 +188,7 @@ class Checkout {
 			'card_address_2',
 			'edd_address.line2',
 			'billing_address_2',
-		] );
+		], '' );
 	}
 
 	/**
@@ -202,7 +202,7 @@ class Checkout {
 		return Arr::get_first( $args['posted'] ?? [], [
 			'edd-discount',
 			'edd_discount',
-		] );
+		], '' );
 	}
 
 	/**
@@ -215,5 +215,4 @@ class Checkout {
 	public static function has_discount_code( array $args ): bool {
 		return '' !== self::get_discount_code( $args );
 	}
-
 }

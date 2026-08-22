@@ -158,5 +158,4 @@ class Options {
 	public static function get_currencies(): array {
 		return Arr::to_options( edd_get_currencies() );
 	}
-
 }

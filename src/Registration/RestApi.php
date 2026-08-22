@@ -208,5 +208,4 @@ class RestApi {
 	public function get_namespace(): string {
 		return $this->namespace;
 	}
-
 }

@@ -230,9 +230,18 @@ class Payment {
 	 */
 	private static function get_paypal_seller_protection_levels(): array {
 		return [
-			[ 'value' => 'ELIGIBLE', 'label' => __( 'Eligible', 'arraypress' ) ],
-			[ 'value' => 'PARTIALLY_ELIGIBLE', 'label' => __( 'Partially Eligible', 'arraypress' ) ],
-			[ 'value' => 'NOT_ELIGIBLE', 'label' => __( 'Not Eligible', 'arraypress' ) ],
+			[
+				'value' => 'ELIGIBLE',
+				'label' => __( 'Eligible', 'arraypress' ),
+			],
+			[
+				'value' => 'PARTIALLY_ELIGIBLE',
+				'label' => __( 'Partially Eligible', 'arraypress' ),
+			],
+			[
+				'value' => 'NOT_ELIGIBLE',
+				'label' => __( 'Not Eligible', 'arraypress' ),
+			],
 		];
 	}
 
@@ -243,10 +252,22 @@ class Payment {
 	 */
 	private static function get_funding_types(): array {
 		return [
-			[ 'value' => 'credit', 'label' => __( 'Credit', 'arraypress' ) ],
-			[ 'value' => 'debit', 'label' => __( 'Debit', 'arraypress' ) ],
-			[ 'value' => 'prepaid', 'label' => __( 'Prepaid', 'arraypress' ) ],
-			[ 'value' => 'unknown', 'label' => __( 'Unknown', 'arraypress' ) ],
+			[
+				'value' => 'credit',
+				'label' => __( 'Credit', 'arraypress' ),
+			],
+			[
+				'value' => 'debit',
+				'label' => __( 'Debit', 'arraypress' ),
+			],
+			[
+				'value' => 'prepaid',
+				'label' => __( 'Prepaid', 'arraypress' ),
+			],
+			[
+				'value' => 'unknown',
+				'label' => __( 'Unknown', 'arraypress' ),
+			],
 		];
 	}
 
@@ -257,14 +278,38 @@ class Payment {
 	 */
 	private static function get_card_brands(): array {
 		return [
-			[ 'value' => 'visa', 'label' => __( 'Visa', 'arraypress' ) ],
-			[ 'value' => 'mastercard', 'label' => __( 'Mastercard', 'arraypress' ) ],
-			[ 'value' => 'amex', 'label' => __( 'American Express', 'arraypress' ) ],
-			[ 'value' => 'discover', 'label' => __( 'Discover', 'arraypress' ) ],
-			[ 'value' => 'diners', 'label' => __( 'Diners Club', 'arraypress' ) ],
-			[ 'value' => 'jcb', 'label' => __( 'JCB', 'arraypress' ) ],
-			[ 'value' => 'unionpay', 'label' => __( 'UnionPay', 'arraypress' ) ],
-			[ 'value' => 'unknown', 'label' => __( 'Unknown', 'arraypress' ) ],
+			[
+				'value' => 'visa',
+				'label' => __( 'Visa', 'arraypress' ),
+			],
+			[
+				'value' => 'mastercard',
+				'label' => __( 'Mastercard', 'arraypress' ),
+			],
+			[
+				'value' => 'amex',
+				'label' => __( 'American Express', 'arraypress' ),
+			],
+			[
+				'value' => 'discover',
+				'label' => __( 'Discover', 'arraypress' ),
+			],
+			[
+				'value' => 'diners',
+				'label' => __( 'Diners Club', 'arraypress' ),
+			],
+			[
+				'value' => 'jcb',
+				'label' => __( 'JCB', 'arraypress' ),
+			],
+			[
+				'value' => 'unionpay',
+				'label' => __( 'UnionPay', 'arraypress' ),
+			],
+			[
+				'value' => 'unknown',
+				'label' => __( 'Unknown', 'arraypress' ),
+			],
 		];
 	}
 
@@ -275,10 +320,22 @@ class Payment {
 	 */
 	private static function get_stripe_risk_levels(): array {
 		return [
-			[ 'value' => 'normal', 'label' => __( 'Normal', 'arraypress' ) ],
-			[ 'value' => 'elevated', 'label' => __( 'Elevated', 'arraypress' ) ],
-			[ 'value' => 'highest', 'label' => __( 'Highest', 'arraypress' ) ],
-			[ 'value' => 'not_assessed', 'label' => __( 'Not Assessed', 'arraypress' ) ],
+			[
+				'value' => 'normal',
+				'label' => __( 'Normal', 'arraypress' ),
+			],
+			[
+				'value' => 'elevated',
+				'label' => __( 'Elevated', 'arraypress' ),
+			],
+			[
+				'value' => 'highest',
+				'label' => __( 'Highest', 'arraypress' ),
+			],
+			[
+				'value' => 'not_assessed',
+				'label' => __( 'Not Assessed', 'arraypress' ),
+			],
 		];
 	}
 
@@ -294,10 +351,22 @@ class Payment {
 	 */
 	private static function get_square_risk_levels(): array {
 		return [
-			[ 'value' => 'pending',  'label' => __( 'Pending', 'arraypress' ) ],
-			[ 'value' => 'normal',   'label' => __( 'Normal', 'arraypress' ) ],
-			[ 'value' => 'moderate', 'label' => __( 'Moderate', 'arraypress' ) ],
-			[ 'value' => 'high',     'label' => __( 'High', 'arraypress' ) ],
+			[
+				'value' => 'pending',
+				'label' => __( 'Pending', 'arraypress' ),
+			],
+			[
+				'value' => 'normal',
+				'label' => __( 'Normal', 'arraypress' ),
+			],
+			[
+				'value' => 'moderate',
+				'label' => __( 'Moderate', 'arraypress' ),
+			],
+			[
+				'value' => 'high',
+				'label' => __( 'High', 'arraypress' ),
+			],
 		];
 	}
 
@@ -312,13 +381,30 @@ class Payment {
 	 */
 	private static function get_square_avs_cvv_options(): array {
 		return [
-			[ 'value' => 'AVS_ACCEPTED',    'label' => __( 'AVS / CVV Accepted', 'arraypress' ) ],
-			[ 'value' => 'AVS_REJECTED',    'label' => __( 'AVS / CVV Rejected', 'arraypress' ) ],
-			[ 'value' => 'AVS_NOT_CHECKED', 'label' => __( 'AVS / CVV Not Checked', 'arraypress' ) ],
-			[ 'value' => 'CVV_ACCEPTED',    'label' => __( 'CVV Accepted', 'arraypress' ) ],
-			[ 'value' => 'CVV_REJECTED',    'label' => __( 'CVV Rejected', 'arraypress' ) ],
-			[ 'value' => 'CVV_NOT_CHECKED', 'label' => __( 'CVV Not Checked', 'arraypress' ) ],
+			[
+				'value' => 'AVS_ACCEPTED',
+				'label' => __( 'AVS / CVV Accepted', 'arraypress' ),
+			],
+			[
+				'value' => 'AVS_REJECTED',
+				'label' => __( 'AVS / CVV Rejected', 'arraypress' ),
+			],
+			[
+				'value' => 'AVS_NOT_CHECKED',
+				'label' => __( 'AVS / CVV Not Checked', 'arraypress' ),
+			],
+			[
+				'value' => 'CVV_ACCEPTED',
+				'label' => __( 'CVV Accepted', 'arraypress' ),
+			],
+			[
+				'value' => 'CVV_REJECTED',
+				'label' => __( 'CVV Rejected', 'arraypress' ),
+			],
+			[
+				'value' => 'CVV_NOT_CHECKED',
+				'label' => __( 'CVV Not Checked', 'arraypress' ),
+			],
 		];
 	}
-
 }

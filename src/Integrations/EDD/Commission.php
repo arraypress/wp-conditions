@@ -118,9 +118,18 @@ class Commission {
 	 */
 	public static function get_status_options(): array {
 		return [
-			[ 'value' => 'unpaid', 'label' => __( 'Unpaid', 'arraypress' ) ],
-			[ 'value' => 'paid', 'label' => __( 'Paid', 'arraypress' ) ],
-			[ 'value' => 'revoked', 'label' => __( 'Revoked', 'arraypress' ) ],
+			[
+				'value' => 'unpaid',
+				'label' => __( 'Unpaid', 'arraypress' ),
+			],
+			[
+				'value' => 'paid',
+				'label' => __( 'Paid', 'arraypress' ),
+			],
+			[
+				'value' => 'revoked',
+				'label' => __( 'Revoked', 'arraypress' ),
+			],
 		];
 	}
 
@@ -131,8 +140,14 @@ class Commission {
 	 */
 	public static function get_type_options(): array {
 		return [
-			[ 'value' => 'percentage', 'label' => __( 'Percentage', 'arraypress' ) ],
-			[ 'value' => 'flat', 'label' => __( 'Flat Amount', 'arraypress' ) ],
+			[
+				'value' => 'percentage',
+				'label' => __( 'Percentage', 'arraypress' ),
+			],
+			[
+				'value' => 'flat',
+				'label' => __( 'Flat Amount', 'arraypress' ),
+			],
 		];
 	}
 
@@ -313,5 +328,4 @@ class Commission {
 
 		return DateTime::get_age( $commission->date_created, $parsed['unit'] );
 	}
-
 }

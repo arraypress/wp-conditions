@@ -31,10 +31,22 @@ class Units {
 	 */
 	public static function get_weight(): array {
 		return [
-			[ 'value' => 'g', 'label' => __( 'Grams (g)', 'arraypress' ) ],
-			[ 'value' => 'kg', 'label' => __( 'Kilograms (kg)', 'arraypress' ) ],
-			[ 'value' => 'oz', 'label' => __( 'Ounces (oz)', 'arraypress' ) ],
-			[ 'value' => 'lb', 'label' => __( 'Pounds (lb)', 'arraypress' ) ],
+			[
+				'value' => 'g',
+				'label' => __( 'Grams (g)', 'arraypress' ),
+			],
+			[
+				'value' => 'kg',
+				'label' => __( 'Kilograms (kg)', 'arraypress' ),
+			],
+			[
+				'value' => 'oz',
+				'label' => __( 'Ounces (oz)', 'arraypress' ),
+			],
+			[
+				'value' => 'lb',
+				'label' => __( 'Pounds (lb)', 'arraypress' ),
+			],
 		];
 	}
 
@@ -45,11 +57,26 @@ class Units {
 	 */
 	public static function get_length(): array {
 		return [
-			[ 'value' => 'mm', 'label' => __( 'Millimeters (mm)', 'arraypress' ) ],
-			[ 'value' => 'cm', 'label' => __( 'Centimeters (cm)', 'arraypress' ) ],
-			[ 'value' => 'm', 'label' => __( 'Meters (m)', 'arraypress' ) ],
-			[ 'value' => 'in', 'label' => __( 'Inches (in)', 'arraypress' ) ],
-			[ 'value' => 'ft', 'label' => __( 'Feet (ft)', 'arraypress' ) ],
+			[
+				'value' => 'mm',
+				'label' => __( 'Millimeters (mm)', 'arraypress' ),
+			],
+			[
+				'value' => 'cm',
+				'label' => __( 'Centimeters (cm)', 'arraypress' ),
+			],
+			[
+				'value' => 'm',
+				'label' => __( 'Meters (m)', 'arraypress' ),
+			],
+			[
+				'value' => 'in',
+				'label' => __( 'Inches (in)', 'arraypress' ),
+			],
+			[
+				'value' => 'ft',
+				'label' => __( 'Feet (ft)', 'arraypress' ),
+			],
 		];
 	}
 
@@ -60,9 +87,18 @@ class Units {
 	 */
 	public static function get_distance(): array {
 		return [
-			[ 'value' => 'm', 'label' => __( 'Meters (m)', 'arraypress' ) ],
-			[ 'value' => 'km', 'label' => __( 'Kilometers (km)', 'arraypress' ) ],
-			[ 'value' => 'mi', 'label' => __( 'Miles (mi)', 'arraypress' ) ],
+			[
+				'value' => 'm',
+				'label' => __( 'Meters (m)', 'arraypress' ),
+			],
+			[
+				'value' => 'km',
+				'label' => __( 'Kilometers (km)', 'arraypress' ),
+			],
+			[
+				'value' => 'mi',
+				'label' => __( 'Miles (mi)', 'arraypress' ),
+			],
 		];
 	}
 
@@ -73,10 +109,22 @@ class Units {
 	 */
 	public static function get_volume(): array {
 		return [
-			[ 'value' => 'ml', 'label' => __( 'Milliliters (ml)', 'arraypress' ) ],
-			[ 'value' => 'l', 'label' => __( 'Liters (L)', 'arraypress' ) ],
-			[ 'value' => 'fl_oz', 'label' => __( 'Fluid Ounces (fl oz)', 'arraypress' ) ],
-			[ 'value' => 'gal', 'label' => __( 'Gallons (gal)', 'arraypress' ) ],
+			[
+				'value' => 'ml',
+				'label' => __( 'Milliliters (ml)', 'arraypress' ),
+			],
+			[
+				'value' => 'l',
+				'label' => __( 'Liters (L)', 'arraypress' ),
+			],
+			[
+				'value' => 'fl_oz',
+				'label' => __( 'Fluid Ounces (fl oz)', 'arraypress' ),
+			],
+			[
+				'value' => 'gal',
+				'label' => __( 'Gallons (gal)', 'arraypress' ),
+			],
 		];
 	}
 
@@ -87,8 +135,14 @@ class Units {
 	 */
 	public static function get_temperature(): array {
 		return [
-			[ 'value' => 'c', 'label' => __( 'Celsius (°C)', 'arraypress' ) ],
-			[ 'value' => 'f', 'label' => __( 'Fahrenheit (°F)', 'arraypress' ) ],
+			[
+				'value' => 'c',
+				'label' => __( 'Celsius (°C)', 'arraypress' ),
+			],
+			[
+				'value' => 'f',
+				'label' => __( 'Fahrenheit (°F)', 'arraypress' ),
+			],
 		];
 	}
 
@@ -101,10 +155,22 @@ class Units {
 	 */
 	public static function get_data(): array {
 		return [
-			[ 'value' => 'kb', 'label' => __( 'Kilobytes (KB)', 'arraypress' ) ],
-			[ 'value' => 'mb', 'label' => __( 'Megabytes (MB)', 'arraypress' ) ],
-			[ 'value' => 'gb', 'label' => __( 'Gigabytes (GB)', 'arraypress' ) ],
-			[ 'value' => 'tb', 'label' => __( 'Terabytes (TB)', 'arraypress' ) ],
+			[
+				'value' => 'kb',
+				'label' => __( 'Kilobytes (KB)', 'arraypress' ),
+			],
+			[
+				'value' => 'mb',
+				'label' => __( 'Megabytes (MB)', 'arraypress' ),
+			],
+			[
+				'value' => 'gb',
+				'label' => __( 'Gigabytes (GB)', 'arraypress' ),
+			],
+			[
+				'value' => 'tb',
+				'label' => __( 'Terabytes (TB)', 'arraypress' ),
+			],
 		];
 	}
 
@@ -117,9 +183,18 @@ class Units {
 	 */
 	public static function get_quantity(): array {
 		return [
-			[ 'value' => 'unit', 'label' => __( 'Units', 'arraypress' ) ],
-			[ 'value' => 'piece', 'label' => __( 'Pieces', 'arraypress' ) ],
-			[ 'value' => 'item', 'label' => __( 'Items', 'arraypress' ) ],
+			[
+				'value' => 'unit',
+				'label' => __( 'Units', 'arraypress' ),
+			],
+			[
+				'value' => 'piece',
+				'label' => __( 'Pieces', 'arraypress' ),
+			],
+			[
+				'value' => 'item',
+				'label' => __( 'Items', 'arraypress' ),
+			],
 		];
 	}
 
@@ -132,12 +207,26 @@ class Units {
 	 */
 	public static function get_currency(): array {
 		return [
-			[ 'value' => 'usd', 'label' => __( 'US Dollars ($)', 'arraypress' ) ],
-			[ 'value' => 'eur', 'label' => __( 'Euros (€)', 'arraypress' ) ],
-			[ 'value' => 'gbp', 'label' => __( 'British Pounds (£)', 'arraypress' ) ],
-			[ 'value' => 'cad', 'label' => __( 'Canadian Dollars (C$)', 'arraypress' ) ],
-			[ 'value' => 'aud', 'label' => __( 'Australian Dollars (A$)', 'arraypress' ) ],
+			[
+				'value' => 'usd',
+				'label' => __( 'US Dollars ($)', 'arraypress' ),
+			],
+			[
+				'value' => 'eur',
+				'label' => __( 'Euros (€)', 'arraypress' ),
+			],
+			[
+				'value' => 'gbp',
+				'label' => __( 'British Pounds (£)', 'arraypress' ),
+			],
+			[
+				'value' => 'cad',
+				'label' => __( 'Canadian Dollars (C$)', 'arraypress' ),
+			],
+			[
+				'value' => 'aud',
+				'label' => __( 'Australian Dollars (A$)', 'arraypress' ),
+			],
 		];
 	}
-
 }

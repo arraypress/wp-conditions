@@ -92,5 +92,4 @@ class Context {
 
 		return 'production';
 	}
-
 }

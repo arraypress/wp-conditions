@@ -955,5 +955,4 @@ class Product {
 
 		return Stats::get_file_download_count( $product_id, $args['_unit'] ?? 'this_month' );
 	}
-
 }

@@ -159,5 +159,4 @@ class Geo {
 	private static function normalize( $value ): string {
 		return strtoupper( trim( (string) $value ) );
 	}
-
 }

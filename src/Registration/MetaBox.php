@@ -127,7 +127,7 @@ class MetaBox {
 
 		// Verify nonce
 		if ( ! isset( $_POST['conditions_nonce'] ) ||
-		     ! wp_verify_nonce( $_POST['conditions_nonce'], 'save_conditions' ) ) {
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['conditions_nonce'] ) ), 'save_conditions' ) ) {
 			return;
 		}
 
@@ -142,8 +142,13 @@ class MetaBox {
 			return;
 		}
 
-		// Get raw conditions from form
-		$raw_conditions = $_POST['_conditions'] ?? [];
+		// Unslash before sanitizing, not after. WordPress slashes every value in
+		// $_POST, and these are rule values an admin typed: a regex condition
+		// like /^buyer\@example\.com$/ comes back with its backslashes doubled
+		// and gains another pair on every re-save, until the pattern no longer
+		// matches anything. Values with an apostrophe have the same problem.
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitizer::sanitize_conditions() handles this, per-condition.
+		$raw_conditions = isset( $_POST['_conditions'] ) ? wp_unslash( $_POST['_conditions'] ) : [];
 
 		// Get condition configurations for custom sanitization
 		$condition_configs = Registry::get_conditions_raw( $this->set_id );
@@ -174,5 +179,4 @@ class MetaBox {
 		 */
 		do_action( "{$this->set_id}_conditions_saved", $post_id, $conditions, $post, $this->set_id );
 	}
-
 }

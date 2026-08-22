@@ -103,8 +103,14 @@ class Customer {
 	 */
 	public static function get_segment_options(): array {
 		return [
-			[ 'value' => 'first_time', 'label' => __( 'First-Time Buyer', 'arraypress' ) ],
-			[ 'value' => 'returning', 'label' => __( 'Returning Customer', 'arraypress' ) ],
+			[
+				'value' => 'first_time',
+				'label' => __( 'First-Time Buyer', 'arraypress' ),
+			],
+			[
+				'value' => 'returning',
+				'label' => __( 'Returning Customer', 'arraypress' ),
+			],
 		];
 	}
 
@@ -575,5 +581,4 @@ class Customer {
 
 		return DateTime::get_age( $last_order_date, $parsed['unit'] );
 	}
-
 }

@@ -470,5 +470,4 @@ class Post {
 
 		return DateTime::get_age( $post->post_modified, $parsed['unit'] );
 	}
-
 }

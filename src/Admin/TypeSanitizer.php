@@ -102,6 +102,10 @@ class TypeSanitizer {
 
 		// Determine if integer based on step
 		$step       = $config['step'] ?? 1;
+		// Loose on purpose: this asks whether the step is a whole number, and
+		// a step of 1.0 has to answer yes. Strict comparison would say no for
+		// every float step and quietly turn integer fields into float ones.
+		// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 		$is_integer = ( $step == (int) $step && $step >= 1 );
 
 		$value = $is_integer ? (int) $value : (float) $value;
@@ -132,7 +136,10 @@ class TypeSanitizer {
 	 */
 	public static function number_unit( mixed $value, array $config = [] ): array {
 		if ( ! is_array( $value ) ) {
-			return [ 'number' => '', 'unit' => '' ];
+			return [
+				'number' => '',
+				'unit' => '',
+			];
 		}
 
 		// Sanitize the number part using the same logic
@@ -165,7 +172,10 @@ class TypeSanitizer {
 	 */
 	public static function text_unit( mixed $value, array $config = [] ): array {
 		if ( ! is_array( $value ) ) {
-			return [ 'text' => '', 'unit' => '' ];
+			return [
+				'text' => '',
+				'unit' => '',
+			];
 		}
 
 		// Sanitize the text part
@@ -550,5 +560,4 @@ class TypeSanitizer {
 
 		return true;
 	}
-
 }

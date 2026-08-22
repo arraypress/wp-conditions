@@ -100,6 +100,10 @@ class Comparator {
 		$user_value    = (float) $user_value;
 		$compare_value = (float) $compare_value;
 
+		// Both sides are already cast to float, so == and === agree. Loose is
+		// kept because a strict float comparison invites the reader to think
+		// type juggling is happening here when it is not.
+		// phpcs:disable Universal.Operators.StrictComparisons
 		return match ( $operator ) {
 			'==' => $compare_value == $user_value,
 			'!=' => $compare_value != $user_value,
@@ -108,6 +112,7 @@ class Comparator {
 			'>=' => $compare_value >= $user_value,
 			'<=' => $compare_value <= $user_value,
 			default => false,
+			// phpcs:enable Universal.Operators.StrictComparisons
 		};
 	}
 
@@ -135,6 +140,11 @@ class Comparator {
 			'ends_with' => str_ends_with( strtolower( $compare_value ), strtolower( $user_value ) ),
 			'empty' => empty( $compare_value ),
 			'not_empty' => ! empty( $compare_value ),
+			// Silenced deliberately: a malformed pattern is an admin typo in a
+			// rule, and the answer is "does not match", not a warning on the
+			// customer's checkout page. preg_match returns false either way,
+			// so the result is already correct -- @ only suppresses the notice.
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			'regex' => (bool) @preg_match( $user_value, $compare_value ),
 			default => false,
 		};
@@ -152,11 +162,17 @@ class Comparator {
 	 * @return bool
 	 */
 	private function compare_equality( string $operator, mixed $user_value, mixed $compare_value ): bool {
+		// Loose on purpose. A rule saved from the admin holds strings; the value
+		// it is compared against can be an int, a float or a bool depending on
+		// the condition. Strict comparison here would make a select storing "1"
+		// never match a helper returning 1.
+		// phpcs:disable Universal.Operators.StrictComparisons
 		return match ( $operator ) {
 			'==' => $compare_value == $user_value,
 			'!=' => $compare_value != $user_value,
 			default => false,
 		};
+		// phpcs:enable Universal.Operators.StrictComparisons
 	}
 
 	/**
@@ -416,5 +432,4 @@ class Comparator {
 			default => false,
 		};
 	}
-
 }

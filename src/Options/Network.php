@@ -31,13 +31,34 @@ class Network {
 	 */
 	public static function get_request_methods(): array {
 		return [
-			[ 'value' => 'GET', 'label' => 'GET' ],
-			[ 'value' => 'POST', 'label' => 'POST' ],
-			[ 'value' => 'PUT', 'label' => 'PUT' ],
-			[ 'value' => 'PATCH', 'label' => 'PATCH' ],
-			[ 'value' => 'DELETE', 'label' => 'DELETE' ],
-			[ 'value' => 'HEAD', 'label' => 'HEAD' ],
-			[ 'value' => 'OPTIONS', 'label' => 'OPTIONS' ],
+			[
+				'value' => 'GET',
+				'label' => 'GET',
+			],
+			[
+				'value' => 'POST',
+				'label' => 'POST',
+			],
+			[
+				'value' => 'PUT',
+				'label' => 'PUT',
+			],
+			[
+				'value' => 'PATCH',
+				'label' => 'PATCH',
+			],
+			[
+				'value' => 'DELETE',
+				'label' => 'DELETE',
+			],
+			[
+				'value' => 'HEAD',
+				'label' => 'HEAD',
+			],
+			[
+				'value' => 'OPTIONS',
+				'label' => 'OPTIONS',
+			],
 		];
 	}
 
@@ -50,10 +71,22 @@ class Network {
 	 */
 	public static function get_types(): array {
 		return [
-			[ 'value' => 'isp', 'label' => __( 'ISP', 'arraypress' ) ],
-			[ 'value' => 'hosting', 'label' => __( 'Hosting', 'arraypress' ) ],
-			[ 'value' => 'business', 'label' => __( 'Business', 'arraypress' ) ],
-			[ 'value' => 'education', 'label' => __( 'Education', 'arraypress' ) ],
+			[
+				'value' => 'isp',
+				'label' => __( 'ISP', 'arraypress' ),
+			],
+			[
+				'value' => 'hosting',
+				'label' => __( 'Hosting', 'arraypress' ),
+			],
+			[
+				'value' => 'business',
+				'label' => __( 'Business', 'arraypress' ),
+			],
+			[
+				'value' => 'education',
+				'label' => __( 'Education', 'arraypress' ),
+			],
 		];
 	}
 
@@ -64,11 +97,26 @@ class Network {
 	 */
 	public static function get_connection_types(): array {
 		return [
-			[ 'value' => 'residential', 'label' => __( 'Residential', 'arraypress' ) ],
-			[ 'value' => 'corporate', 'label' => __( 'Corporate', 'arraypress' ) ],
-			[ 'value' => 'education', 'label' => __( 'Education', 'arraypress' ) ],
-			[ 'value' => 'mobile', 'label' => __( 'Mobile', 'arraypress' ) ],
-			[ 'value' => 'datacenter', 'label' => __( 'Data Center', 'arraypress' ) ],
+			[
+				'value' => 'residential',
+				'label' => __( 'Residential', 'arraypress' ),
+			],
+			[
+				'value' => 'corporate',
+				'label' => __( 'Corporate', 'arraypress' ),
+			],
+			[
+				'value' => 'education',
+				'label' => __( 'Education', 'arraypress' ),
+			],
+			[
+				'value' => 'mobile',
+				'label' => __( 'Mobile', 'arraypress' ),
+			],
+			[
+				'value' => 'datacenter',
+				'label' => __( 'Data Center', 'arraypress' ),
+			],
 		];
 	}
 
@@ -81,20 +129,62 @@ class Network {
 	 */
 	public static function get_proxy_types(): array {
 		return [
-			[ 'value' => 'VPN', 'label' => __( 'VPN', 'arraypress' ) ],
-			[ 'value' => 'TOR', 'label' => __( 'Tor', 'arraypress' ) ],
-			[ 'value' => 'SOCKS', 'label' => __( 'SOCKS', 'arraypress' ) ],
-			[ 'value' => 'SOCKS4', 'label' => __( 'SOCKS4', 'arraypress' ) ],
-			[ 'value' => 'SOCKS4A', 'label' => __( 'SOCKS4A', 'arraypress' ) ],
-			[ 'value' => 'SOCKS5', 'label' => __( 'SOCKS5', 'arraypress' ) ],
-			[ 'value' => 'SOCKS5H', 'label' => __( 'SOCKS5H', 'arraypress' ) ],
-			[ 'value' => 'Shadowsocks', 'label' => __( 'Shadowsocks', 'arraypress' ) ],
-			[ 'value' => 'HTTP', 'label' => __( 'HTTP', 'arraypress' ) ],
-			[ 'value' => 'HTTPS', 'label' => __( 'HTTPS', 'arraypress' ) ],
-			[ 'value' => 'Compromised Server', 'label' => __( 'Compromised Server', 'arraypress' ) ],
-			[ 'value' => 'Inference Engine', 'label' => __( 'Inference Engine', 'arraypress' ) ],
-			[ 'value' => 'OpenVPN', 'label' => __( 'OpenVPN', 'arraypress' ) ],
-			[ 'value' => 'WireGuard', 'label' => __( 'WireGuard', 'arraypress' ) ],
+			[
+				'value' => 'VPN',
+				'label' => __( 'VPN', 'arraypress' ),
+			],
+			[
+				'value' => 'TOR',
+				'label' => __( 'Tor', 'arraypress' ),
+			],
+			[
+				'value' => 'SOCKS',
+				'label' => __( 'SOCKS', 'arraypress' ),
+			],
+			[
+				'value' => 'SOCKS4',
+				'label' => __( 'SOCKS4', 'arraypress' ),
+			],
+			[
+				'value' => 'SOCKS4A',
+				'label' => __( 'SOCKS4A', 'arraypress' ),
+			],
+			[
+				'value' => 'SOCKS5',
+				'label' => __( 'SOCKS5', 'arraypress' ),
+			],
+			[
+				'value' => 'SOCKS5H',
+				'label' => __( 'SOCKS5H', 'arraypress' ),
+			],
+			[
+				'value' => 'Shadowsocks',
+				'label' => __( 'Shadowsocks', 'arraypress' ),
+			],
+			[
+				'value' => 'HTTP',
+				'label' => __( 'HTTP', 'arraypress' ),
+			],
+			[
+				'value' => 'HTTPS',
+				'label' => __( 'HTTPS', 'arraypress' ),
+			],
+			[
+				'value' => 'Compromised Server',
+				'label' => __( 'Compromised Server', 'arraypress' ),
+			],
+			[
+				'value' => 'Inference Engine',
+				'label' => __( 'Inference Engine', 'arraypress' ),
+			],
+			[
+				'value' => 'OpenVPN',
+				'label' => __( 'OpenVPN', 'arraypress' ),
+			],
+			[
+				'value' => 'WireGuard',
+				'label' => __( 'WireGuard', 'arraypress' ),
+			],
 		];
 	}
 
@@ -109,11 +199,22 @@ class Network {
 	 */
 	public static function get_abuse_velocities(): array {
 		return [
-			[ 'value' => 'none', 'label' => __( 'None', 'arraypress' ) ],
-			[ 'value' => 'low', 'label' => __( 'Low', 'arraypress' ) ],
-			[ 'value' => 'medium', 'label' => __( 'Medium', 'arraypress' ) ],
-			[ 'value' => 'high', 'label' => __( 'High', 'arraypress' ) ],
+			[
+				'value' => 'none',
+				'label' => __( 'None', 'arraypress' ),
+			],
+			[
+				'value' => 'low',
+				'label' => __( 'Low', 'arraypress' ),
+			],
+			[
+				'value' => 'medium',
+				'label' => __( 'Medium', 'arraypress' ),
+			],
+			[
+				'value' => 'high',
+				'label' => __( 'High', 'arraypress' ),
+			],
 		];
 	}
-
 }

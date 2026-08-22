@@ -312,5 +312,4 @@ class Operators {
 			'collection_basic' => self::collection_any_none(),
 		];
 	}
-
 }

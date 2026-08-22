@@ -328,7 +328,10 @@ class User {
 			return '';
 		}
 
-		return date( 'Y-m-d', strtotime( $user->user_registered ) );
+		// user_registered is stored in UTC, so it is read back in UTC. date()
+		// would reformat it through PHP's timezone, which any plugin can change
+		// at runtime -- and a registration date that moves by a day changes
+		// what an account-age rule matches.
+		return gmdate( 'Y-m-d', strtotime( $user->user_registered . ' UTC' ) );
 	}
-
 }

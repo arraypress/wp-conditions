@@ -513,5 +513,4 @@ class Cart {
 
 		return empty( $ages ) ? 0.0 : round( max( $ages ), 2 );
 	}
-
 }

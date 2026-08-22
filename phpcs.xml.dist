@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<ruleset name="wp-conditions">
+    <description>
+        The WordPress sniffs worth enforcing here.
+
+        Deliberately not the full WordPress standard: most of what that adds is
+        formatting this codebase consistently does differently, short array
+        syntax above all. A wall of noise nobody reads is how a real finding
+        gets lost. What is left is the part that catches defects rather than
+        preferences.
+    </description>
+
+    <file>src</file>
+    <file>bin</file>
+    <arg name="extensions" value="php"/>
+    <arg name="basepath" value="."/>
+    <arg name="colors"/>
+    <arg value="sp"/>
+
+    <!-- Registered here rather than by phpcodesniffer-composer-installer, so
+         the standards resolve even when the autoloader is not the one phpcs
+         happens to have loaded. Without this every sniff resolves to nothing
+         and the lint reports success without looking at a file. -->
+    <config name="installed_paths" value="vendor/wp-coding-standards/wpcs,vendor/phpcompatibility/php-compatibility,vendor/phpcompatibility/phpcompatibility-paragonie,vendor/phpcompatibility/phpcompatibility-wp,vendor/phpcsstandards/phpcsutils,vendor/phpcsstandards/phpcsextra"/>
+
+    <rule ref="WordPress.Security">
+        <!-- Exception messages are read by a developer in a terminal or a log,
+             never rendered, so running them through esc_html would only
+             corrupt the punctuation of the message it is meant to protect. -->
+        <exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped"/>
+    </rule>
+
+    <!-- bin/ is a command-line tool. Its output goes to a terminal, never to a
+         browser, so escaping it would mangle the report rather than protect
+         anyone. Everything else in the security ruleset still applies there. -->
+    <rule ref="WordPress.Security.EscapeOutput">
+        <exclude-pattern>bin/*</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.DB"/>
+    <rule ref="WordPress.WP.I18n"/>
+
+    <!-- Every translatable string in this library uses this domain. -->
+    <config name="text_domain" value="arraypress"/>
+
+    <rule ref="PHPCompatibilityWP"/>
+    <config name="testVersion" value="8.2-"/>
+</ruleset>

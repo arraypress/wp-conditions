@@ -26,6 +26,28 @@ use ArrayPress\ReferrerUtils\Referrer;
 class Request {
 
 	/**
+	 * Read a request value, unslashed and sanitized.
+	 *
+	 * WordPress adds slashes to every superglobal on the way in, so a raw read
+	 * returns O\'Brien where the browser sent O'Brien. That matters more here
+	 * than in most places: these values are compared against what an admin
+	 * typed into a rule, and a stray backslash is the difference between a rule
+	 * matching and not.
+	 *
+	 * @param array  $source The superglobal to read.
+	 * @param string $key    Key to read.
+	 *
+	 * @return string
+	 */
+	private static function read( array $source, string $key ): string {
+		if ( ! isset( $source[ $key ] ) ) {
+			return '';
+		}
+
+		return sanitize_text_field( wp_unslash( (string) $source[ $key ] ) );
+	}
+
+	/**
 	 * Get current URL.
 	 *
 	 * @param array $args The condition arguments.
@@ -38,8 +60,14 @@ class Request {
 		}
 
 		$protocol = is_ssl() ? 'https://' : 'http://';
-		$host     = $_SERVER['HTTP_HOST'] ?? '';
-		$uri      = $_SERVER['REQUEST_URI'] ?? '';
+		$host     = self::read( $_SERVER, 'HTTP_HOST' );
+
+		// esc_url_raw rather than sanitize_text_field: the URI carries query
+		// separators and encoded characters the text sniff would strip, and a
+		// truncated URL silently changes what a URL rule matches.
+		$uri = isset( $_SERVER['REQUEST_URI'] )
+			? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) )
+			: '';
 
 		return $protocol . $host . $uri;
 	}
@@ -63,7 +91,7 @@ class Request {
 	 * @return string
 	 */
 	public static function get_method( array $args = [] ): string {
-		return $args['request_method'] ?? ( $_SERVER['REQUEST_METHOD'] ?? 'GET' );
+		return $args['request_method'] ?? ( self::read( $_SERVER, 'REQUEST_METHOD' ) ?: 'GET' );
 	}
 
 	/**
@@ -97,7 +125,7 @@ class Request {
 
 		$parsed = Parse::meta( $user_value );
 
-		return $_COOKIE[ $parsed['key'] ] ?? '';
+		return self::read( $_COOKIE, (string) $parsed['key'] );
 	}
 
 	/**
@@ -126,7 +154,7 @@ class Request {
 			$server_key = 'CONTENT_LENGTH';
 		}
 
-		return $_SERVER[ $server_key ] ?? '';
+		return self::read( $_SERVER, $server_key );
 	}
 
 	/**
@@ -154,7 +182,7 @@ class Request {
 			return (string) $args['user_agent'];
 		}
 
-		return (string) ( $_SERVER['HTTP_USER_AGENT'] ?? '' );
+		return self::read( $_SERVER, 'HTTP_USER_AGENT' );
 	}
 
 	/**
@@ -252,5 +280,4 @@ class Request {
 
 		return false;
 	}
-
 }

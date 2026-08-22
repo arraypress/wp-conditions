@@ -118,5 +118,4 @@ class MatchResult {
 
 		return get_post_meta( $this->rule->ID, $key, $single );
 	}
-
 }

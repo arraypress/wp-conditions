@@ -290,9 +290,12 @@ class DateTime {
 		$seconds = self::to_seconds( $unit, $amount );
 
 		return [
-			'start' => date( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $seconds ),
+			// gmdate, not date: current_time( 'timestamp' ) already returns the
+			// site's wall clock, so formatting it through PHP's timezone a
+			// second time would shift the range by the offset. The end of the
+			// range below is site time for the same reason.
+			'start' => gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $seconds ),
 			'end'   => current_time( 'mysql' ),
 		];
 	}
-
 }

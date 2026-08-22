@@ -268,9 +268,9 @@ class IPInfo {
 	 */
 	public static function is_suspicious( array $args ): bool {
 		return self::is_vpn( $args )
-		       || self::is_proxy( $args )
-		       || self::is_tor( $args )
-		       || self::is_hosting( $args );
+				|| self::is_proxy( $args )
+				|| self::is_tor( $args )
+				|| self::is_hosting( $args );
 	}
 
 	/** -------------------------------------------------------------------------
@@ -328,5 +328,4 @@ class IPInfo {
 		self::$results = [];
 		self::$client  = null;
 	}
-
 }

@@ -585,5 +585,4 @@ class Product {
 
 		return $conditions;
 	}
-
 }

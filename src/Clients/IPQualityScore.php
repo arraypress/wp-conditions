@@ -236,9 +236,9 @@ class IPQualityScore {
 	 */
 	public static function is_suspicious( array $args ): bool {
 		return self::is_proxy( $args )
-		       || self::is_vpn( $args )
-		       || self::is_tor( $args )
-		       || self::has_recent_abuse( $args );
+				|| self::is_vpn( $args )
+				|| self::is_tor( $args )
+				|| self::has_recent_abuse( $args );
 	}
 
 	/** -------------------------------------------------------------------------
@@ -397,8 +397,8 @@ class IPQualityScore {
 	 */
 	public static function is_risky_email( array $args ): bool {
 		return self::is_disposable_email( $args )
-		       || ! self::is_valid_email( $args )
-		       || self::is_leaked_email( $args );
+				|| ! self::is_valid_email( $args )
+				|| self::is_leaked_email( $args );
 	}
 
 	/** -------------------------------------------------------------------------
@@ -415,5 +415,4 @@ class IPQualityScore {
 		self::$email_results = [];
 		self::$client        = null;
 	}
-
 }

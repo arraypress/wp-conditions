@@ -31,10 +31,22 @@ class WordPress {
 	 */
 	public static function get_environment_types(): array {
 		return [
-			[ 'value' => 'local', 'label' => __( 'Local', 'arraypress' ) ],
-			[ 'value' => 'development', 'label' => __( 'Development', 'arraypress' ) ],
-			[ 'value' => 'staging', 'label' => __( 'Staging', 'arraypress' ) ],
-			[ 'value' => 'production', 'label' => __( 'Production', 'arraypress' ) ],
+			[
+				'value' => 'local',
+				'label' => __( 'Local', 'arraypress' ),
+			],
+			[
+				'value' => 'development',
+				'label' => __( 'Development', 'arraypress' ),
+			],
+			[
+				'value' => 'staging',
+				'label' => __( 'Staging', 'arraypress' ),
+			],
+			[
+				'value' => 'production',
+				'label' => __( 'Production', 'arraypress' ),
+			],
 		];
 	}
 
@@ -205,8 +217,14 @@ class WordPress {
 	 */
 	public static function get_comment_statuses(): array {
 		return [
-			[ 'value' => 'open', 'label' => __( 'Open', 'arraypress' ) ],
-			[ 'value' => 'closed', 'label' => __( 'Closed', 'arraypress' ) ],
+			[
+				'value' => 'open',
+				'label' => __( 'Open', 'arraypress' ),
+			],
+			[
+				'value' => 'closed',
+				'label' => __( 'Closed', 'arraypress' ),
+			],
 		];
 	}
 
@@ -320,5 +338,4 @@ class WordPress {
 
 		return $options;
 	}
-
 }

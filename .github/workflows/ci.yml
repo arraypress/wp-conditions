@@ -34,7 +34,15 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Lint
-        run: find src tests -name '*.php' -print0 | xargs -0 -n1 -P4 php -l > /dev/null
+        run: find src tests bin -name '*.php' -print0 | xargs -0 -n1 -P4 php -l > /dev/null
+
+      - name: Coding standards
+        run: composer lint
+
+      - name: Formatting
+        # Separate from the lint: a clean lint does not mean a clean format
+        # check, and a green build has to mean both.
+        run: composer format:check
 
       - name: Tests
         # Checked for output, not just exit status. Anything that exits during

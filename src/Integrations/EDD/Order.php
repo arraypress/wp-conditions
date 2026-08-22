@@ -481,7 +481,7 @@ class Order {
 		}
 
 		return ! empty( edd_get_order_meta( $order_id, '_edd_sl_is_renewal', true ) ) ||
-		       ! empty( edd_get_order_meta( $order_id, 'subscription_id', true ) );
+				! empty( edd_get_order_meta( $order_id, 'subscription_id', true ) );
 	}
 
 	/**
@@ -531,8 +531,14 @@ class Order {
 	 */
 	public static function get_mode_options(): array {
 		return [
-			[ 'value' => 'live', 'label' => __( 'Live', 'arraypress' ) ],
-			[ 'value' => 'test', 'label' => __( 'Test', 'arraypress' ) ],
+			[
+				'value' => 'live',
+				'label' => __( 'Live', 'arraypress' ),
+			],
+			[
+				'value' => 'test',
+				'label' => __( 'Test', 'arraypress' ),
+			],
 		];
 	}
 
@@ -570,7 +576,7 @@ class Order {
 			$product_type = edd_get_download_type( $product_id );
 
 			if ( $product_type === $type ) {
-				$count++;
+				++$count;
 			}
 		}
 
@@ -888,5 +894,4 @@ class Order {
 	public static function get_address_2( array $args ): string {
 		return (string) ( self::address( $args )?->address2 ?? '' );
 	}
-
 }

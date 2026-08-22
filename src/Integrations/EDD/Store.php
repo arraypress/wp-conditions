@@ -279,5 +279,4 @@ class Store {
 	public static function get_tax_in_period( array $args ): float {
 		return Stats::get_tax( $args['_unit'] ?? 'this_month' );
 	}
-
 }

@@ -238,5 +238,4 @@ class Recipient {
 
 		return (float) eddc_get_recipient_rate( $user_id );
 	}
-
 }

@@ -318,8 +318,10 @@ class Customer {
 	/**
 	 * Days since the customer's most recent paid order.
 	 *
-	 * A customer who has never ordered reports 0, which reads the same as one
-	 * who ordered today -- pair with the order count when that matters.
+	 * A customer who has never ordered reports PHP_INT_MAX, not 0. Zero would
+	 * read as "ordered today", so a rule written as "days since last order < 7"
+	 * would match every first-time buyer -- the opposite of what it says.
+	 * Semantically the answer is that they have no last order to count from.
 	 *
 	 * @return int
 	 *
@@ -329,13 +331,13 @@ class Customer {
 		$date = self::get_last_order_date();
 
 		if ( '' === $date ) {
-			return 0;
+			return PHP_INT_MAX;
 		}
 
 		$timestamp = strtotime( $date );
 
 		if ( ! $timestamp ) {
-			return 0;
+			return PHP_INT_MAX;
 		}
 
 		return (int) max( 0, floor( ( (int) current_time( 'timestamp' ) - $timestamp ) / DAY_IN_SECONDS ) );

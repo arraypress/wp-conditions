@@ -110,5 +110,4 @@ class Conditions {
 
 		return $conditions;
 	}
-
 }

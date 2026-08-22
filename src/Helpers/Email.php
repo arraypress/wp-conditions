@@ -215,5 +215,4 @@ class Email {
 
 		return (int) min( 100, round( $score ) );
 	}
-
 }

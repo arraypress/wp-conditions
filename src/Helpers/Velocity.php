@@ -482,6 +482,21 @@ class Velocity {
 	 *
 	 * @return int
 	 */
+	/*
+	 * The two counters below query EDD's orders table directly and deliberately
+	 * do not cache.
+	 *
+	 * Direct, because there is no EDD API for "how many orders share this
+	 * fingerprint in the last N minutes" -- edd_get_orders() would pull every
+	 * matching row into objects to count them.
+	 *
+	 * Uncached, because a velocity check exists to notice what happened in the
+	 * last few minutes. A cached count is a count of the past, and serving one
+	 * is the same as not running the check: the fourth card attempt in ninety
+	 * seconds would read as the first.
+	 */
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
 	private static function edd_count( string $select, string $where, array $bindings, int $number, string $unit ): int {
 		global $wpdb;
 
@@ -562,5 +577,6 @@ class Velocity {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $value ) );
 	}
-
+	// phpcs:enable WordPress.DB.DirectDatabaseQuery.NoCaching
+	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
 }

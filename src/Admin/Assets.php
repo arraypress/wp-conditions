@@ -196,5 +196,4 @@ class Assets {
 		 */
 		return apply_filters( 'conditions_i18n_strings', $strings );
 	}
-
 }

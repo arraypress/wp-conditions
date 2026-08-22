@@ -534,5 +534,4 @@ class Registry {
 		self::$allowed_roles      = [];
 		self::$initialized        = false;
 	}
-
 }

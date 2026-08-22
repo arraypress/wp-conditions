@@ -351,5 +351,4 @@ class Cart {
 
 		return $conditions;
 	}
-
 }
