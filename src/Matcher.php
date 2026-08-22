@@ -142,6 +142,8 @@ class Matcher {
 			return false;
 		}
 
+		$evaluated = 0;
+
 		foreach ( $rules as $rule ) {
 			$result = $this->check_rule( $rule );
 
@@ -151,9 +153,19 @@ class Matcher {
 			if ( $result === false ) {
 				return false;
 			}
+
+			if ( null !== $result ) {
+				++$evaluated;
+			}
 		}
 
-		return true;
+		// Nothing in the group could be evaluated, so the group has not been
+		// satisfied -- it has not been tested. Returning true here made a rule
+		// match everything the moment its conditions stopped resolving: a
+		// renamed condition id, a provider without an API key, a context
+		// missing an argument. A group with no rules at all already returns
+		// false; this makes a group with no *evaluable* rules agree.
+		return $evaluated > 0;
 	}
 	
 	/**
