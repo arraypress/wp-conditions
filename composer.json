@@ -15,20 +15,21 @@
     }
   ],
   "require": {
-    "php": ">=8.2",
-    "arraypress/wp-composer-assets": "dev-main",
-    "arraypress/wp-countries": "dev-main",
-    "arraypress/wp-ip-utils": "dev-main",
-    "arraypress/wp-user-agent-utils": "dev-main",
-    "arraypress/wp-accept-language-utils": "dev-main",
-    "arraypress/wp-referrer-utils": "dev-main",
-    "arraypress/proxycheck": "dev-main",
+    "arraypress/abuseipdb": "dev-main",
     "arraypress/ipinfo": "dev-main",
     "arraypress/ipqualityscore": "dev-main",
-    "arraypress/wp-email-utils": "dev-main",
+    "arraypress/proxycheck": "dev-main",
+    "arraypress/wp-accept-language-utils": "dev-main",
     "arraypress/wp-array-utils": "dev-main",
+    "arraypress/wp-composer-assets": "dev-main",
+    "arraypress/wp-countries": "dev-main",
+    "arraypress/wp-email-utils": "dev-main",
+    "arraypress/wp-ip-utils": "dev-main",
+    "arraypress/wp-referrer-utils": "dev-main",
     "arraypress/wp-string-utils": "dev-main",
-    "arraypress/wp-timezones": "dev-main"
+    "arraypress/wp-timezones": "dev-main",
+    "arraypress/wp-user-agent-utils": "dev-main",
+    "php": ">=8.2"
   },
   "autoload": {
     "psr-4": {

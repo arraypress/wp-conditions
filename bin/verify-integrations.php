@@ -377,6 +377,66 @@ foreach ( [ 'EDD', 'WooCommerce' ] as $integration ) {
 	$reports[] = "$integration: $count helper calls named by conditions";
 }
 
+/**
+ * Every ArrayPress library class and method the source imports must exist.
+ *
+ * This is the check that would have caught two packages being imported but
+ * never declared: arraypress/abuseipdb, which existed and simply was not in
+ * composer.json, and arraypress/minfraud, which has never been written. Both
+ * raised on the first call rather than at install time.
+ *
+ * Reflection rather than parsing here -- the vendor tree is installed, so the
+ * classes can just be asked.
+ */
+$autoload = dirname( __DIR__ ) . '/vendor/autoload.php';
+
+if ( is_file( $autoload ) ) {
+	require_once $autoload;
+
+	$library_calls = 0;
+
+	foreach ( wpc_php_files( $conditions_root ) as $file ) {
+		$code  = file_get_contents( $file );
+		$short = str_replace( dirname( __DIR__ ) . '/', '', $file );
+
+		// Imports of ArrayPress packages other than this library itself.
+		preg_match_all(
+			'/^use\s+(ArrayPress\\\\(?!Conditions\\\\)[\w\\\\]+)(?:\s+as\s+(\w+))?;/m',
+			$code,
+			$imports,
+			PREG_SET_ORDER
+		);
+
+		foreach ( $imports as $import ) {
+			$fqcn  = $import[1];
+			$parts = explode( '\\', $fqcn );
+			$local = ( $import[2] ?? '' ) ?: end( $parts );
+
+			++$library_calls;
+
+			if ( ! class_exists( $fqcn ) && ! interface_exists( $fqcn ) ) {
+				$problems[] = "library: $short imports $fqcn, which is not installed";
+				continue;
+			}
+
+			$reflection = new ReflectionClass( $fqcn );
+
+			preg_match_all( '/\b' . preg_quote( $local, '/' ) . '::(\w+)\s*\(/', $code, $statics );
+
+			foreach ( array_unique( $statics[1] ) as $method ) {
+				++$library_calls;
+
+				if ( ! $reflection->hasMethod( $method ) && ! $reflection->hasConstant( $method ) ) {
+					$problems[] = "library: $short calls $fqcn::$method(), which does not exist";
+				}
+			}
+		}
+	}
+
+	$checked  += $library_calls;
+	$reports[] = "Libraries: $library_calls imports and static calls resolved by reflection";
+}
+
 foreach ( $reports as $report ) {
 	echo "  $report\n";
 }

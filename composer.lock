@@ -4,8 +4,50 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b6760dc1b70a43016163ae464d94c20e",
+    "content-hash": "0d9a3a1e7150b2324d1cdf5e5d9e44ff",
     "packages": [
+        {
+            "name": "arraypress/abuseipdb",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arraypress/abuseipdb.git",
+                "reference": "0090a18775b0ee5ec1f8550743342b6e084a462c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arraypress/abuseipdb/zipball/0090a18775b0ee5ec1f8550743342b6e084a462c",
+                "reference": "0090a18775b0ee5ec1f8550743342b6e084a462c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ArrayPress\\AbuseIPDB\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "David Sherlock",
+                    "homepage": "https://arraypress.com/"
+                }
+            ],
+            "description": "A PHP library for integrating with the AbuseIPDB Check API in WordPress, providing community-sourced IP abuse confidence scores (0-100) and report counts. Free tier supports ~1k checks/day. Built around WordPress's HTTP API with transient caching.",
+            "homepage": "https://github.com/arraypress/abuseipdb/",
+            "support": {
+                "issues": "https://github.com/arraypress/abuseipdb/issues",
+                "source": "https://github.com/arraypress/abuseipdb/tree/main"
+            },
+            "time": "2026-05-06T12:46:19+00:00"
+        },
         {
             "name": "arraypress/ipinfo",
             "version": "dev-main",
@@ -3137,6 +3179,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "arraypress/abuseipdb": 20,
         "arraypress/ipinfo": 20,
         "arraypress/ipqualityscore": 20,
         "arraypress/proxycheck": 20,
