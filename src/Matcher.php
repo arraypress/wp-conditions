@@ -74,6 +74,48 @@ class Matcher {
 	}
 
 	/**
+	 * Evaluate a conditions array directly.
+	 *
+	 * The groups are ORed and the rules inside each group are ANDed, which is
+	 * what check() does per rule post -- this is the same logic without the
+	 * assumption that the conditions came from post meta. A caller storing
+	 * rules in its own table, an option, or anywhere else uses this.
+	 *
+	 * An empty set does not match. A rule with no conditions is not a rule
+	 * that applies to everything; it is a rule nobody has finished writing,
+	 * and treating it as universal is how a half-built row starts matching
+	 * every request.
+	 *
+	 * @param array $conditions Groups of rules, as stored by the admin UI.
+	 *
+	 * @return bool
+	 */
+	public function matches( array $conditions ): bool {
+		return null !== $this->first_matching_group( $conditions );
+	}
+
+	/**
+	 * The first group that matches, or null when none do.
+	 *
+	 * Returning the group rather than a boolean is what lets a caller log
+	 * which conditions actually fired -- a verdict that cannot say why it
+	 * fired is not much use in a log.
+	 *
+	 * @param array $conditions Groups of rules.
+	 *
+	 * @return array|null
+	 */
+	public function first_matching_group( array $conditions ): ?array {
+		foreach ( $conditions as $group ) {
+			if ( is_array( $group ) && $this->check_group( $group ) ) {
+				return $group;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Check conditions and return on first match.
 	 *
 	 * @return MatchResult
@@ -88,11 +130,11 @@ class Matcher {
 				continue;
 			}
 
-			// OR logic between groups
-			foreach ( $conditions as $group ) {
-				if ( $this->check_group( $group ) ) {
-					return new MatchResult( true, $rule_post, $group );
-				}
+			// OR logic between groups.
+			$group = $this->first_matching_group( $conditions );
+
+			if ( null !== $group ) {
+				return new MatchResult( true, $rule_post, $group );
 			}
 		}
 
@@ -115,11 +157,10 @@ class Matcher {
 				continue;
 			}
 
-			foreach ( $conditions as $group ) {
-				if ( $this->check_group( $group ) ) {
-					$matches[] = new MatchResult( true, $rule_post, $group );
-					break; // Move to next rule
-				}
+			$group = $this->first_matching_group( $conditions );
+
+			if ( null !== $group ) {
+				$matches[] = new MatchResult( true, $rule_post, $group );
 			}
 		}
 
