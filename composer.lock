@@ -187,12 +187,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-accept-language-utils.git",
-                "reference": "60922ca581f61b2d422f1540549de6880fa16cbd"
+                "reference": "b30b632ecc9e69f5df29a4b0d87fb35382668de4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-accept-language-utils/zipball/60922ca581f61b2d422f1540549de6880fa16cbd",
-                "reference": "60922ca581f61b2d422f1540549de6880fa16cbd",
+                "url": "https://api.github.com/repos/arraypress/wp-accept-language-utils/zipball/b30b632ecc9e69f5df29a4b0d87fb35382668de4",
+                "reference": "b30b632ecc9e69f5df29a4b0d87fb35382668de4",
                 "shasum": ""
             },
             "require": {
@@ -234,7 +234,7 @@
                 "issues": "https://github.com/arraypress/wp-accept-language-utils/issues",
                 "source": "https://github.com/arraypress/wp-accept-language-utils"
             },
-            "time": "2026-01-17T13:48:56+00:00"
+            "time": "2026-08-22T12:49:19+00:00"
         },
         {
             "name": "arraypress/wp-array-utils",
@@ -358,12 +358,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-countries.git",
-                "reference": "68ea7968616ba63d2c5c812736c76a5a5920f6ed"
+                "reference": "e7beff1d45ecde041ea307d383842af0aee6b1f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-countries/zipball/68ea7968616ba63d2c5c812736c76a5a5920f6ed",
-                "reference": "68ea7968616ba63d2c5c812736c76a5a5920f6ed",
+                "url": "https://api.github.com/repos/arraypress/wp-countries/zipball/e7beff1d45ecde041ea307d383842af0aee6b1f2",
+                "reference": "e7beff1d45ecde041ea307d383842af0aee6b1f2",
                 "shasum": ""
             },
             "require": {
@@ -407,7 +407,7 @@
                 "issues": "https://github.com/arraypress/wp-countries/issues",
                 "source": "https://github.com/arraypress/wp-countries"
             },
-            "time": "2026-02-04T07:41:33+00:00"
+            "time": "2026-08-22T12:49:23+00:00"
         },
         {
             "name": "arraypress/wp-email-utils",
@@ -468,12 +468,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-ip-utils.git",
-                "reference": "2cfdd39f2b7bdb75d14d3d645a5f0990a286bbbe"
+                "reference": "9ef16ecb563e4ff893df7790922bea56ab95aa56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-ip-utils/zipball/2cfdd39f2b7bdb75d14d3d645a5f0990a286bbbe",
-                "reference": "2cfdd39f2b7bdb75d14d3d645a5f0990a286bbbe",
+                "url": "https://api.github.com/repos/arraypress/wp-ip-utils/zipball/9ef16ecb563e4ff893df7790922bea56ab95aa56",
+                "reference": "9ef16ecb563e4ff893df7790922bea56ab95aa56",
                 "shasum": ""
             },
             "require": {
@@ -516,7 +516,7 @@
                 "issues": "https://github.com/arraypress/wp-utils-ip/issues",
                 "source": "https://github.com/arraypress/wp-utils-ip"
             },
-            "time": "2026-08-01T11:19:14+00:00"
+            "time": "2026-08-22T12:49:26+00:00"
         },
         {
             "name": "arraypress/wp-referrer-utils",
@@ -524,12 +524,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-referrer-utils.git",
-                "reference": "d225f7f0f58165c8cd0b170820a7e6c2e84118c6"
+                "reference": "b10b79542b395107fc45a08594141645f3a651ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-referrer-utils/zipball/d225f7f0f58165c8cd0b170820a7e6c2e84118c6",
-                "reference": "d225f7f0f58165c8cd0b170820a7e6c2e84118c6",
+                "url": "https://api.github.com/repos/arraypress/wp-referrer-utils/zipball/b10b79542b395107fc45a08594141645f3a651ab",
+                "reference": "b10b79542b395107fc45a08594141645f3a651ab",
                 "shasum": ""
             },
             "require": {
@@ -573,7 +573,7 @@
                 "issues": "https://github.com/arraypress/wp-referrer-utils/issues",
                 "source": "https://github.com/arraypress/wp-referrer-utils"
             },
-            "time": "2026-01-22T09:32:44+00:00"
+            "time": "2026-08-22T12:49:30+00:00"
         },
         {
             "name": "arraypress/wp-string-utils",
@@ -635,12 +635,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-timezones.git",
-                "reference": "52d439ca891dd0e1404e892f725b6be40da3ce52"
+                "reference": "10970277c12e54d7701d2deadfb29c222ec6f155"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-timezones/zipball/52d439ca891dd0e1404e892f725b6be40da3ce52",
-                "reference": "52d439ca891dd0e1404e892f725b6be40da3ce52",
+                "url": "https://api.github.com/repos/arraypress/wp-timezones/zipball/10970277c12e54d7701d2deadfb29c222ec6f155",
+                "reference": "10970277c12e54d7701d2deadfb29c222ec6f155",
                 "shasum": ""
             },
             "require": {
@@ -682,7 +682,7 @@
                 "issues": "https://github.com/arraypress/wp-timezones/issues",
                 "source": "https://github.com/arraypress/wp-timezones"
             },
-            "time": "2026-01-22T12:24:41+00:00"
+            "time": "2026-08-22T12:49:34+00:00"
         },
         {
             "name": "arraypress/wp-user-agent-utils",
@@ -690,12 +690,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-user-agent-utils.git",
-                "reference": "8413c72de0c478c4265bb8db50dee8a38d4f6d4f"
+                "reference": "c7b18dd419e506f30f00abb142914aee2fe2ac4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-user-agent-utils/zipball/8413c72de0c478c4265bb8db50dee8a38d4f6d4f",
-                "reference": "8413c72de0c478c4265bb8db50dee8a38d4f6d4f",
+                "url": "https://api.github.com/repos/arraypress/wp-user-agent-utils/zipball/c7b18dd419e506f30f00abb142914aee2fe2ac4b",
+                "reference": "c7b18dd419e506f30f00abb142914aee2fe2ac4b",
                 "shasum": ""
             },
             "require": {
@@ -736,7 +736,7 @@
                 "issues": "https://github.com/arraypress/wp-utils-useragent/issues",
                 "source": "https://github.com/arraypress/wp-utils-useragent"
             },
-            "time": "2026-01-17T09:16:16+00:00"
+            "time": "2026-08-22T12:49:37+00:00"
         }
     ],
     "packages-dev": [
