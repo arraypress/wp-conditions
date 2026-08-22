@@ -33,6 +33,20 @@ class Product {
 	 */
 	public static function get_all(): array {
 		$conditions = [
+			// Identity
+			'edd_product'                    => [
+				'label'         => __( 'Product', 'arraypress' ),
+				'group'         => __( 'Product', 'arraypress' ),
+				'type'          => 'post',
+				'post_type'     => 'download',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search products...', 'arraypress' ),
+				'description'   => __( 'Which product this is. Use "is any of" to name the products a rule applies to, or "is none of" to carve specific products out of a broader rule.', 'arraypress' ),
+				'operators'     => Operators::collection_any_none(),
+				'compare_value' => fn( $args ) => ProductHelper::get_id( $args ),
+				'required_args' => [ 'product_id' ],
+			],
+
 			// Details
 			'edd_product_type'               => [
 				'label'         => __( 'Type', 'arraypress' ),

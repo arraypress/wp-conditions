@@ -41,6 +41,20 @@ class Product {
 		$performance = __( 'Product: Performance', 'arraypress' );
 
 		return [
+			// Identity.
+			'wc_product'                     => [
+				'label'         => __( 'Product', 'arraypress' ),
+				'group'         => $details,
+				'type'          => 'ajax',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search products...', 'arraypress' ),
+				'description'   => __( 'Which product this is. Use "is any of" to name the products a rule applies to, or "is none of" to carve specific products out of a broader rule.', 'arraypress' ),
+				'operators'     => Operators::collection_any_none(),
+				'ajax'          => fn( ?string $search, ?array $ids ): array => Options::get_product_options( $search, $ids ),
+				'compare_value' => fn( $args ) => ProductHelper::get_id( $args ),
+				'required_args' => [ 'product_id' ],
+			],
+
 			// Details.
 			'wc_product_type'                => [
 				'label'         => __( 'Type', 'arraypress' ),
