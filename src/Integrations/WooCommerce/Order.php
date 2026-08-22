@@ -1,0 +1,890 @@
+<?php
+/**
+ * WooCommerce Order Helper
+ *
+ * Reads a placed order. Conditions pass an order_id in their args; anything
+ * that cannot be resolved answers with a zero value so an order deleted between
+ * queueing and evaluation does not raise.
+ *
+ * @package     ArrayPress\Conditions\Integrations\WooCommerce
+ * @copyright   Copyright (c) 2026, ArrayPress Limited
+ * @license     GPL-2.0-or-later
+ * @since       1.0.0
+ * @author      David Sherlock
+ */
+
+declare( strict_types=1 );
+
+namespace ArrayPress\Conditions\Integrations\WooCommerce;
+
+use ArrayPress\Conditions\Helpers\DateTime;
+use ArrayPress\Conditions\Helpers\Parse;
+use WC_Order;
+use WC_Order_Item_Product;
+use WC_Order_Item_Shipping;
+
+/**
+ * Class Order
+ *
+ * Order utilities for WooCommerce conditions.
+ */
+class Order {
+
+	/** -------------------------------------------------------------------------
+	 * Resolution
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Order ID from the condition args.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_id( array $args ): int {
+		return (int) ( $args['order_id'] ?? 0 );
+	}
+
+	/**
+	 * The order object.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return WC_Order|null
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get( array $args ): ?WC_Order {
+		$id = self::get_id( $args );
+
+		if ( 0 === $id || ! function_exists( 'wc_get_order' ) ) {
+			return null;
+		}
+
+		$order = wc_get_order( $id );
+
+		return $order instanceof WC_Order ? $order : null;
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Money
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Order total.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_total( array $args ): float {
+		$order = self::get( $args );
+
+		return $order ? (float) $order->get_total() : 0.0;
+	}
+
+	/**
+	 * Order subtotal, before discounts, tax and shipping.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_subtotal( array $args ): float {
+		$order = self::get( $args );
+
+		return $order ? (float) $order->get_subtotal() : 0.0;
+	}
+
+	/**
+	 * Total tax.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_tax( array $args ): float {
+		$order = self::get( $args );
+
+		return $order ? (float) $order->get_total_tax() : 0.0;
+	}
+
+	/**
+	 * Total discount.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_discount( array $args ): float {
+		$order = self::get( $args );
+
+		return $order ? (float) $order->get_total_discount() : 0.0;
+	}
+
+	/**
+	 * Shipping cost.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_shipping_total( array $args ): float {
+		$order = self::get( $args );
+
+		return $order ? (float) $order->get_shipping_total() : 0.0;
+	}
+
+	/**
+	 * Amount refunded against the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_refunded_total( array $args ): float {
+		$order = self::get( $args );
+
+		return $order ? (float) $order->get_total_refunded() : 0.0;
+	}
+
+	/**
+	 * Discount as a share of the subtotal.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float 0-100.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_discount_percentage( array $args ): float {
+		$subtotal = self::get_subtotal( $args );
+
+		if ( $subtotal <= 0 ) {
+			return 0.0;
+		}
+
+		return round( ( self::get_discount( $args ) / $subtotal ) * 100, 2 );
+	}
+
+	/**
+	 * Currency code.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_currency( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_currency() : '';
+	}
+
+	/** -------------------------------------------------------------------------
+	 * State
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Order status, without the wc- prefix.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_status( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_status() : '';
+	}
+
+	/**
+	 * Payment gateway ID.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_gateway( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_payment_method() : '';
+	}
+
+	/**
+	 * Whether the order has been paid.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 *
+	 * @since 1.0.0
+	 */
+	public static function is_paid( array $args ): bool {
+		$order = self::get( $args );
+
+		return $order ? (bool) $order->is_paid() : false;
+	}
+
+	/**
+	 * Payment method title, as shown to the customer.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_gateway_title( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_payment_method_title() : '';
+	}
+
+	/**
+	 * The gateway's transaction reference.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_transaction_id( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_transaction_id() : '';
+	}
+
+	/**
+	 * How the order was created -- checkout, store-api, rest-api, admin.
+	 *
+	 * Worth a rule of its own: an order created through the REST API when the
+	 * store only sells through its own checkout did not come from a customer.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_created_via( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_created_via() : '';
+	}
+
+	/**
+	 * The user agent recorded when the order was placed.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_user_agent( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_customer_user_agent() : '';
+	}
+
+	/**
+	 * How many refunds have been recorded against the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_refund_count( array $args ): int {
+		$order = self::get( $args );
+
+		return $order ? count( (array) $order->get_refunds() ) : 0;
+	}
+
+	/**
+	 * Whether the order needs a shipping address.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 *
+	 * @since 1.0.0
+	 */
+	public static function needs_shipping_address( array $args ): bool {
+		$order = self::get( $args );
+
+		return $order ? (bool) $order->needs_shipping_address() : false;
+	}
+
+	/**
+	 * Whether anything on the order is downloadable.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 *
+	 * @since 1.0.0
+	 */
+	public static function has_downloadable_item( array $args ): bool {
+		$order = self::get( $args );
+
+		return $order ? (bool) $order->has_downloadable_item() : false;
+	}
+
+	/**
+	 * Whether the order was created by a logged-out customer.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 *
+	 * @since 1.0.0
+	 */
+	public static function is_guest( array $args ): bool {
+		$order = self::get( $args );
+
+		return $order ? 0 === (int) $order->get_customer_id() : false;
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Items
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Line items.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_items( array $args ): array {
+		$order = self::get( $args );
+
+		return $order ? (array) $order->get_items() : [];
+	}
+
+	/**
+	 * Total quantity across every line.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_item_count( array $args ): int {
+		$order = self::get( $args );
+
+		return $order ? (int) $order->get_item_count() : 0;
+	}
+
+	/**
+	 * Number of distinct lines.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_unique_product_count( array $args ): int {
+		return count( self::get_product_ids( $args ) );
+	}
+
+	/**
+	 * Product IDs in the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int[]
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_product_ids( array $args ): array {
+		$ids = [];
+
+		foreach ( self::get_items( $args ) as $item ) {
+			if ( $item instanceof WC_Order_Item_Product ) {
+				$ids[] = (int) $item->get_product_id();
+			}
+		}
+
+		return array_values( array_filter( array_unique( $ids ) ) );
+	}
+
+	/**
+	 * Variation IDs in the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int[]
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_variation_ids( array $args ): array {
+		$ids = [];
+
+		foreach ( self::get_items( $args ) as $item ) {
+			if ( $item instanceof WC_Order_Item_Product ) {
+				$ids[] = (int) $item->get_variation_id();
+			}
+		}
+
+		return array_values( array_filter( array_unique( $ids ) ) );
+	}
+
+	/**
+	 * Term IDs of a taxonomy across every product in the order.
+	 *
+	 * @param array  $args     The condition arguments.
+	 * @param string $taxonomy Taxonomy name.
+	 *
+	 * @return int[]
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_term_ids( array $args, string $taxonomy ): array {
+		$terms = [];
+
+		foreach ( self::get_product_ids( $args ) as $product_id ) {
+			$found = get_the_terms( $product_id, $taxonomy );
+
+			if ( ! is_array( $found ) ) {
+				continue;
+			}
+
+			foreach ( $found as $term ) {
+				$terms[] = (int) $term->term_id;
+			}
+		}
+
+		return array_values( array_unique( $terms ) );
+	}
+
+	/**
+	 * Coupon codes applied to the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string[]
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_coupons( array $args ): array {
+		$order = self::get( $args );
+
+		if ( ! $order ) {
+			return [];
+		}
+
+		return array_map( 'strval', (array) $order->get_coupon_codes() );
+	}
+
+	/**
+	 * Shipping method IDs used on the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string[]
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_shipping_methods( array $args ): array {
+		$order = self::get( $args );
+
+		if ( ! $order ) {
+			return [];
+		}
+
+		$methods = [];
+
+		foreach ( (array) $order->get_shipping_methods() as $method ) {
+			if ( $method instanceof WC_Order_Item_Shipping ) {
+				$methods[] = (string) $method->get_method_id();
+			}
+		}
+
+		return array_values( array_filter( array_unique( $methods ) ) );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Customer and addresses
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * The user ID behind the order, or 0 for a guest.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_customer_id( array $args ): int {
+		$order = self::get( $args );
+
+		return $order ? (int) $order->get_customer_id() : 0;
+	}
+
+	/**
+	 * Billing email.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_email( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_billing_email() : '';
+	}
+
+	/**
+	 * Billing country code.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_country( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_billing_country() : '';
+	}
+
+	/**
+	 * Billing state or region code.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_region( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_billing_state() : '';
+	}
+
+	/**
+	 * Billing city.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_city( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_billing_city() : '';
+	}
+
+	/**
+	 * Billing postcode.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_postcode( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_billing_postcode() : '';
+	}
+
+	/**
+	 * Shipping country code.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_shipping_country( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_shipping_country() : '';
+	}
+
+	/**
+	 * Whether billing and shipping countries differ.
+	 *
+	 * An order with no shipping country is not a mismatch -- a virtual order
+	 * never collects one.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 *
+	 * @since 1.0.0
+	 */
+	public static function has_country_mismatch( array $args ): bool {
+		$billing  = self::get_country( $args );
+		$shipping = self::get_shipping_country( $args );
+
+		if ( '' === $billing || '' === $shipping ) {
+			return false;
+		}
+
+		return $billing !== $shipping;
+	}
+
+	/**
+	 * Shipping class slugs across the order's products.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string[]
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_shipping_classes( array $args ): array {
+		$classes = [];
+
+		foreach ( self::get_product_ids( $args ) as $product_id ) {
+			$class = Product::get_shipping_class( [ 'product_id' => $product_id ] );
+
+			if ( '' !== $class ) {
+				$classes[] = $class;
+			}
+		}
+
+		return array_values( array_unique( $classes ) );
+	}
+
+	/**
+	 * Tax class slugs across the order's products.
+	 *
+	 * The standard class is normalised from WooCommerce's empty slug so a rule
+	 * can name it.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string[]
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_tax_classes( array $args ): array {
+		$classes = [];
+
+		foreach ( self::get_product_ids( $args ) as $product_id ) {
+			$class = Product::get_tax_class( [ 'product_id' => $product_id ] );
+
+			$classes[] = '' === $class ? 'standard' : $class;
+		}
+
+		return array_values( array_unique( $classes ) );
+	}
+
+	/**
+	 * Billing phone.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_phone( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_billing_phone() : '';
+	}
+
+	/**
+	 * Billing company.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_company( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_billing_company() : '';
+	}
+
+	/**
+	 * Billing address, first line.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_address( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_billing_address_1() : '';
+	}
+
+	/**
+	 * Shipping state or region.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_shipping_region( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_shipping_state() : '';
+	}
+
+	/**
+	 * Shipping city.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_shipping_city( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_shipping_city() : '';
+	}
+
+	/**
+	 * Shipping postcode.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_shipping_postcode( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_shipping_postcode() : '';
+	}
+
+	/**
+	 * Customer IP address recorded at checkout.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_ip( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_customer_ip_address() : '';
+	}
+
+	/**
+	 * Customer note left at checkout.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_customer_note( array $args ): string {
+		$order = self::get( $args );
+
+		return $order ? (string) $order->get_customer_note() : '';
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Dates
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Date the order was created, as Y-m-d.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_date_created( array $args ): string {
+		$order = self::get( $args );
+		$date  = $order?->get_date_created();
+
+		return $date ? $date->date( 'Y-m-d' ) : '';
+	}
+
+	/**
+	 * Date the order was paid, as Y-m-d.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_date_paid( array $args ): string {
+		$order = self::get( $args );
+		$date  = $order?->get_date_paid();
+
+		return $date ? $date->date( 'Y-m-d' ) : '';
+	}
+
+	/**
+	 * Age of the order, in the unit carried by the rule.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_age( array $args ): int {
+		$order = self::get( $args );
+		$date  = $order?->get_date_created();
+
+		if ( ! $date ) {
+			return 0;
+		}
+
+		$parsed = Parse::number_unit( $args );
+
+		return DateTime::get_age_from_timestamp( $date->getTimestamp(), $parsed['unit'] );
+	}
+}

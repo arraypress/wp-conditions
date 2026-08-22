@@ -18,8 +18,6 @@ namespace ArrayPress\Conditions\Integrations\EDD;
 use ArrayPress\ArrayUtils\Arr;
 use EDD\Reports;
 
-require_once EDD_PLUGIN_DIR . 'includes/reports/reports-functions.php';
-
 /**
  * Class Options
  *
@@ -119,6 +117,13 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_date_ranges(): array {
+		// Loaded here rather than at file scope: this class is autoloaded, and a
+		// top-level require against EDD_PLUGIN_DIR fatals the moment anything
+		// touches it on a site without EDD.
+		if ( ! function_exists( 'EDD\Reports\get_dates_filter_options' ) ) {
+			require_once EDD_PLUGIN_DIR . 'includes/reports/reports-functions.php';
+		}
+
 		$edd_options = Reports\get_dates_filter_options();
 
 		// Remove 'other' (custom) as it doesn't make sense for conditions

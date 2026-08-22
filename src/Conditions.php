@@ -18,6 +18,7 @@ namespace ArrayPress\Conditions;
 use ArrayPress\Conditions\Conditions\Core;
 use ArrayPress\Conditions\Conditions\Services;
 use ArrayPress\Conditions\Conditions\EDD;
+use ArrayPress\Conditions\Conditions\WooCommerce;
 
 /**
  * Class Conditions
@@ -97,10 +98,10 @@ class Conditions {
 			$conditions = array_merge( $conditions, EDD\Conditions::get_all() );
 		}
 
-		// WooCommerce (future)
-		// if ( class_exists( 'WooCommerce' ) ) {
-		//     $conditions = array_merge( $conditions, WooCommerce::get_all() );
-		// }
+		// WooCommerce
+		if ( class_exists( 'WooCommerce' ) ) {
+			$conditions = array_merge( $conditions, WooCommerce\Conditions::get_all() );
+		}
 
 		// AffiliateWP (future)
 		// if ( class_exists( 'Affiliate_WP' ) ) {

@@ -247,6 +247,74 @@ class User {
 	}
 
 	/**
+	 * Get the user's first name.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_first_name( array $args ): string {
+		$user = self::get( $args );
+
+		return $user ? (string) $user->first_name : '';
+	}
+
+	/**
+	 * Get the user's last name.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_last_name( array $args ): string {
+		$user = self::get( $args );
+
+		return $user ? (string) $user->last_name : '';
+	}
+
+	/**
+	 * Get the user's nicename -- the URL-safe slug, not the login.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_nicename( array $args ): string {
+		$user = self::get( $args );
+
+		return $user ? (string) $user->user_nicename : '';
+	}
+
+	/**
+	 * Get the website on the user's profile.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_website( array $args ): string {
+		$user = self::get( $args );
+
+		return $user ? (string) $user->user_url : '';
+	}
+
+	/**
+	 * Whether the user is a network super admin.
+	 *
+	 * Always false on a single site, where the role check is the right question
+	 * instead.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_super_admin( array $args ): bool {
+		$id = self::get_id( $args );
+
+		return 0 !== $id && is_super_admin( $id );
+	}
+
+	/**
 	 * Get user registration date.
 	 *
 	 * @param array $args The condition arguments.

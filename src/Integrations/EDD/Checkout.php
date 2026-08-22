@@ -161,4 +161,59 @@ class Checkout {
 		] );
 	}
 
+	/**
+	 * Get the first line of the billing address.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_address( array $args ): string {
+		return Arr::get_first( $args['posted'] ?? [], [
+			'card_address',
+			'edd_address.line1',
+			'billing_address_1',
+		] );
+	}
+
+	/**
+	 * Get the second line of the billing address.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_address_2( array $args ): string {
+		return Arr::get_first( $args['posted'] ?? [], [
+			'card_address_2',
+			'edd_address.line2',
+			'billing_address_2',
+		] );
+	}
+
+	/**
+	 * Get the discount code entered at checkout.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_discount_code( array $args ): string {
+		return Arr::get_first( $args['posted'] ?? [], [
+			'edd-discount',
+			'edd_discount',
+		] );
+	}
+
+	/**
+	 * Whether a discount code was entered at checkout.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function has_discount_code( array $args ): bool {
+		return '' !== self::get_discount_code( $args );
+	}
+
 }

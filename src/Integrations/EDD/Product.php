@@ -824,4 +824,136 @@ class Product {
 		return Post::get_date_modified( self::normalize_args( $args ) );
 	}
 
+	/** -------------------------------------------------------------------------
+	 * Catalogue
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * The download's SKU.
+	 *
+	 * EDD returns a dash when SKUs are switched off, which is not a SKU -- it
+	 * is normalised to an empty string so an "is empty" rule reads correctly.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_sku( array $args ): string {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_get_download_sku' ) ) {
+			return '';
+		}
+
+		$sku = (string) edd_get_download_sku( $product_id );
+
+		return '-' === $sku ? '' : $sku;
+	}
+
+	/**
+	 * How many days a purchase of this download stays refundable.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_refund_window( array $args ): int {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_get_download_refund_window' ) ) {
+			return 0;
+		}
+
+		return (int) edd_get_download_refund_window( $product_id );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Variable pricing
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * The price option IDs a variable download offers.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int[]
+	 */
+	public static function get_price_ids( array $args ): array {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id || ! function_exists( 'edd_get_variable_prices' ) ) {
+			return [];
+		}
+
+		$prices = edd_get_variable_prices( $product_id );
+
+		return is_array( $prices ) ? array_map( 'intval', array_keys( $prices ) ) : [];
+	}
+
+	/**
+	 * Cheapest price option.
+	 *
+	 * For a download without variable pricing this is simply its price, which
+	 * is what makes a "cheapest option under X" rule work across both kinds.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 */
+	public static function get_lowest_price( array $args ): float {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id ) {
+			return 0.0;
+		}
+
+		if ( ! self::has_variable_prices( $args ) || ! function_exists( 'edd_get_lowest_price_option' ) ) {
+			return self::get_price( $args );
+		}
+
+		return (float) edd_get_lowest_price_option( $product_id );
+	}
+
+	/**
+	 * Dearest price option.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 */
+	public static function get_highest_price( array $args ): float {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id ) {
+			return 0.0;
+		}
+
+		if ( ! self::has_variable_prices( $args ) || ! function_exists( 'edd_get_highest_price_option' ) ) {
+			return self::get_price( $args );
+		}
+
+		return (float) edd_get_highest_price_option( $product_id );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Delivery
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * How many times this download's files have been downloaded in a period.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_file_downloads( array $args ): int {
+		$product_id = self::get_id( $args );
+
+		if ( ! $product_id ) {
+			return 0;
+		}
+
+		return Stats::get_file_download_count( $product_id, $args['_unit'] ?? 'this_month' );
+	}
+
 }

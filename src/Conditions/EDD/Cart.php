@@ -268,6 +268,87 @@ class Cart {
 			];
 		}
 
+		$conditions['edd_cart_is_empty'] = [
+			'label'         => __( 'Empty', 'arraypress' ),
+			'group'         => $items,
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the cart has nothing in it.', 'arraypress' ),
+			'compare_value' => fn( $args ) => CartHelper::is_empty(),
+			'required_args' => [],
+		];
+
+		$conditions['edd_cart_discount_percentage'] = [
+			'label'         => __( 'Discount (%)', 'arraypress' ),
+			'group'         => $money,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 50', 'arraypress' ),
+			'min'           => 0,
+			'max'           => 100,
+			'step'          => 0.1,
+			'description'   => __( 'Discount as a share of the subtotal. A percentage travels across price points where an amount does not — 90% off is the same signal on a small cart as on a large one.', 'arraypress' ),
+			'compare_value' => fn( $args ) => CartHelper::get_discount_percentage(),
+			'required_args' => [],
+		];
+
+		$conditions['edd_cart_fee_count'] = [
+			'label'         => __( 'Fee Count', 'arraypress' ),
+			'group'         => $money,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 1', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 1,
+			'description'   => __( 'How many separate fees have been added to the cart.', 'arraypress' ),
+			'compare_value' => fn( $args ) => CartHelper::get_fee_count(),
+			'required_args' => [],
+		];
+
+		$conditions['edd_cart_price_ids'] = [
+			'label'         => __( 'Price Options', 'arraypress' ),
+			'group'         => $items,
+			'type'          => 'text',
+			'placeholder'   => __( 'e.g. 1', 'arraypress' ),
+			'description'   => __( 'The price option IDs chosen across the cart. A variable-priced download sells at several tiers, and which tier was bought is often the thing a rule cares about.', 'arraypress' ),
+			'operators'     => Operators::text(),
+			'compare_value' => fn( $args ) => CartHelper::get_price_ids(),
+			'required_args' => [],
+		];
+
+		$conditions['edd_cart_average_product_age'] = [
+			'label'         => __( 'Average Product Age', 'arraypress' ),
+			'group'         => $items,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 30', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 1,
+			'description'   => __( 'Mean age in days of the products in the cart. A basket of brand-new listings is a different thing from a basket of catalogue staples.', 'arraypress' ),
+			'compare_value' => fn( $args ) => CartHelper::get_average_product_age(),
+			'required_args' => [],
+		];
+
+		$conditions['edd_cart_newest_product_age'] = [
+			'label'         => __( 'Newest Product Age', 'arraypress' ),
+			'group'         => $items,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 1', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 1,
+			'description'   => __( 'Age in days of the most recently published product in the cart.', 'arraypress' ),
+			'compare_value' => fn( $args ) => CartHelper::get_newest_product_age(),
+			'required_args' => [],
+		];
+
+		$conditions['edd_cart_oldest_product_age'] = [
+			'label'         => __( 'Oldest Product Age', 'arraypress' ),
+			'group'         => $items,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 365', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 1,
+			'description'   => __( 'Age in days of the longest-published product in the cart.', 'arraypress' ),
+			'compare_value' => fn( $args ) => CartHelper::get_oldest_product_age(),
+			'required_args' => [],
+		];
+
 		return $conditions;
 	}
 

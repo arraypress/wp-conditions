@@ -6,15 +6,51 @@ A flexible conditions/rules engine for WordPress with an admin UI, REST API sear
 
 - **Visual Rule Builder** - Intuitive admin UI with AND/OR logic groups
 - **Multiple Field Types** - Text, number, select, posts, terms, users, dates, and more
-- **Built-in Conditions** - Ready-to-use conditions for users, posts, dates, requests, and EDD
+- **Built-in Conditions** - Ready-to-use conditions for users, posts, dates, requests, EDD, and WooCommerce
 - **Extensible** - Create custom conditions via arrays, classes, or callbacks
 - **REST API Search** - AJAX-powered search for posts, terms, and users
 - **Type-Safe Comparisons** - Proper comparison logic for each field type
 
 ## Requirements
 
-- PHP 8.0+
+- PHP 8.2+
 - WordPress 6.0+
+
+Easy Digital Downloads and WooCommerce conditions register themselves only when
+the plugin in question is active, so neither is a dependency.
+
+## Built-in Conditions
+
+| Group | Conditions | Registers when |
+| --- | --- | --- |
+| Core | Date/time, user, post, request, context, email, geo, velocity, payment | Always |
+| Services | ProxyCheck, IPinfo, IPQualityScore | An API key is configured |
+| WooCommerce | Cart, product, customer, checkout, order, store | `WooCommerce` is active |
+| Easy Digital Downloads | Cart, product, customer, checkout, order, store, commission, recipient | EDD is active |
+
+WooCommerce covers money, items, size and weight, shipping and tax classes,
+variations and their attributes, stock and backorder policy, and store-wide
+figures over a date range. EDD covers the same ground plus licensing,
+recurring, and commissions.
+
+## Verifying an Integration
+
+Each condition is a closure over a helper method, and each helper calls into
+EDD or WooCommerce. PHP checks neither until the closure runs -- which, for a
+rule that blocks a checkout, is on somebody's purchase. The unit tests cannot
+close that gap either: they run against stubs, so a stub and a helper can
+happily agree on a method the plugin has never had.
+
+```bash
+composer verify
+```
+
+This reads the plugins' own source rather than booting them. It checks that
+every method, function and option the integration touches exists, and that
+every helper a condition names is really there. Run it after a WooCommerce or
+EDD major release. An integration whose plugin is not installed locally is
+skipped with a note; the library-against-itself half always runs, which is why
+CI runs it too.
 
 ## Installation
 

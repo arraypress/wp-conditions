@@ -46,3 +46,11 @@ jobs:
             echo '::error::phpunit produced no result -- the suite did not run'
             exit 1
           }
+
+      - name: Verify integrations
+        # Half of this needs EDD or WooCommerce on disk and is skipped here.
+        # The other half checks the library against itself -- that every helper
+        # a condition names actually exists -- and that half is the one worth
+        # having on every push, because a renamed helper is invisible until the
+        # closure runs on a customer's checkout.
+        run: composer verify

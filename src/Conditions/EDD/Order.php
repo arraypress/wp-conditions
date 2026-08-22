@@ -390,6 +390,184 @@ class Order {
 			];
 		}
 
+		$conditions['edd_order_type'] = [
+			'label'         => __( 'Type', 'arraypress' ),
+			'group'         => $identity,
+			'type'          => 'select',
+			'multiple'      => true,
+			'placeholder'   => __( 'Select type...', 'arraypress' ),
+			'description'   => __( 'Whether the record is a sale or a refund. EDD 3 stores refunds as orders in their own right, so a rule that does not check the type will happily evaluate against a refund as though it were a purchase.', 'arraypress' ),
+			'options'       => [
+				[
+					'value' => 'sale',
+					'label' => __( 'Sale', 'arraypress' ),
+				],
+				[
+					'value' => 'refund',
+					'label' => __( 'Refund', 'arraypress' ),
+				],
+			],
+			'operators'     => Operators::collection_any_none(),
+			'compare_value' => fn( $args ) => OrderHelper::get_type( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_number'] = [
+			'label'         => __( 'Order Number', 'arraypress' ),
+			'group'         => $identity,
+			'type'          => 'text',
+			'placeholder'   => __( 'e.g. EDD-', 'arraypress' ),
+			'description'   => __( 'The order number, which differs from the ID when sequential numbering is switched on.', 'arraypress' ),
+			'operators'     => Operators::text_advanced(),
+			'compare_value' => fn( $args ) => OrderHelper::get_number( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_transaction_id'] = [
+			'label'         => __( 'Transaction ID', 'arraypress' ),
+			'group'         => $identity,
+			'type'          => 'text',
+			'placeholder'   => __( 'e.g. ch_', 'arraypress' ),
+			'description'   => __( 'The gateway\'s transaction reference. Empty until the order is paid.', 'arraypress' ),
+			'operators'     => Operators::text_advanced(),
+			'compare_value' => fn( $args ) => OrderHelper::get_transaction_id( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_is_recoverable'] = [
+			'label'         => __( 'Recoverable', 'arraypress' ),
+			'group'         => $identity,
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the order is an abandoned one that can still be recovered.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::is_recoverable( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_unlimited_downloads'] = [
+			'label'         => __( 'Unlimited Downloads', 'arraypress' ),
+			'group'         => $identity,
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the order carries unlimited download access.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::has_unlimited_downloads( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_fee_total'] = [
+			'label'         => __( 'Fee Total', 'arraypress' ),
+			'group'         => $money,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 5.00', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 0.01,
+			'description'   => __( 'Total of the fees on the order.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::get_fee_total( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_fee_count'] = [
+			'label'         => __( 'Fee Count', 'arraypress' ),
+			'group'         => $money,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 1', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 1,
+			'description'   => __( 'How many fees are on the order.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::get_fee_count( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_discount_percentage'] = [
+			'label'         => __( 'Discount (%)', 'arraypress' ),
+			'group'         => $money,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 50', 'arraypress' ),
+			'min'           => 0,
+			'max'           => 100,
+			'step'          => 0.1,
+			'description'   => __( 'Discount as a share of the subtotal.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::get_discount_percentage( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_refund_count'] = [
+			'label'         => __( 'Refund Count', 'arraypress' ),
+			'group'         => $money,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 1', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 1,
+			'description'   => __( 'How many refunds have been issued against the order. Several partial refunds is a different pattern from one full one.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::get_refund_count( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_refunded_total'] = [
+			'label'         => __( 'Refunded Amount', 'arraypress' ),
+			'group'         => $money,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 25.00', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 0.01,
+			'description'   => __( 'How much has been refunded against the order. EDD holds refunds as negative totals; this reports the positive figure a rule would be written against.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::get_refunded_total( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_price_ids'] = [
+			'label'         => __( 'Price Options', 'arraypress' ),
+			'group'         => $items,
+			'type'          => 'text',
+			'placeholder'   => __( 'e.g. 1', 'arraypress' ),
+			'description'   => __( 'The price option IDs across the order\'s items.', 'arraypress' ),
+			'operators'     => Operators::text(),
+			'compare_value' => fn( $args ) => OrderHelper::get_price_ids( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_first_name'] = [
+			'label'         => __( 'First Name', 'arraypress' ),
+			'group'         => $address,
+			'type'          => 'text',
+			'placeholder'   => __( 'e.g. John', 'arraypress' ),
+			'description'   => __( 'The first name on the order.', 'arraypress' ),
+			'operators'     => Operators::text_advanced(),
+			'compare_value' => fn( $args ) => OrderHelper::get_first_name( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_last_name'] = [
+			'label'         => __( 'Last Name', 'arraypress' ),
+			'group'         => $address,
+			'type'          => 'text',
+			'placeholder'   => __( 'e.g. Smith', 'arraypress' ),
+			'description'   => __( 'The last name on the order.', 'arraypress' ),
+			'operators'     => Operators::text_advanced(),
+			'compare_value' => fn( $args ) => OrderHelper::get_last_name( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_address'] = [
+			'label'         => __( 'Address', 'arraypress' ),
+			'group'         => $address,
+			'type'          => 'text',
+			'placeholder'   => __( 'e.g. PO Box', 'arraypress' ),
+			'description'   => __( 'The first line of the address on the order.', 'arraypress' ),
+			'operators'     => Operators::text_advanced(),
+			'compare_value' => fn( $args ) => OrderHelper::get_address( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_address_2'] = [
+			'label'         => __( 'Address Line 2', 'arraypress' ),
+			'group'         => $address,
+			'type'          => 'text',
+			'placeholder'   => __( 'e.g. Apt', 'arraypress' ),
+			'description'   => __( 'The second line of the address on the order.', 'arraypress' ),
+			'operators'     => Operators::text_advanced(),
+			'compare_value' => fn( $args ) => OrderHelper::get_address_2( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
 		return $conditions;
 	}
 

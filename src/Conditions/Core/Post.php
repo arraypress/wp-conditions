@@ -47,6 +47,26 @@ class Post {
 	 */
 	private static function get_detail_conditions(): array {
 		return [
+			'post_title'    => [
+				'label'         => __( 'Title', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
+				'type'          => 'text',
+				'placeholder'   => __( 'e.g. Hello World', 'arraypress' ),
+				'description'   => __( 'Match against the post title.', 'arraypress' ),
+				'operators'     => Operators::text_advanced(),
+				'compare_value' => fn( $args ) => PostHelper::get_title( $args ),
+				'required_args' => [ 'post_id' ],
+			],
+			'post_slug'     => [
+				'label'         => __( 'Slug', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
+				'type'          => 'text',
+				'placeholder'   => __( 'e.g. hello-world', 'arraypress' ),
+				'description'   => __( 'Match against the post slug.', 'arraypress' ),
+				'operators'     => Operators::text_advanced(),
+				'compare_value' => fn( $args ) => PostHelper::get_slug( $args ),
+				'required_args' => [ 'post_id' ],
+			],
 			'post_status'   => [
 				'label'         => __( 'Status', 'arraypress' ),
 				'group'         => __( 'Post', 'arraypress' ),
@@ -115,6 +135,24 @@ class Post {
 				'operators'     => Operators::collection_any_none(),
 				'options'       => fn() => WordPress::get_post_formats(),
 				'compare_value' => fn( $args ) => PostHelper::get_format( $args ),
+				'required_args' => [ 'post_id' ],
+			],
+			'post_password_protected' => [
+				'label'         => __( 'Password Protected', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether the post is behind a password.', 'arraypress' ),
+				'compare_value' => fn( $args ) => PostHelper::is_password_protected( $args ),
+				'required_args' => [ 'post_id' ],
+			],
+			'post_menu_order' => [
+				'label'         => __( 'Menu Order', 'arraypress' ),
+				'group'         => __( 'Post', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 0', 'arraypress' ),
+				'step'          => 1,
+				'description'   => __( 'The post\'s menu order. Pages and ordered post types use it for sorting; everything else leaves it at 0.', 'arraypress' ),
+				'compare_value' => fn( $args ) => PostHelper::get_menu_order( $args ),
 				'required_args' => [ 'post_id' ],
 			],
 		];

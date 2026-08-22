@@ -15,6 +15,7 @@ namespace ArrayPress\Conditions\Conditions\EDD;
 
 use ArrayPress\Conditions\Integrations\EDD\Options;
 use ArrayPress\Conditions\Integrations\EDD\Store as StoreHelper;
+use ArrayPress\Conditions\Operators;
 
 /**
  * Class Store
@@ -130,6 +131,114 @@ class Store {
 				'units'         => fn() => Options::get_date_ranges(),
 				'description'   => __( 'Total tax collected within a time period.', 'arraypress' ),
 				'compare_value' => fn( $args ) => StoreHelper::get_tax_in_period( $args ),
+				'required_args' => [],
+			],
+
+			// Settings.
+			'edd_store_currency'          => [
+				'label'         => __( 'Currency', 'arraypress' ),
+				'group'         => __( 'Store: Settings', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select currency...', 'arraypress' ),
+				'description'   => __( 'The store\'s configured currency.', 'arraypress' ),
+				'options'       => Options::get_currencies(),
+				'operators'     => Operators::collection_any_none(),
+				'compare_value' => fn( $args ) => StoreHelper::get_currency(),
+				'required_args' => [],
+			],
+			'edd_store_base_country'      => [
+				'label'         => __( 'Base Country', 'arraypress' ),
+				'group'         => __( 'Store: Settings', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select country...', 'arraypress' ),
+				'description'   => __( 'The store\'s base country.', 'arraypress' ),
+				'options'       => Options::get_countries(),
+				'operators'     => Operators::collection_any_none(),
+				'compare_value' => fn( $args ) => StoreHelper::get_base_country(),
+				'required_args' => [],
+			],
+			'edd_store_taxes_enabled'     => [
+				'label'         => __( 'Taxes Enabled', 'arraypress' ),
+				'group'         => __( 'Store: Settings', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether tax calculation is switched on.', 'arraypress' ),
+				'compare_value' => fn( $args ) => StoreHelper::is_taxes_enabled(),
+				'required_args' => [],
+			],
+			'edd_store_test_mode'         => [
+				'label'         => __( 'Test Mode', 'arraypress' ),
+				'group'         => __( 'Store: Settings', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether the store is in test mode. Worth a guard on any blocking rule — a store in test mode is not taking real money, and a rule that refuses customers there is refusing the owner\'s own smoke test.', 'arraypress' ),
+				'compare_value' => fn( $args ) => StoreHelper::is_test_mode(),
+				'required_args' => [],
+			],
+			'edd_store_guest_checkout'    => [
+				'label'         => __( 'Guest Checkout Enabled', 'arraypress' ),
+				'group'         => __( 'Store: Settings', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether customers may check out without an account.', 'arraypress' ),
+				'compare_value' => fn( $args ) => StoreHelper::is_guest_checkout_enabled(),
+				'required_args' => [],
+			],
+			'edd_store_item_quantities'   => [
+				'label'         => __( 'Item Quantities Enabled', 'arraypress' ),
+				'group'         => __( 'Store: Settings', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether customers may buy more than one of an item.', 'arraypress' ),
+				'compare_value' => fn( $args ) => StoreHelper::is_item_quantities_enabled(),
+				'required_args' => [],
+			],
+
+			// Activity.
+			'edd_store_gateway_sales'     => [
+				'label'         => __( 'Gateway Sales', 'arraypress' ),
+				'group'         => __( 'Store', 'arraypress' ),
+				'type'          => 'number_unit',
+				'placeholder'   => __( 'stripe:100', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'units'         => fn() => Options::get_date_ranges(),
+				'description'   => __( 'Sales through one gateway within a period. Format: gateway:count — for example `stripe:100`. The gateway is the ID, not its display name.', 'arraypress' ),
+				'compare_value' => fn( $args, $value ) => StoreHelper::get_gateway_sales( $args, $value ),
+				'required_args' => [],
+			],
+			'edd_store_gateway_earnings'  => [
+				'label'         => __( 'Gateway Earnings', 'arraypress' ),
+				'group'         => __( 'Store', 'arraypress' ),
+				'type'          => 'number_unit',
+				'placeholder'   => __( 'stripe:5000.00', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'units'         => fn() => Options::get_date_ranges(),
+				'description'   => __( 'Earnings through one gateway within a period. Format: gateway:amount — for example `stripe:5000.00`.', 'arraypress' ),
+				'compare_value' => fn( $args, $value ) => StoreHelper::get_gateway_earnings( $args, $value ),
+				'required_args' => [],
+			],
+			'edd_store_discount_usage'    => [
+				'label'         => __( 'Discount Usage', 'arraypress' ),
+				'group'         => __( 'Store', 'arraypress' ),
+				'type'          => 'number_unit',
+				'placeholder'   => __( 'e.g. 100 or SAVE10:100', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'units'         => fn() => Options::get_date_ranges(),
+				'description'   => __( 'How many times discounts were used within a period. Prefix with a code to narrow it to one — `SAVE10:100` — or leave the code off to count every discount, which is what a store-wide rule about coupon abuse is asking for.', 'arraypress' ),
+				'compare_value' => fn( $args, $value ) => StoreHelper::get_discount_usage( $args, $value ),
+				'required_args' => [],
+			],
+			'edd_store_file_downloads'    => [
+				'label'         => __( 'File Downloads', 'arraypress' ),
+				'group'         => __( 'Store', 'arraypress' ),
+				'type'          => 'number_unit',
+				'placeholder'   => __( 'e.g. 1000', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'units'         => fn() => Options::get_date_ranges(),
+				'description'   => __( 'File downloads recorded across the store within a period. A spike here without a matching spike in sales is the shape of a leaked download link.', 'arraypress' ),
+				'compare_value' => fn( $args ) => StoreHelper::get_file_downloads( $args ),
 				'required_args' => [],
 			],
 		];

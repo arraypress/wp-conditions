@@ -376,4 +376,142 @@ class Cart {
 		return self::count_renewals() > 0;
 	}
 
+	/** -------------------------------------------------------------------------
+	 * State
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Whether the cart is empty.
+	 *
+	 * @return bool
+	 */
+	public static function is_empty(): bool {
+		return 0 === self::get_unique_product_count();
+	}
+
+	/**
+	 * Discount as a share of the subtotal.
+	 *
+	 * A percentage travels across price points where an amount does not: 90%
+	 * off is the same signal on a small cart as on a large one.
+	 *
+	 * @return float 0-100.
+	 */
+	public static function get_discount_percentage(): float {
+		$subtotal = self::get_subtotal();
+
+		if ( $subtotal <= 0 ) {
+			return 0.0;
+		}
+
+		return round( ( self::get_discount_amount() / $subtotal ) * 100, 2 );
+	}
+
+	/**
+	 * How many fees are on the cart.
+	 *
+	 * @return int
+	 */
+	public static function get_fee_count(): int {
+		if ( ! function_exists( 'edd_get_cart_fees' ) ) {
+			return 0;
+		}
+
+		return count( (array) edd_get_cart_fees() );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Variable pricing
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Price option IDs chosen across the cart.
+	 *
+	 * @return int[]
+	 */
+	public static function get_price_ids(): array {
+		if ( ! function_exists( 'edd_get_cart_contents' ) ) {
+			return [];
+		}
+
+		$ids = [];
+
+		foreach ( (array) edd_get_cart_contents() as $item ) {
+			if ( isset( $item['options']['price_id'] ) ) {
+				$ids[] = (int) $item['options']['price_id'];
+			}
+		}
+
+		return array_values( array_unique( $ids ) );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Age
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Ages, in days, of the products in the cart.
+	 *
+	 * @return float[]
+	 */
+	private static function get_product_ages(): array {
+		$ages = [];
+		$now  = (int) current_time( 'timestamp' );
+
+		foreach ( self::get_product_ids() as $product_id ) {
+			$published = get_post_field( 'post_date_gmt', $product_id );
+
+			if ( ! $published ) {
+				continue;
+			}
+
+			$timestamp = strtotime( $published . ' UTC' );
+
+			if ( ! $timestamp ) {
+				continue;
+			}
+
+			$ages[] = max( 0, ( $now - $timestamp ) / DAY_IN_SECONDS );
+		}
+
+		return $ages;
+	}
+
+	/**
+	 * Mean age of the products in the cart, in days.
+	 *
+	 * A basket of brand-new listings is a different thing from a basket of
+	 * catalogue staples, and the mean separates the two without a rule per
+	 * product.
+	 *
+	 * @return float
+	 */
+	public static function get_average_product_age(): float {
+		$ages = self::get_product_ages();
+
+		return empty( $ages ) ? 0.0 : round( array_sum( $ages ) / count( $ages ), 2 );
+	}
+
+	/**
+	 * Age of the newest product in the cart, in days.
+	 *
+	 * @return float
+	 */
+	public static function get_newest_product_age(): float {
+		$ages = self::get_product_ages();
+
+		return empty( $ages ) ? 0.0 : round( min( $ages ), 2 );
+	}
+
+	/**
+	 * Age of the oldest product in the cart, in days.
+	 *
+	 * @return float
+	 */
+	public static function get_oldest_product_age(): float {
+		$ages = self::get_product_ages();
+
+		return empty( $ages ) ? 0.0 : round( max( $ages ), 2 );
+	}
+
 }

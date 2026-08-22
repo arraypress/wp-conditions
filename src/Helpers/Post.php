@@ -158,6 +158,58 @@ class Post {
 	}
 
 	/**
+	 * Get the post title.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_title( array $args ): string {
+		$post = self::get( $args );
+
+		return $post ? (string) $post->post_title : '';
+	}
+
+	/**
+	 * Get the post slug.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_slug( array $args ): string {
+		$post = self::get( $args );
+
+		return $post ? (string) $post->post_name : '';
+	}
+
+	/**
+	 * Whether the post is password protected.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_password_protected( array $args ): bool {
+		$post = self::get( $args );
+
+		return $post ? '' !== (string) $post->post_password : false;
+	}
+
+	/**
+	 * Get the post's menu order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_menu_order( array $args ): int {
+		$post = self::get( $args );
+
+		return $post ? (int) $post->menu_order : 0;
+	}
+
+	/**
 	 * Get the parent post ID.
 	 *
 	 * @param array $args The condition arguments.

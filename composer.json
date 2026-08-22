@@ -1,7 +1,6 @@
 {
   "name": "arraypress/wp-conditions",
   "description": "A flexible conditions/rules engine for WordPress with admin UI, REST API search, and extensible condition types.",
-  "version": "1.0.0",
   "type": "library",
   "license": "GPL-2.0-or-later",
   "homepage": "https://github.com/arraypress/wp-conditions",
@@ -16,7 +15,7 @@
     }
   ],
   "require": {
-    "php": ">=8.0",
+    "php": ">=8.2",
     "arraypress/wp-composer-assets": "dev-main",
     "arraypress/wp-countries": "dev-main",
     "arraypress/wp-ip-utils": "dev-main",
@@ -65,7 +64,8 @@
     "phpunit/phpunit": "^11.0"
   },
   "scripts": {
-    "test": "phpunit"
+    "test": "phpunit",
+    "verify": "php bin/verify-integrations.php"
   },
   "autoload-dev": {
     "psr-4": {

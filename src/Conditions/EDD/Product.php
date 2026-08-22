@@ -512,6 +512,77 @@ class Product {
 			];
 		}
 
+		$conditions['edd_product_sku'] = [
+			'label'         => __( 'SKU', 'arraypress' ),
+			'group'         => __( 'Product', 'arraypress' ),
+			'type'          => 'text',
+			'placeholder'   => __( 'e.g. PLUGIN-', 'arraypress' ),
+			'description'   => __( 'The download\'s SKU. EDD returns a dash when SKUs are switched off; that is normalised to empty here so an "is empty" rule reads correctly.', 'arraypress' ),
+			'operators'     => Operators::text_advanced(),
+			'compare_value' => fn( $args ) => ProductHelper::get_sku( $args ),
+			'required_args' => [ 'product_id' ],
+		];
+
+		$conditions['edd_product_refund_window'] = [
+			'label'         => __( 'Refund Window', 'arraypress' ),
+			'group'         => __( 'Product', 'arraypress' ),
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 30', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 1,
+			'description'   => __( 'How many days a purchase of this download stays refundable. 0 means refunds are not time limited.', 'arraypress' ),
+			'compare_value' => fn( $args ) => ProductHelper::get_refund_window( $args ),
+			'required_args' => [ 'product_id' ],
+		];
+
+		$conditions['edd_product_lowest_price'] = [
+			'label'         => __( 'Lowest Price', 'arraypress' ),
+			'group'         => __( 'Product', 'arraypress' ),
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 9.99', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 0.01,
+			'description'   => __( 'The cheapest price option. A download without variable pricing reports its single price, which is what makes a "cheapest option under X" rule work across both kinds.', 'arraypress' ),
+			'compare_value' => fn( $args ) => ProductHelper::get_lowest_price( $args ),
+			'required_args' => [ 'product_id' ],
+		];
+
+		$conditions['edd_product_highest_price'] = [
+			'label'         => __( 'Highest Price', 'arraypress' ),
+			'group'         => __( 'Product', 'arraypress' ),
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 199.00', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 0.01,
+			'description'   => __( 'The dearest price option.', 'arraypress' ),
+			'compare_value' => fn( $args ) => ProductHelper::get_highest_price( $args ),
+			'required_args' => [ 'product_id' ],
+		];
+
+		$conditions['edd_product_price_ids'] = [
+			'label'         => __( 'Price Options', 'arraypress' ),
+			'group'         => __( 'Product', 'arraypress' ),
+			'type'          => 'text',
+			'placeholder'   => __( 'e.g. 1', 'arraypress' ),
+			'description'   => __( 'The price option IDs a variable download offers.', 'arraypress' ),
+			'operators'     => Operators::text(),
+			'compare_value' => fn( $args ) => ProductHelper::get_price_ids( $args ),
+			'required_args' => [ 'product_id' ],
+		];
+
+		$conditions['edd_product_file_downloads'] = [
+			'label'         => __( 'File Downloads', 'arraypress' ),
+			'group'         => __( 'Product', 'arraypress' ),
+			'type'          => 'number_unit',
+			'placeholder'   => __( 'e.g. 100', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 1,
+			'units'         => fn() => Options::get_date_ranges(),
+			'description'   => __( 'How many times this download\'s files have been downloaded within a period. A spike without a matching spike in sales is the shape of a leaked link.', 'arraypress' ),
+			'compare_value' => fn( $args ) => ProductHelper::get_file_downloads( $args ),
+			'required_args' => [ 'product_id' ],
+		];
+
 		return $conditions;
 	}
 

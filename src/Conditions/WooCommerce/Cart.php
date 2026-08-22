@@ -1,0 +1,527 @@
+<?php
+/**
+ * WooCommerce Cart Conditions
+ *
+ * Sub-grouped under "Cart: Money / Items / Shipping / Coupons" so the rule
+ * editor stays scannable. Group strings live in locals so re-organising a
+ * section is one edit rather than twenty.
+ *
+ * @package     ArrayPress\Conditions\Conditions\WooCommerce
+ * @copyright   Copyright (c) 2026, ArrayPress Limited
+ * @license     GPL-2.0-or-later
+ * @since       1.0.0
+ * @author      David Sherlock
+ */
+
+declare( strict_types=1 );
+
+namespace ArrayPress\Conditions\Conditions\WooCommerce;
+
+use ArrayPress\Conditions\Integrations\WooCommerce\Cart as CartHelper;
+use ArrayPress\Conditions\Integrations\WooCommerce\Options;
+use ArrayPress\Conditions\Operators;
+
+/**
+ * Class Cart
+ *
+ * Provides WooCommerce cart conditions.
+ */
+class Cart {
+
+	/**
+	 * Get all cart conditions.
+	 *
+	 * @return array<string, array>
+	 *
+	 * @since 1.0.0
+	 */
+	public static function get_all(): array {
+		$money    = __( 'Cart: Money', 'arraypress' );
+		$items    = __( 'Cart: Items', 'arraypress' );
+		$shipping = __( 'Cart: Shipping', 'arraypress' );
+		$coupons  = __( 'Cart: Coupons', 'arraypress' );
+
+		return [
+			// Money.
+			'wc_cart_total'               => [
+				'label'         => __( 'Total', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 100.00', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Final cart total including tax, shipping, fees and discounts. The usual AND-clause in a compound rule, since value is what makes an order worth stopping.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_total(),
+				'required_args' => [],
+			],
+			'wc_cart_subtotal'            => [
+				'label'         => __( 'Subtotal', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 100.00', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Cart subtotal before discounts, tax and shipping.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_subtotal(),
+				'required_args' => [],
+			],
+			'wc_cart_tax'                 => [
+				'label'         => __( 'Tax Amount', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 10.00', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Total tax on the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_tax_total(),
+				'required_args' => [],
+			],
+			'wc_cart_shipping_total'      => [
+				'label'         => __( 'Shipping Cost', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 4.95', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Shipping cost for the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_shipping_total(),
+				'required_args' => [],
+			],
+			'wc_cart_fee_total'           => [
+				'label'         => __( 'Fee Total', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 5.00', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Total of any fees added to the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_fee_total(),
+				'required_args' => [],
+			],
+			'wc_cart_discount_amount'     => [
+				'label'         => __( 'Discount Amount', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 10.00', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Total discount applied by coupons.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_discount_total(),
+				'required_args' => [],
+			],
+			'wc_cart_discount_percentage' => [
+				'label'         => __( 'Discount (%)', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 50', 'arraypress' ),
+				'min'           => 0,
+				'max'           => 100,
+				'step'          => 0.1,
+				'description'   => __( 'Discount as a share of the subtotal. A percentage travels across price points in a way an amount does not — 90% off is the same signal on a £10 cart as on a £1,000 one.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_discount_percentage(),
+				'required_args' => [],
+			],
+
+			// Items.
+			'wc_cart_quantity'            => [
+				'label'         => __( 'Total Items', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 5', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'Total quantity across every line in the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_quantity(),
+				'required_args' => [],
+			],
+			'wc_cart_unique_products'     => [
+				'label'         => __( 'Distinct Products', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'Number of distinct products, ignoring quantities. Ten of one product is one distinct product; ten different products in a single cart is the pattern worth looking at.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_item_count(),
+				'required_args' => [],
+			],
+			'wc_cart_max_line_quantity'   => [
+				'label'         => __( 'Largest Line Quantity', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 20', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'Highest quantity on any single line. Catches bulk-buying one item without firing on a large mixed cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_max_line_quantity(),
+				'required_args' => [],
+			],
+			'wc_cart_products'            => [
+				'label'         => __( 'Products', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'ajax',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search products...', 'arraypress' ),
+				'description'   => __( 'Whether specific products are in the cart.', 'arraypress' ),
+				'operators'     => Operators::collection(),
+				'ajax'          => fn( ?string $search, ?array $ids ): array => Options::get_product_options( $search, $ids ),
+				'compare_value' => fn( $args ) => CartHelper::get_product_ids(),
+				'required_args' => [],
+			],
+			'wc_cart_categories'          => [
+				'label'         => __( 'Categories', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'term',
+				'taxonomy'      => 'product_cat',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search categories...', 'arraypress' ),
+				'description'   => __( 'Categories of the products in the cart.', 'arraypress' ),
+				'operators'     => Operators::collection(),
+				'compare_value' => fn( $args ) => CartHelper::get_term_ids( 'product_cat' ),
+				'required_args' => [],
+			],
+			'wc_cart_tags'                => [
+				'label'         => __( 'Tags', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'term',
+				'taxonomy'      => 'product_tag',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search tags...', 'arraypress' ),
+				'description'   => __( 'Tags of the products in the cart.', 'arraypress' ),
+				'operators'     => Operators::collection(),
+				'compare_value' => fn( $args ) => CartHelper::get_term_ids( 'product_tag' ),
+				'required_args' => [],
+			],
+			'wc_cart_product_types'       => [
+				'label'         => __( 'Product Types', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select types...', 'arraypress' ),
+				'description'   => __( 'Product types present in the cart.', 'arraypress' ),
+				'options'       => Options::get_product_types(),
+				'operators'     => Operators::collection(),
+				'compare_value' => fn( $args ) => CartHelper::get_product_types(),
+				'required_args' => [],
+			],
+
+			// Shipping.
+			'wc_cart_weight'              => [
+				'label'         => __( 'Weight', 'arraypress' ),
+				'group'         => $shipping,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 20', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Total cart weight, in the store\'s configured weight unit.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_weight(),
+				'required_args' => [],
+			],
+			'wc_cart_needs_shipping'      => [
+				'label'         => __( 'Needs Shipping', 'arraypress' ),
+				'group'         => $shipping,
+				'type'          => 'boolean',
+				'description'   => __( 'Whether anything in the cart has to be shipped.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::needs_shipping(),
+				'required_args' => [],
+			],
+			'wc_cart_is_virtual'          => [
+				'label'         => __( 'All Virtual', 'arraypress' ),
+				'group'         => $shipping,
+				'type'          => 'boolean',
+				'description'   => __( 'Whether every line in the cart is virtual. An all-virtual cart never collects a shipping address, which changes what an address mismatch means.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::is_virtual(),
+				'required_args' => [],
+			],
+			'wc_cart_is_downloadable'     => [
+				'label'         => __( 'All Downloadable', 'arraypress' ),
+				'group'         => $shipping,
+				'type'          => 'boolean',
+				'description'   => __( 'Whether every line in the cart is downloadable. Instant delivery leaves no window to cancel, so these carts carry more risk than physical ones.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::is_downloadable(),
+				'required_args' => [],
+			],
+
+			// Coupons.
+			'wc_cart_coupons'             => [
+				'label'         => __( 'Coupons', 'arraypress' ),
+				'group'         => $coupons,
+				'type'          => 'ajax',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search coupons...', 'arraypress' ),
+				'description'   => __( 'Coupon codes applied to the cart.', 'arraypress' ),
+				'operators'     => Operators::collection(),
+				'ajax'          => fn( ?string $search, ?array $ids ): array => Options::get_coupon_options( $search, $ids ),
+				'compare_value' => fn( $args ) => CartHelper::get_coupons(),
+				'required_args' => [],
+			],
+			'wc_cart_coupon_count'        => [
+				'label'         => __( 'Coupon Count', 'arraypress' ),
+				'group'         => $coupons,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 2', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'How many coupons are applied. Stacking several is unusual outside a deliberate promotion.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_coupon_count(),
+				'required_args' => [],
+			],
+			'wc_cart_has_coupon'          => [
+				'label'         => __( 'Coupon Applied', 'arraypress' ),
+				'group'         => $coupons,
+				'type'          => 'boolean',
+				'description'   => __( 'Whether any coupon is applied to the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_coupon_count() > 0,
+				'required_args' => [],
+			],
+
+			// Money — fees and shipping in their own right.
+			'wc_cart_contents_total'      => [
+				'label'         => __( 'Line Total', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 100.00', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Total of the lines alone, before discounts, tax, shipping and fees.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_contents_total(),
+				'required_args' => [],
+			],
+			'wc_cart_shipping_tax'        => [
+				'label'         => __( 'Shipping Tax', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 0.99', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Tax charged on shipping, separate from the shipping cost itself.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_shipping_tax(),
+				'required_args' => [],
+			],
+			'wc_cart_shipping_percentage' => [
+				'label'         => __( 'Shipping (% of Subtotal)', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 50', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.1,
+				'description'   => __( 'Shipping as a share of the subtotal. Delivery costing more than the goods is worth a rule of its own, and the ratio says that where an amount cannot.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_shipping_percentage(),
+				'required_args' => [],
+			],
+			'wc_cart_fee_tax'             => [
+				'label'         => __( 'Fee Tax', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 0.50', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Tax charged on fees.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_fee_tax(),
+				'required_args' => [],
+			],
+			'wc_cart_fee_count'           => [
+				'label'         => __( 'Fee Count', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 1', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'How many separate fees have been added to the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_fee_count(),
+				'required_args' => [],
+			],
+
+			// Items — state and variations.
+			'wc_cart_is_empty'            => [
+				'label'         => __( 'Empty', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'boolean',
+				'description'   => __( 'Whether the cart has nothing in it.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::is_empty(),
+				'required_args' => [],
+			],
+			'wc_cart_variation_count'     => [
+				'label'         => __( 'Variation Count', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 2', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'How many distinct variations are in the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_variation_count(),
+				'required_args' => [],
+			],
+			'wc_cart_has_variations'      => [
+				'label'         => __( 'Contains Variations', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'boolean',
+				'description'   => __( 'Whether anything in the cart is a variation rather than a simple product.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::has_variations(),
+				'required_args' => [],
+			],
+			'wc_cart_variation_attribute' => [
+				'label'         => __( 'Variation Attribute', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'text',
+				'placeholder'   => __( 'pa_size:large', 'arraypress' ),
+				'description'   => __( 'Match a chosen variation attribute across the cart. Format: attribute:value — for example `pa_size:large` or `pa_colour:black`. The attribute name is the taxonomy, with or without its pa_ prefix.', 'arraypress' ),
+				'operators'     => Operators::text(),
+				'compare_value' => fn( $args, $value ) => CartHelper::get_variation_attribute_from_rule( $value ),
+				'required_args' => [],
+			],
+			'wc_cart_has_on_sale_item'    => [
+				'label'         => __( 'Contains On-Sale Item', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'boolean',
+				'description'   => __( 'Whether anything in the cart is on sale.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::has_on_sale_item(),
+				'required_args' => [],
+			],
+			'wc_cart_has_backordered_item' => [
+				'label'         => __( 'Contains Backordered Item', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'boolean',
+				'description'   => __( 'Whether anything in the cart is on backorder.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::has_backordered_item(),
+				'required_args' => [],
+			],
+
+			// Items — age of what is in the cart.
+			'wc_cart_average_product_age' => [
+				'label'         => __( 'Average Product Age', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'Mean age in days of the products in the cart. A basket of brand-new listings is a different thing from a basket of catalogue staples, and the mean separates the two without a rule per product.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_average_product_age(),
+				'required_args' => [],
+			],
+			'wc_cart_newest_product_age'  => [
+				'label'         => __( 'Newest Product Age', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 1', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'Age in days of the most recently published product in the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_newest_product_age(),
+				'required_args' => [],
+			],
+			'wc_cart_oldest_product_age'  => [
+				'label'         => __( 'Oldest Product Age', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 365', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'Age in days of the longest-published product in the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_oldest_product_age(),
+				'required_args' => [],
+			],
+
+			// Shipping — size and classes.
+			'wc_cart_volume'              => [
+				'label'         => __( 'Volume', 'arraypress' ),
+				'group'         => $shipping,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 50000', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Total volume of the cart with quantities counted, in the store\'s dimension unit cubed. Lines missing a dimension contribute nothing rather than collapsing the figure to zero.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_volume(),
+				'required_args' => [],
+			],
+			'wc_cart_max_dimension'       => [
+				'label'         => __( 'Longest Dimension', 'arraypress' ),
+				'group'         => $shipping,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 120', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'The longest single side anywhere in the cart. Carriers price oversize on one item\'s longest side, not on the total.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_max_dimension(),
+				'required_args' => [],
+			],
+			'wc_cart_max_weight'          => [
+				'label'         => __( 'Heaviest Item', 'arraypress' ),
+				'group'         => $shipping,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 30', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Per-unit weight of the heaviest item in the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_max_weight(),
+				'required_args' => [],
+			],
+			'wc_cart_shipping_classes'    => [
+				'label'         => __( 'Shipping Classes', 'arraypress' ),
+				'group'         => $shipping,
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select shipping class...', 'arraypress' ),
+				'description'   => __( 'Shipping classes present in the cart. Products with no class contribute nothing, so an "is none of" rule is not satisfied by their blank.', 'arraypress' ),
+				'options'       => Options::get_shipping_class_slugs(),
+				'operators'     => Operators::collection(),
+				'compare_value' => fn( $args ) => CartHelper::get_shipping_classes(),
+				'required_args' => [],
+			],
+			'wc_cart_needs_shipping_address' => [
+				'label'         => __( 'Needs Shipping Address', 'arraypress' ),
+				'group'         => $shipping,
+				'type'          => 'boolean',
+				'description'   => __( 'Whether an address is actually collected. Narrower than Needs Shipping — a local-pickup-only cart ships but never asks for one.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::needs_shipping_address(),
+				'required_args' => [],
+			],
+
+			// Tax.
+			'wc_cart_tax_classes'         => [
+				'label'         => __( 'Tax Classes', 'arraypress' ),
+				'group'         => __( 'Cart: Tax', 'arraypress' ),
+				'type'          => 'select',
+				'multiple'      => true,
+				'placeholder'   => __( 'Select tax class...', 'arraypress' ),
+				'description'   => __( 'Tax classes present in the cart. WooCommerce stores the standard class as a blank slug; it is reported here as "standard" so a rule can name it.', 'arraypress' ),
+				'options'       => Options::get_tax_class_slugs(),
+				'operators'     => Operators::collection(),
+				'compare_value' => fn( $args ) => CartHelper::get_tax_classes(),
+				'required_args' => [],
+			],
+			'wc_cart_has_taxable_item'    => [
+				'label'         => __( 'Contains Taxable Item', 'arraypress' ),
+				'group'         => __( 'Cart: Tax', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether anything in the cart is taxable.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::has_taxable_item(),
+				'required_args' => [],
+			],
+
+			'wc_cart_variations'          => [
+				'label'         => __( 'Variations', 'arraypress' ),
+				'group'         => $items,
+				'type'          => 'ajax',
+				'multiple'      => true,
+				'placeholder'   => __( 'Search variations...', 'arraypress' ),
+				'description'   => __( 'Whether specific variations are in the cart. Distinct from Products, which matches the parent regardless of which variation was chosen.', 'arraypress' ),
+				'operators'     => Operators::collection(),
+				'ajax'          => fn( ?string $search, ?array $ids ): array => Options::get_variation_options( $search, $ids ),
+				'compare_value' => fn( $args ) => CartHelper::get_variation_ids(),
+				'required_args' => [],
+			],
+			'wc_cart_shipping_inc_tax'    => [
+				'label'         => __( 'Shipping Cost (inc. Tax)', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 5.94', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'Shipping cost with its tax included — what the customer actually pays for delivery.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_shipping_total_inc_tax(),
+				'required_args' => [],
+			],
+		];
+	}
+}

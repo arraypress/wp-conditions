@@ -117,6 +117,45 @@ class Checkout {
 				'compare_value' => fn( $args ) => CheckoutHelper::get_postcode( $args ),
 				'required_args' => [],
 			],
+
+			'edd_checkout_address'        => [
+				'label'         => __( 'Address', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'text',
+				'placeholder'   => __( 'e.g. PO Box', 'arraypress' ),
+				'description'   => __( 'The first line of the billing address entered at checkout.', 'arraypress' ),
+				'operators'     => Operators::text_advanced(),
+				'compare_value' => fn( $args ) => CheckoutHelper::get_address( $args ),
+				'required_args' => [],
+			],
+			'edd_checkout_address_2'      => [
+				'label'         => __( 'Address Line 2', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'text',
+				'placeholder'   => __( 'e.g. Apt', 'arraypress' ),
+				'description'   => __( 'The second line of the billing address entered at checkout.', 'arraypress' ),
+				'operators'     => Operators::text_advanced(),
+				'compare_value' => fn( $args ) => CheckoutHelper::get_address_2( $args ),
+				'required_args' => [],
+			],
+			'edd_checkout_discount_code'  => [
+				'label'         => __( 'Discount Code', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'text',
+				'placeholder'   => __( 'e.g. SAVE10', 'arraypress' ),
+				'description'   => __( 'The discount code entered at checkout, before it has been validated or applied.', 'arraypress' ),
+				'operators'     => Operators::text_advanced(),
+				'compare_value' => fn( $args ) => CheckoutHelper::get_discount_code( $args ),
+				'required_args' => [],
+			],
+			'edd_checkout_has_discount'   => [
+				'label'         => __( 'Discount Entered', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether any discount code was entered at checkout.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CheckoutHelper::has_discount_code( $args ),
+				'required_args' => [],
+			],
 		];
 	}
 
