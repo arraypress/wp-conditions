@@ -54,16 +54,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/ipinfo.git",
-                "reference": "c726e33b0007ee6f0779a19db72bdf714636b7ce"
+                "reference": "3dcd902565f7dc3851537e0e0df02e621312c0c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/ipinfo/zipball/c726e33b0007ee6f0779a19db72bdf714636b7ce",
-                "reference": "c726e33b0007ee6f0779a19db72bdf714636b7ce",
+                "url": "https://api.github.com/repos/arraypress/ipinfo/zipball/3dcd902565f7dc3851537e0e0df02e621312c0c4",
+                "reference": "3dcd902565f7dc3851537e0e0df02e621312c0c4",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.4"
+                "php": ">=8.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0"
             },
             "default-branch": true,
             "type": "library",
@@ -101,7 +104,7 @@
                 "issues": "https://github.com/arraypress/ipinfo/issues",
                 "source": "https://github.com/arraypress/ipinfo"
             },
-            "time": "2024-12-21T21:35:18+00:00"
+            "time": "2026-08-22T15:37:27+00:00"
         },
         {
             "name": "arraypress/ipqualityscore",
@@ -109,16 +112,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/ipqualityscore.git",
-                "reference": "89e905d222a7434de59b95470b3acfd259a1dc1d"
+                "reference": "451c3d109816d78ad428da392761f157cee558d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/ipqualityscore/zipball/89e905d222a7434de59b95470b3acfd259a1dc1d",
-                "reference": "89e905d222a7434de59b95470b3acfd259a1dc1d",
+                "url": "https://api.github.com/repos/arraypress/ipqualityscore/zipball/451c3d109816d78ad428da392761f157cee558d2",
+                "reference": "451c3d109816d78ad428da392761f157cee558d2",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.4"
+                "php": ">=8.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0"
             },
             "default-branch": true,
             "type": "library",
@@ -163,7 +169,7 @@
                 "issues": "https://github.com/arraypress/ipqualityscore/issues",
                 "source": "https://github.com/arraypress/ipqualityscore"
             },
-            "time": "2025-01-06T17:39:52+00:00"
+            "time": "2026-08-22T15:40:54+00:00"
         },
         {
             "name": "arraypress/proxycheck",
@@ -171,16 +177,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/proxycheck.git",
-                "reference": "99bc75ebacaba48435a10e64d2309f3b5c283939"
+                "reference": "4c930c3ade3eff5d57801b5d370bf67d42523728"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/proxycheck/zipball/99bc75ebacaba48435a10e64d2309f3b5c283939",
-                "reference": "99bc75ebacaba48435a10e64d2309f3b5c283939",
+                "url": "https://api.github.com/repos/arraypress/proxycheck/zipball/4c930c3ade3eff5d57801b5d370bf67d42523728",
+                "reference": "4c930c3ade3eff5d57801b5d370bf67d42523728",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.4"
+                "php": ">=8.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0"
             },
             "default-branch": true,
             "type": "library",
@@ -221,7 +230,7 @@
                 "issues": "https://github.com/arraypress/proxycheck/issues",
                 "source": "https://github.com/arraypress/proxycheck"
             },
-            "time": "2025-01-06T17:39:52+00:00"
+            "time": "2026-08-22T15:33:38+00:00"
         },
         {
             "name": "arraypress/wp-accept-language-utils",
