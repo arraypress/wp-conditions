@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4ee4daa055cd9114059de2fa66efb8f1",
+    "content-hash": "14039fa208e0fd17aaea45406a161203",
     "packages": [
         {
-            "name": "arraypress/abuseipdb",
+            "name": "arraypress/wp-abuseipdb",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/arraypress/abuseipdb.git",
-                "reference": "0135b3e7c94990d7042c88fffce5d33460414288"
+                "url": "https://github.com/arraypress/wp-abuseipdb.git",
+                "reference": "b1360d1849d620e1c2c76116348648e17798933a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/abuseipdb/zipball/0135b3e7c94990d7042c88fffce5d33460414288",
-                "reference": "0135b3e7c94990d7042c88fffce5d33460414288",
+                "url": "https://api.github.com/repos/arraypress/wp-abuseipdb/zipball/b1360d1849d620e1c2c76116348648e17798933a",
+                "reference": "b1360d1849d620e1c2c76116348648e17798933a",
                 "shasum": ""
             },
             "require": {
@@ -33,7 +33,16 @@
                     "ArrayPress\\AbuseIPDB\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "ArrayPress\\AbuseIPDB\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -44,196 +53,12 @@
                 }
             ],
             "description": "A PHP library for integrating with the AbuseIPDB Check API in WordPress, providing community-sourced IP abuse confidence scores (0-100) and report counts. Free tier supports ~1k checks/day. Built around WordPress's HTTP API with transient caching.",
-            "homepage": "https://github.com/arraypress/abuseipdb/",
+            "homepage": "https://github.com/arraypress/wp-abuseipdb/",
             "support": {
-                "issues": "https://github.com/arraypress/abuseipdb/issues",
-                "source": "https://github.com/arraypress/abuseipdb/tree/main"
+                "source": "https://github.com/arraypress/wp-abuseipdb/tree/main",
+                "issues": "https://github.com/arraypress/wp-abuseipdb/issues"
             },
-            "time": "2026-08-22T15:17:57+00:00"
-        },
-        {
-            "name": "arraypress/ipinfo",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/arraypress/ipinfo.git",
-                "reference": "3dcd902565f7dc3851537e0e0df02e621312c0c4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/ipinfo/zipball/3dcd902565f7dc3851537e0e0df02e621312c0c4",
-                "reference": "3dcd902565f7dc3851537e0e0df02e621312c0c4",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^11.0"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "ArrayPress\\IPInfo\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "David Sherlock",
-                    "homepage": "https://arraypress.com/"
-                }
-            ],
-            "description": "A PHP library for integrating with the IPInfo.io API in WordPress, providing geolocation, ASN data, privacy detection, and hosting information. Features plan-aware responses and WordPress transient caching.",
-            "homepage": "https://github.com/arraypress/ipinfo/",
-            "keywords": [
-                "asn",
-                "geolocation",
-                "hosting-detection",
-                "ip-geolocation",
-                "ip-information",
-                "ip-lookup",
-                "ipinfo",
-                "privacy-detection",
-                "proxy-detection",
-                "vpn-detection",
-                "wordpress"
-            ],
-            "support": {
-                "issues": "https://github.com/arraypress/ipinfo/issues",
-                "source": "https://github.com/arraypress/ipinfo"
-            },
-            "time": "2026-08-22T15:37:27+00:00"
-        },
-        {
-            "name": "arraypress/ipqualityscore",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/arraypress/ipqualityscore.git",
-                "reference": "46fe84cb273872fb7e8aebd545e1b11aa6f5f8db"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/ipqualityscore/zipball/46fe84cb273872fb7e8aebd545e1b11aa6f5f8db",
-                "reference": "46fe84cb273872fb7e8aebd545e1b11aa6f5f8db",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.3"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^12.0"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "ArrayPress\\IPQualityScore\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "David Sherlock",
-                    "homepage": "https://arraypress.com/"
-                }
-            ],
-            "description": "A PHP library for integrating with the IPQualityScore API in WordPress, providing proxy, VPN & email validation, phone verification, dark web monitoring, URL scanning, and fraud prevention. Features comprehensive response handling and WordPress transient caching.",
-            "homepage": "https://github.com/arraypress/ipqualityscore/",
-            "keywords": [
-                "anti-fraud",
-                "asn",
-                "dark-web-monitoring",
-                "data-breach",
-                "email-validation",
-                "email-verification",
-                "fraud-prevention",
-                "ip-lookup",
-                "ipqualityscore",
-                "leak-detection",
-                "phone-verification",
-                "proxy-detection",
-                "security",
-                "threat-detection",
-                "transaction-scoring",
-                "url-scanning",
-                "vpn-detection",
-                "wordpress"
-            ],
-            "support": {
-                "issues": "https://github.com/arraypress/ipqualityscore/issues",
-                "source": "https://github.com/arraypress/ipqualityscore"
-            },
-            "time": "2026-08-23T14:39:58+00:00"
-        },
-        {
-            "name": "arraypress/proxycheck",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/arraypress/proxycheck.git",
-                "reference": "4c930c3ade3eff5d57801b5d370bf67d42523728"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/proxycheck/zipball/4c930c3ade3eff5d57801b5d370bf67d42523728",
-                "reference": "4c930c3ade3eff5d57801b5d370bf67d42523728",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^11.0"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "ArrayPress\\ProxyCheck\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "David Sherlock",
-                    "homepage": "https://arraypress.com/"
-                }
-            ],
-            "description": "A PHP library for integrating with the ProxyCheck.io API in WordPress, providing proxy & VPN detection, disposable email verification, geolocation, and risk assessment. Features comprehensive response handling and WordPress transient caching.",
-            "homepage": "https://github.com/arraypress/proxycheck/",
-            "keywords": [
-                "anti-fraud",
-                "asn",
-                "disposable-email",
-                "email-verification",
-                "geolocation",
-                "ip-intelligence",
-                "ip-lookup",
-                "proxy-detection",
-                "proxycheck",
-                "risk-assessment",
-                "security",
-                "threat-detection",
-                "vpn-detection",
-                "wordpress"
-            ],
-            "support": {
-                "issues": "https://github.com/arraypress/proxycheck/issues",
-                "source": "https://github.com/arraypress/proxycheck"
-            },
-            "time": "2026-08-22T15:33:38+00:00"
+            "time": "2026-08-23T14:47:13+00:00"
         },
         {
             "name": "arraypress/wp-accept-language-utils",
@@ -583,6 +408,217 @@
                 "source": "https://github.com/arraypress/wp-utils-ip"
             },
             "time": "2026-08-23T14:40:12+00:00"
+        },
+        {
+            "name": "arraypress/wp-ipinfo",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arraypress/wp-ipinfo.git",
+                "reference": "8c9744ead79e76a6494673d555bbbef0f61edb77"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arraypress/wp-ipinfo/zipball/8c9744ead79e76a6494673d555bbbef0f61edb77",
+                "reference": "8c9744ead79e76a6494673d555bbbef0f61edb77",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ArrayPress\\IPInfo\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "ArrayPress\\IPInfo\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "David Sherlock",
+                    "homepage": "https://arraypress.com/"
+                }
+            ],
+            "description": "A PHP library for integrating with the IPInfo.io API in WordPress, providing geolocation, ASN data, privacy detection, and hosting information. Features plan-aware responses and WordPress transient caching.",
+            "homepage": "https://github.com/arraypress/wp-ipinfo/",
+            "keywords": [
+                "asn",
+                "geolocation",
+                "hosting-detection",
+                "ip-geolocation",
+                "ip-information",
+                "ip-lookup",
+                "ipinfo",
+                "privacy-detection",
+                "proxy-detection",
+                "vpn-detection",
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/arraypress/wp-ipinfo/issues",
+                "source": "https://github.com/arraypress/wp-ipinfo"
+            },
+            "time": "2026-08-23T14:47:09+00:00"
+        },
+        {
+            "name": "arraypress/wp-ipqualityscore",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arraypress/wp-ipqualityscore.git",
+                "reference": "4a8d251860935883a7e815b54e2b610c02d859b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arraypress/wp-ipqualityscore/zipball/4a8d251860935883a7e815b54e2b610c02d859b8",
+                "reference": "4a8d251860935883a7e815b54e2b610c02d859b8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^12.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ArrayPress\\IPQualityScore\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "ArrayPress\\IPQualityScore\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "David Sherlock",
+                    "homepage": "https://arraypress.com/"
+                }
+            ],
+            "description": "A PHP library for integrating with the IPQualityScore API in WordPress, providing proxy, VPN & email validation, phone verification, dark web monitoring, URL scanning, and fraud prevention. Features comprehensive response handling and WordPress transient caching.",
+            "homepage": "https://github.com/arraypress/wp-ipqualityscore/",
+            "keywords": [
+                "anti-fraud",
+                "asn",
+                "dark-web-monitoring",
+                "data-breach",
+                "email-validation",
+                "email-verification",
+                "fraud-prevention",
+                "ip-lookup",
+                "ipqualityscore",
+                "leak-detection",
+                "phone-verification",
+                "proxy-detection",
+                "security",
+                "threat-detection",
+                "transaction-scoring",
+                "url-scanning",
+                "vpn-detection",
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/arraypress/wp-ipqualityscore/issues",
+                "source": "https://github.com/arraypress/wp-ipqualityscore"
+            },
+            "time": "2026-08-23T14:47:07+00:00"
+        },
+        {
+            "name": "arraypress/wp-proxycheck",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arraypress/wp-proxycheck.git",
+                "reference": "d424cc077729285d9933889281ac1140c9d692d3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arraypress/wp-proxycheck/zipball/d424cc077729285d9933889281ac1140c9d692d3",
+                "reference": "d424cc077729285d9933889281ac1140c9d692d3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ArrayPress\\ProxyCheck\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "ArrayPress\\ProxyCheck\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "David Sherlock",
+                    "homepage": "https://arraypress.com/"
+                }
+            ],
+            "description": "A PHP library for integrating with the ProxyCheck.io API in WordPress, providing proxy & VPN detection, disposable email verification, geolocation, and risk assessment. Features comprehensive response handling and WordPress transient caching.",
+            "homepage": "https://github.com/arraypress/wp-proxycheck/",
+            "keywords": [
+                "anti-fraud",
+                "asn",
+                "disposable-email",
+                "email-verification",
+                "geolocation",
+                "ip-intelligence",
+                "ip-lookup",
+                "proxy-detection",
+                "proxycheck",
+                "risk-assessment",
+                "security",
+                "threat-detection",
+                "vpn-detection",
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/arraypress/wp-proxycheck/issues",
+                "source": "https://github.com/arraypress/wp-proxycheck"
+            },
+            "time": "2026-08-23T14:47:11+00:00"
         },
         {
             "name": "arraypress/wp-referrer-utils",
@@ -3120,16 +3156,16 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "arraypress/abuseipdb": 20,
-        "arraypress/ipinfo": 20,
-        "arraypress/ipqualityscore": 20,
-        "arraypress/proxycheck": 20,
+        "arraypress/wp-abuseipdb": 20,
         "arraypress/wp-accept-language-utils": 20,
         "arraypress/wp-array-utils": 20,
         "arraypress/wp-composer-assets": 20,
         "arraypress/wp-countries": 20,
         "arraypress/wp-email-utils": 20,
         "arraypress/wp-ip-utils": 20,
+        "arraypress/wp-ipinfo": 20,
+        "arraypress/wp-ipqualityscore": 20,
+        "arraypress/wp-proxycheck": 20,
         "arraypress/wp-referrer-utils": 20,
         "arraypress/wp-string-utils": 20,
         "arraypress/wp-timezones": 20,
