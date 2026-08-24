@@ -52,22 +52,34 @@ final class WooCommerceStoreTest extends TestCase {
 	}
 
 	/**
-	 * Every preset the editor offers has to be one the resolver knows. An
-	 * unknown one falls through to today, which reports a plausible figure for
-	 * the wrong period -- the kind of wrong that never looks wrong.
+	 * Every preset the editor offers has to be one the resolver knows.
+	 *
+	 * An unknown one falls through to the default, which is today — a
+	 * plausible figure for the wrong period, which is the kind of wrong that
+	 * never looks wrong.
+	 *
+	 * Checked by reading the resolver's own cases rather than by comparing
+	 * its output with today's. That comparison was date-dependent and failed
+	 * every Monday: "this week" legitimately covers today alone on the first
+	 * day of the week, as "this month" does on the 1st and "this year" on
+	 * January 1st, and no comparison of output can tell that apart from a
+	 * range the resolver has never heard of.
 	 */
 	public function test_every_offered_range_is_one_the_resolver_knows(): void {
-		$today = Stats::get_date_range( 'today' );
+		$source = (string) file_get_contents(
+			dirname( __DIR__ ) . '/src/Integrations/WooCommerce/Stats.php'
+		);
+
+		preg_match_all( "/case '([a-z0-9_]+)':/", $source, $cases );
+
+		// `today` is the switch's default rather than a case of its own.
+		$known = array_merge( $cases[1], [ 'today' ] );
 
 		foreach ( array_column( Options::get_date_ranges(), 'value' ) as $range ) {
-			if ( 'today' === $range ) {
-				continue;
-			}
-
-			$this->assertNotSame(
-				$today,
-				Stats::get_date_range( $range ),
-				"$range resolves to today's dates, so the resolver does not know it"
+			$this->assertContains(
+				$range,
+				$known,
+				"$range is offered but the resolver has no case for it, so it resolves to today"
 			);
 		}
 	}
