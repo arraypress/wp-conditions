@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "14039fa208e0fd17aaea45406a161203",
+    "content-hash": "757b7fc099b5e3fdf1129a05d31ff157",
     "packages": [
         {
             "name": "arraypress/wp-abuseipdb",
@@ -730,61 +730,6 @@
                 "source": "https://github.com/arraypress/wp-string-utils"
             },
             "time": "2026-08-22T15:21:41+00:00"
-        },
-        {
-            "name": "arraypress/wp-timezones",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/arraypress/wp-timezones.git",
-                "reference": "d7dd27f1ba0756c1b2527399c920be32188bedfa"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-timezones/zipball/d7dd27f1ba0756c1b2527399c920be32188bedfa",
-                "reference": "d7dd27f1ba0756c1b2527399c920be32188bedfa",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.2"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/Functions.php"
-                ],
-                "psr-4": {
-                    "ArrayPress\\Timezones\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "David Sherlock",
-                    "homepage": "https://arraypress.com/"
-                }
-            ],
-            "description": "A lightweight WordPress library for working with timezone data and utilities.",
-            "homepage": "https://github.com/arraypress/wp-timezones",
-            "keywords": [
-                "arraypress",
-                "datetime",
-                "regions",
-                "timezone",
-                "timezones",
-                "utc",
-                "wordpress",
-                "wp"
-            ],
-            "support": {
-                "issues": "https://github.com/arraypress/wp-timezones/issues",
-                "source": "https://github.com/arraypress/wp-timezones"
-            },
-            "time": "2026-08-22T15:21:45+00:00"
         },
         {
             "name": "arraypress/wp-user-agent-utils",
@@ -3168,7 +3113,6 @@
         "arraypress/wp-proxycheck": 20,
         "arraypress/wp-referrer-utils": 20,
         "arraypress/wp-string-utils": 20,
-        "arraypress/wp-timezones": 20,
         "arraypress/wp-user-agent-utils": 20
     },
     "prefer-stable": true,
