@@ -28,7 +28,6 @@
     "arraypress/wp-proxycheck": "dev-main",
     "arraypress/wp-referrer-utils": "dev-main",
     "arraypress/wp-string-utils": "dev-main",
-    "arraypress/wp-timezones": "dev-main",
     "arraypress/wp-user-agent-utils": "dev-main"
   },
   "autoload": {
