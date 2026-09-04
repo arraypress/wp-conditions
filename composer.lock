@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "566db0449701fd2920bcd985ff0f0f50",
+    "content-hash": "c9a1a24a08dabd87275c7e25ade1ee45",
     "packages": [
         {
             "name": "arraypress/email-blocklist",
-            "version": "v1.0.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/email-blocklist.git",
-                "reference": "0d2c6c575c50ca7c24caef8dc4cad42d50895a45"
+                "reference": "f4820436ad20e6de751eb70eef1871cec387d879"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/email-blocklist/zipball/0d2c6c575c50ca7c24caef8dc4cad42d50895a45",
-                "reference": "0d2c6c575c50ca7c24caef8dc4cad42d50895a45",
+                "url": "https://api.github.com/repos/arraypress/email-blocklist/zipball/f4820436ad20e6de751eb70eef1871cec387d879",
+                "reference": "f4820436ad20e6de751eb70eef1871cec387d879",
                 "shasum": ""
             },
             "require": {
@@ -29,6 +29,7 @@
                 "squizlabs/php_codesniffer": "^3.13.5",
                 "wp-coding-standards/wpcs": "^3.4"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "files": [
@@ -61,7 +62,7 @@
                 "issues": "https://github.com/arraypress/email-blocklist/issues",
                 "source": "https://github.com/arraypress/email-blocklist"
             },
-            "time": "2026-08-25T20:59:18+00:00"
+            "time": "2026-08-30T02:45:35+00:00"
         },
         {
             "name": "arraypress/wp-abuseipdb",
@@ -3255,6 +3256,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "arraypress/email-blocklist": 20,
         "arraypress/wp-abuseipdb": 20,
         "arraypress/wp-accept-language-utils": 20,
         "arraypress/wp-array-utils": 20,

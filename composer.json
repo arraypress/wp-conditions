@@ -16,7 +16,7 @@
   ],
   "require": {
     "php": ">=8.3",
-    "arraypress/email-blocklist": "^1.0",
+    "arraypress/email-blocklist": "dev-main",
     "arraypress/wp-abuseipdb": "dev-main",
     "arraypress/wp-accept-language-utils": "dev-main",
     "arraypress/wp-array-utils": "dev-main",
