@@ -4,27 +4,87 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "757b7fc099b5e3fdf1129a05d31ff157",
+    "content-hash": "566db0449701fd2920bcd985ff0f0f50",
     "packages": [
+        {
+            "name": "arraypress/email-blocklist",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arraypress/email-blocklist.git",
+                "reference": "0d2c6c575c50ca7c24caef8dc4cad42d50895a45"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arraypress/email-blocklist/zipball/0d2c6c575c50ca7c24caef8dc4cad42d50895a45",
+                "reference": "0d2c6c575c50ca7c24caef8dc4cad42d50895a45",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/Functions.php"
+                ],
+                "psr-4": {
+                    "ArrayPress\\EmailBlocklist\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "David Sherlock",
+                    "homepage": "https://arraypress.com/"
+                }
+            ],
+            "description": "A simple, efficient library for checking email addresses against disposable email provider lists.",
+            "homepage": "https://github.com/arraypress/email-blocklist",
+            "keywords": [
+                "blocklist",
+                "disposable",
+                "email",
+                "spam",
+                "validation"
+            ],
+            "support": {
+                "issues": "https://github.com/arraypress/email-blocklist/issues",
+                "source": "https://github.com/arraypress/email-blocklist"
+            },
+            "time": "2026-08-25T20:59:18+00:00"
+        },
         {
             "name": "arraypress/wp-abuseipdb",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/arraypress/wp-abuseipdb.git",
-                "reference": "b1360d1849d620e1c2c76116348648e17798933a"
+                "url": "git@github.com:arraypress/wp-abuseipdb.git",
+                "reference": "042ebbb4ca528907e028ec9fa443ae5f93a02b7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-abuseipdb/zipball/b1360d1849d620e1c2c76116348648e17798933a",
-                "reference": "b1360d1849d620e1c2c76116348648e17798933a",
+                "url": "https://api.github.com/repos/arraypress/wp-abuseipdb/zipball/042ebbb4ca528907e028ec9fa443ae5f93a02b7b",
+                "reference": "042ebbb4ca528907e028ec9fa443ae5f93a02b7b",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^11.0"
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
             },
             "default-branch": true,
             "type": "library",
@@ -41,6 +101,15 @@
             "scripts": {
                 "test": [
                     "phpunit"
+                ],
+                "lint": [
+                    "phpcs"
+                ],
+                "format": [
+                    "phpcbf --standard=phpcs-format.xml.dist"
+                ],
+                "format:check": [
+                    "phpcs --standard=phpcs-format.xml.dist"
                 ]
             },
             "license": [
@@ -54,11 +123,7 @@
             ],
             "description": "A PHP library for integrating with the AbuseIPDB Check API in WordPress, providing community-sourced IP abuse confidence scores (0-100) and report counts. Free tier supports ~1k checks/day. Built around WordPress's HTTP API with transient caching.",
             "homepage": "https://github.com/arraypress/wp-abuseipdb/",
-            "support": {
-                "source": "https://github.com/arraypress/wp-abuseipdb/tree/main",
-                "issues": "https://github.com/arraypress/wp-abuseipdb/issues"
-            },
-            "time": "2026-08-23T14:47:13+00:00"
+            "time": "2026-09-02T16:25:49+00:00"
         },
         {
             "name": "arraypress/wp-accept-language-utils",
@@ -66,16 +131,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-accept-language-utils.git",
-                "reference": "9d418a7ccce158c205210bfa2202f19d92bab545"
+                "reference": "685598c08ebeae67a3dd8ca9853385c1a2c0b146"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-accept-language-utils/zipball/9d418a7ccce158c205210bfa2202f19d92bab545",
-                "reference": "9d418a7ccce158c205210bfa2202f19d92bab545",
+                "url": "https://api.github.com/repos/arraypress/wp-accept-language-utils/zipball/685598c08ebeae67a3dd8ca9853385c1a2c0b146",
+                "reference": "685598c08ebeae67a3dd8ca9853385c1a2c0b146",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
             },
             "default-branch": true,
             "type": "library",
@@ -113,7 +184,7 @@
                 "issues": "https://github.com/arraypress/wp-accept-language-utils/issues",
                 "source": "https://github.com/arraypress/wp-accept-language-utils"
             },
-            "time": "2026-08-22T15:21:20+00:00"
+            "time": "2026-09-04T13:06:19+00:00"
         },
         {
             "name": "arraypress/wp-array-utils",
@@ -121,19 +192,30 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-array-utils.git",
-                "reference": "ecf304a5f3a723140342f4db853fdcedb15c22ab"
+                "reference": "0e1831c09088b760ff02eb62f2a59c955c550513"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-array-utils/zipball/ecf304a5f3a723140342f4db853fdcedb15c22ab",
-                "reference": "ecf304a5f3a723140342f4db853fdcedb15c22ab",
+                "url": "https://api.github.com/repos/arraypress/wp-array-utils/zipball/0e1831c09088b760ff02eb62f2a59c955c550513",
+                "reference": "0e1831c09088b760ff02eb62f2a59c955c550513",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
             },
             "default-branch": true,
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.0.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "ArrayPress\\ArrayUtils\\": "src/"
@@ -166,7 +248,7 @@
                 "issues": "https://github.com/arraypress/wp-array-utils/issues",
                 "source": "https://github.com/arraypress/wp-array-utils"
             },
-            "time": "2026-08-22T15:21:24+00:00"
+            "time": "2026-09-04T13:06:19+00:00"
         },
         {
             "name": "arraypress/wp-composer-assets",
@@ -174,12 +256,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-composer-assets.git",
-                "reference": "f59ddb4385039ffbd2884a24536736a56ce9e67e"
+                "reference": "737ba4c15c0fed2d3103c7cd06ba0743300344ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-composer-assets/zipball/f59ddb4385039ffbd2884a24536736a56ce9e67e",
-                "reference": "f59ddb4385039ffbd2884a24536736a56ce9e67e",
+                "url": "https://api.github.com/repos/arraypress/wp-composer-assets/zipball/737ba4c15c0fed2d3103c7cd06ba0743300344ab",
+                "reference": "737ba4c15c0fed2d3103c7cd06ba0743300344ab",
                 "shasum": ""
             },
             "require": {
@@ -193,6 +275,11 @@
             },
             "default-branch": true,
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.0.x-dev"
+                }
+            },
             "autoload": {
                 "files": [
                     "src/Functions.php"
@@ -229,7 +316,7 @@
                 "issues": "https://github.com/arraypress/wp-composer-assets/issues",
                 "source": "https://github.com/arraypress/wp-composer-assets"
             },
-            "time": "2026-08-23T14:40:02+00:00"
+            "time": "2026-09-04T13:06:19+00:00"
         },
         {
             "name": "arraypress/wp-countries",
@@ -237,19 +324,30 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-countries.git",
-                "reference": "b1f761d9d000a057b7580155613abb31c96249cd"
+                "reference": "b2acc6234edea21f6d50a3c9efb57a00b73077db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-countries/zipball/b1f761d9d000a057b7580155613abb31c96249cd",
-                "reference": "b1f761d9d000a057b7580155613abb31c96249cd",
+                "url": "https://api.github.com/repos/arraypress/wp-countries/zipball/b2acc6234edea21f6d50a3c9efb57a00b73077db",
+                "reference": "b2acc6234edea21f6d50a3c9efb57a00b73077db",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
             },
             "default-branch": true,
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.0.x-dev"
+                }
+            },
             "autoload": {
                 "files": [
                     "src/Functions.php"
@@ -286,7 +384,7 @@
                 "issues": "https://github.com/arraypress/wp-countries/issues",
                 "source": "https://github.com/arraypress/wp-countries"
             },
-            "time": "2026-08-22T15:21:27+00:00"
+            "time": "2026-09-02T16:26:05+00:00"
         },
         {
             "name": "arraypress/wp-email-utils",
@@ -294,12 +392,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-email-utils.git",
-                "reference": "213d50f6a9beaa7ef1a4b929893964bf39dbf4ef"
+                "reference": "14ed119ba58e2201997a69a2afa1096a6eceb5c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-email-utils/zipball/213d50f6a9beaa7ef1a4b929893964bf39dbf4ef",
-                "reference": "213d50f6a9beaa7ef1a4b929893964bf39dbf4ef",
+                "url": "https://api.github.com/repos/arraypress/wp-email-utils/zipball/14ed119ba58e2201997a69a2afa1096a6eceb5c3",
+                "reference": "14ed119ba58e2201997a69a2afa1096a6eceb5c3",
                 "shasum": ""
             },
             "require": {
@@ -315,7 +413,7 @@
             "type": "library",
             "autoload": {
                 "files": [
-                    "src/Utilities/Functions.php"
+                    "src/Functions.php"
                 ],
                 "psr-4": {
                     "ArrayPress\\EmailUtils\\": "src/"
@@ -345,7 +443,7 @@
                 "issues": "https://github.com/arraypress/wp-email-utils/issues",
                 "source": "https://github.com/arraypress/wp-email-utils"
             },
-            "time": "2026-08-23T14:40:08+00:00"
+            "time": "2026-09-02T16:26:09+00:00"
         },
         {
             "name": "arraypress/wp-ip-utils",
@@ -353,12 +451,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-ip-utils.git",
-                "reference": "7163ef572fc71098fc847cf369c42b3087f506a7"
+                "reference": "ccac231455fb74572cee32dea9a9bc08f3c3f62b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-ip-utils/zipball/7163ef572fc71098fc847cf369c42b3087f506a7",
-                "reference": "7163ef572fc71098fc847cf369c42b3087f506a7",
+                "url": "https://api.github.com/repos/arraypress/wp-ip-utils/zipball/ccac231455fb74572cee32dea9a9bc08f3c3f62b",
+                "reference": "ccac231455fb74572cee32dea9a9bc08f3c3f62b",
                 "shasum": ""
             },
             "require": {
@@ -407,27 +505,31 @@
                 "issues": "https://github.com/arraypress/wp-utils-ip/issues",
                 "source": "https://github.com/arraypress/wp-utils-ip"
             },
-            "time": "2026-08-23T14:40:12+00:00"
+            "time": "2026-09-04T14:05:48+00:00"
         },
         {
             "name": "arraypress/wp-ipinfo",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/arraypress/wp-ipinfo.git",
-                "reference": "8c9744ead79e76a6494673d555bbbef0f61edb77"
+                "url": "git@github.com:arraypress/wp-ipinfo.git",
+                "reference": "8491c64da644b70092e7d1831fd7342ed1c3ed0d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-ipinfo/zipball/8c9744ead79e76a6494673d555bbbef0f61edb77",
-                "reference": "8c9744ead79e76a6494673d555bbbef0f61edb77",
+                "url": "https://api.github.com/repos/arraypress/wp-ipinfo/zipball/8491c64da644b70092e7d1831fd7342ed1c3ed0d",
+                "reference": "8491c64da644b70092e7d1831fd7342ed1c3ed0d",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "arraypress/wp-countries": "^1.0",
+                "php": ">=8.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^11.0"
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
             },
             "default-branch": true,
             "type": "library",
@@ -444,6 +546,15 @@
             "scripts": {
                 "test": [
                     "phpunit"
+                ],
+                "lint": [
+                    "phpcs"
+                ],
+                "format": [
+                    "phpcbf --standard=phpcs-format.xml.dist"
+                ],
+                "format:check": [
+                    "phpcs --standard=phpcs-format.xml.dist"
                 ]
             },
             "license": [
@@ -474,27 +585,31 @@
                 "issues": "https://github.com/arraypress/wp-ipinfo/issues",
                 "source": "https://github.com/arraypress/wp-ipinfo"
             },
-            "time": "2026-08-23T14:47:09+00:00"
+            "time": "2026-09-02T16:26:37+00:00"
         },
         {
             "name": "arraypress/wp-ipqualityscore",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/arraypress/wp-ipqualityscore.git",
-                "reference": "4a8d251860935883a7e815b54e2b610c02d859b8"
+                "url": "git@github.com:arraypress/wp-ipqualityscore.git",
+                "reference": "c54cceb42f12b6a2ea5dc936c21129da3c46669d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-ipqualityscore/zipball/4a8d251860935883a7e815b54e2b610c02d859b8",
-                "reference": "4a8d251860935883a7e815b54e2b610c02d859b8",
+                "url": "https://api.github.com/repos/arraypress/wp-ipqualityscore/zipball/c54cceb42f12b6a2ea5dc936c21129da3c46669d",
+                "reference": "c54cceb42f12b6a2ea5dc936c21129da3c46669d",
                 "shasum": ""
             },
             "require": {
+                "arraypress/wp-countries": "^1.0",
                 "php": ">=8.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^12.0"
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
             },
             "default-branch": true,
             "type": "library",
@@ -511,6 +626,15 @@
             "scripts": {
                 "test": [
                     "phpunit"
+                ],
+                "lint": [
+                    "phpcs"
+                ],
+                "format": [
+                    "phpcbf --standard=phpcs-format.xml.dist"
+                ],
+                "format:check": [
+                    "phpcs --standard=phpcs-format.xml.dist"
                 ]
             },
             "license": [
@@ -548,27 +672,30 @@
                 "issues": "https://github.com/arraypress/wp-ipqualityscore/issues",
                 "source": "https://github.com/arraypress/wp-ipqualityscore"
             },
-            "time": "2026-08-23T14:47:07+00:00"
+            "time": "2026-09-02T16:26:40+00:00"
         },
         {
             "name": "arraypress/wp-proxycheck",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/arraypress/wp-proxycheck.git",
-                "reference": "d424cc077729285d9933889281ac1140c9d692d3"
+                "url": "git@github.com:arraypress/wp-proxycheck.git",
+                "reference": "8a61c03f2a0db400e3a81f758fbe08463897ed10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-proxycheck/zipball/d424cc077729285d9933889281ac1140c9d692d3",
-                "reference": "d424cc077729285d9933889281ac1140c9d692d3",
+                "url": "https://api.github.com/repos/arraypress/wp-proxycheck/zipball/8a61c03f2a0db400e3a81f758fbe08463897ed10",
+                "reference": "8a61c03f2a0db400e3a81f758fbe08463897ed10",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^11.0"
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
             },
             "default-branch": true,
             "type": "library",
@@ -585,6 +712,15 @@
             "scripts": {
                 "test": [
                     "phpunit"
+                ],
+                "lint": [
+                    "phpcs"
+                ],
+                "format": [
+                    "phpcbf --standard=phpcs-format.xml.dist"
+                ],
+                "format:check": [
+                    "phpcs --standard=phpcs-format.xml.dist"
                 ]
             },
             "license": [
@@ -618,7 +754,7 @@
                 "issues": "https://github.com/arraypress/wp-proxycheck/issues",
                 "source": "https://github.com/arraypress/wp-proxycheck"
             },
-            "time": "2026-08-23T14:47:11+00:00"
+            "time": "2026-09-02T16:26:57+00:00"
         },
         {
             "name": "arraypress/wp-referrer-utils",
@@ -626,16 +762,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-referrer-utils.git",
-                "reference": "5934e816764ee20b7fb4130983adeb1448162c52"
+                "reference": "849cd5ec23b945a82f1fc66357685231a7238b48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-referrer-utils/zipball/5934e816764ee20b7fb4130983adeb1448162c52",
-                "reference": "5934e816764ee20b7fb4130983adeb1448162c52",
+                "url": "https://api.github.com/repos/arraypress/wp-referrer-utils/zipball/849cd5ec23b945a82f1fc66357685231a7238b48",
+                "reference": "849cd5ec23b945a82f1fc66357685231a7238b48",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
             },
             "default-branch": true,
             "type": "library",
@@ -675,7 +817,7 @@
                 "issues": "https://github.com/arraypress/wp-referrer-utils/issues",
                 "source": "https://github.com/arraypress/wp-referrer-utils"
             },
-            "time": "2026-08-22T15:21:38+00:00"
+            "time": "2026-09-02T16:26:59+00:00"
         },
         {
             "name": "arraypress/wp-string-utils",
@@ -683,16 +825,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-string-utils.git",
-                "reference": "8de45460b459ef442a4b417e303334e7f91b4039"
+                "reference": "5d7f5f336e13dba0979738da3e8aa3734effc3c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-string-utils/zipball/8de45460b459ef442a4b417e303334e7f91b4039",
-                "reference": "8de45460b459ef442a4b417e303334e7f91b4039",
+                "url": "https://api.github.com/repos/arraypress/wp-string-utils/zipball/5d7f5f336e13dba0979738da3e8aa3734effc3c2",
+                "reference": "5d7f5f336e13dba0979738da3e8aa3734effc3c2",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
             },
             "default-branch": true,
             "type": "library",
@@ -729,7 +877,7 @@
                 "issues": "https://github.com/arraypress/wp-string-utils/issues",
                 "source": "https://github.com/arraypress/wp-string-utils"
             },
-            "time": "2026-08-22T15:21:41+00:00"
+            "time": "2026-09-04T13:06:19+00:00"
         },
         {
             "name": "arraypress/wp-user-agent-utils",
@@ -737,16 +885,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/arraypress/wp-user-agent-utils.git",
-                "reference": "8639c6df4b728a32bfd053102c659d0783f66d40"
+                "reference": "1e11fbf969b879e970d0e63715f5b30f13b8d777"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-user-agent-utils/zipball/8639c6df4b728a32bfd053102c659d0783f66d40",
-                "reference": "8639c6df4b728a32bfd053102c659d0783f66d40",
+                "url": "https://api.github.com/repos/arraypress/wp-user-agent-utils/zipball/1e11fbf969b879e970d0e63715f5b30f13b8d777",
+                "reference": "1e11fbf969b879e970d0e63715f5b30f13b8d777",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpunit/phpunit": "^12.0",
+                "squizlabs/php_codesniffer": "^3.13.5",
+                "wp-coding-standards/wpcs": "^3.4"
             },
             "default-branch": true,
             "type": "library",
@@ -783,7 +937,7 @@
                 "issues": "https://github.com/arraypress/wp-utils-useragent/issues",
                 "source": "https://github.com/arraypress/wp-utils-useragent"
             },
-            "time": "2026-08-22T15:21:48+00:00"
+            "time": "2026-09-02T16:27:51+00:00"
         }
     ],
     "packages-dev": [

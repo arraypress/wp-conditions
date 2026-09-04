@@ -18,8 +18,10 @@ use ArrayPress\AcceptLanguageUtils\AcceptLanguage;
 use ArrayPress\Conditions\Helpers\Request as RequestHelper;
 use ArrayPress\Conditions\Operators;
 use ArrayPress\Conditions\Options\Network;
+use ArrayPress\Conditions\Options\UserAgents;
 use ArrayPress\IPUtils\IP;
 use ArrayPress\ReferrerUtils\Referrer;
+use ArrayPress\UserAgentUtils\Request as UserAgentRequest;
 use ArrayPress\UserAgentUtils\UserAgent;
 
 /**
@@ -144,8 +146,8 @@ class Request {
 				'placeholder'   => __( 'Select device types...', 'arraypress' ),
 				'description'   => __( 'Match against the visitor device type.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => UserAgent::get_device_types( true ),
-				'compare_value' => fn( $args ) => $args['device_type'] ?? UserAgent::get_device_type(),
+				'options'       => fn() => UserAgents::get_device_types(),
+				'compare_value' => fn( $args ) => $args['device_type'] ?? UserAgentRequest::device_type(),
 				'required_args' => [],
 			],
 			'browser'              => [
@@ -156,8 +158,8 @@ class Request {
 				'placeholder'   => __( 'Select browsers...', 'arraypress' ),
 				'description'   => __( 'Match against the visitor browser.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => UserAgent::get_browsers( true ),
-				'compare_value' => fn( $args ) => $args['browser'] ?? UserAgent::get_browser(),
+				'options'       => fn() => UserAgents::get_browsers(),
+				'compare_value' => fn( $args ) => $args['browser'] ?? UserAgent::browser( UserAgentRequest::agent() ),
 				'required_args' => [],
 			],
 			'operating_system'     => [
@@ -168,8 +170,8 @@ class Request {
 				'placeholder'   => __( 'Select operating systems...', 'arraypress' ),
 				'description'   => __( 'Match against the visitor operating system.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
-				'options'       => fn() => UserAgent::get_operating_systems( true ),
-				'compare_value' => fn( $args ) => $args['operating_system'] ?? UserAgent::get_os(),
+				'options'       => fn() => UserAgents::get_operating_systems(),
+				'compare_value' => fn( $args ) => $args['operating_system'] ?? UserAgent::os( UserAgentRequest::agent() ),
 				'required_args' => [],
 			],
 			'is_bot'               => [
@@ -177,7 +179,15 @@ class Request {
 				'group'         => __( 'Request', 'arraypress' ),
 				'type'          => 'boolean',
 				'description'   => __( 'True when the User-Agent matches a known bot or crawler (Googlebot, Bingbot, Ahrefs, etc.). Bots don\'t generally make checkout submissions, but if one does it\'s either scraping or fraud automation.', 'arraypress' ),
-				'compare_value' => fn( $args ) => $args['is_bot'] ?? UserAgent::is_bot(),
+				'compare_value' => fn( $args ) => $args['is_bot'] ?? UserAgent::is_bot( UserAgentRequest::agent() ),
+				'required_args' => [],
+			],
+			'is_ai_bot'            => [
+				'label'         => __( 'AI Crawler', 'arraypress' ),
+				'group'         => __( 'Request', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'True when the User-Agent is a known AI crawler or training bot (GPTBot, ClaudeBot, CCBot, PerplexityBot, etc.).', 'arraypress' ),
+				'compare_value' => fn( $args ) => $args['is_ai_bot'] ?? UserAgentRequest::is_ai_bot(),
 				'required_args' => [],
 			],
 			'user_agent_is_headless' => [
