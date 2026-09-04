@@ -18,6 +18,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\WooCommerce;
 
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\Post;
 use WC_Product;
 use WC_Product_Variable;
@@ -816,9 +817,61 @@ class Product {
 	 * @since 1.0.0
 	 */
 	public static function get_categories( array $args ): array {
-		$product = self::get( $args );
+		$product = self::get_taxonomy_source( $args );
 
 		return $product ? array_map( 'intval', (array) $product->get_category_ids() ) : [];
+	}
+
+	/**
+	 * The product whose categories and tags count: a variation's parent.
+	 *
+	 * A variation carries no terms of its own -- WooCommerce never reads
+	 * product_cat or product_tag for one -- so with a variation id, which is
+	 * what an add-to-cart or an order line hands over, every category and
+	 * tag rule silently failed.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return WC_Product|null
+	 */
+	private static function get_taxonomy_source( array $args ): ?WC_Product {
+		$product = self::get( $args );
+
+		if ( ! $product ) {
+			return null;
+		}
+
+		$parent_id = (int) $product->get_parent_id();
+
+		if ( $parent_id > 0 && function_exists( 'wc_get_product' ) ) {
+			$parent = wc_get_product( $parent_id );
+
+			if ( $parent instanceof WC_Product ) {
+				return $parent;
+			}
+		}
+
+		return $product;
+	}
+
+	/**
+	 * The product's id and, for a variation, its parent's.
+	 *
+	 * "Product is any of [X]" names the product the admin sees in the
+	 * catalogue, which is the parent; the cart holds the variation.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int[]
+	 */
+	public static function get_id_and_parent( array $args ): array {
+		$product = self::get( $args );
+
+		if ( ! $product ) {
+			return [];
+		}
+
+		return array_values( array_filter( [ (int) $product->get_id(), (int) $product->get_parent_id() ] ) );
 	}
 
 	/**
@@ -831,7 +884,7 @@ class Product {
 	 * @since 1.0.0
 	 */
 	public static function get_tags( array $args ): array {
-		$product = self::get( $args );
+		$product = self::get_taxonomy_source( $args );
 
 		return $product ? array_map( 'intval', (array) $product->get_tag_ids() ) : [];
 	}
@@ -859,7 +912,9 @@ class Product {
 			return [];
 		}
 
-		return array_values( array_filter( array_map( 'trim', explode( ',', $value ) ) ) );
+		// Taxonomy attributes come back comma-separated; a custom attribute's
+		// options are joined with " | ", so both are split.
+		return array_values( array_filter( array_map( 'trim', preg_split( '/[,|]/', $value ) ?: [] ) ) );
 	}
 
 	/**
@@ -896,7 +951,9 @@ class Product {
 			return '';
 		}
 
-		return trim( strtok( $value, ':' ) );
+		// Not strtok(): for a value of ":" it answers false, which trim()
+		// refuses under strict types -- on the checkout page.
+		return Parse::meta( $value )['key'];
 	}
 
 	/**

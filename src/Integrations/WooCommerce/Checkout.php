@@ -123,8 +123,12 @@ class Checkout {
 	public static function is_shipping_to_different_address( array $args ): bool {
 		$posted = $args['posted'] ?? [];
 
-		if ( array_key_exists( 'ship_to_different_address', $posted ) ) {
-			return (bool) $posted['ship_to_different_address'];
+		// An unticked checkbox is absent from the form, not present and
+		// false, and WooCommerce reads it the same way. Checking for the
+		// key meant an unticked box fell through to the session's country
+		// mismatch, which could say yes.
+		if ( ! empty( $posted ) ) {
+			return ! empty( $posted['ship_to_different_address'] );
 		}
 
 		return Customer::has_country_mismatch();
@@ -406,6 +410,13 @@ class Checkout {
 	 * @since 1.0.0
 	 */
 	public static function get_shipping_country( array $args ): string {
+		// When the shopper is not shipping elsewhere WooCommerce ships to the
+		// billing address, whatever a shipping field or the session still
+		// holds from an earlier visit.
+		if ( ! empty( $args['posted'] ) && ! self::is_shipping_to_different_address( $args ) ) {
+			return self::get_country( $args );
+		}
+
 		$value = Arr::get_first( $args['posted'] ?? [], [ 'shipping_country' ] );
 
 		if ( $value ) {

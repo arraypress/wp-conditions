@@ -18,6 +18,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\WooCommerce;
 
+use ArrayPress\Conditions\Helpers\Parse;
 use WC_Cart;
 use WC_Product;
 
@@ -717,7 +718,9 @@ class Cart {
 	 */
 	private static function get_product_ages(): array {
 		$ages = [];
-		$now  = (int) current_time( 'timestamp' );
+		// time(), not current_time( 'timestamp' ): the product's date is a
+		// real epoch, and the site's shifted wall clock is off by its offset.
+		$now  = time();
 
 		foreach ( self::get_items() as $item ) {
 			$product = $item['data'] ?? null;
@@ -828,7 +831,9 @@ class Cart {
 			return [];
 		}
 
-		return self::get_variation_attribute( trim( strtok( $value, ':' ) ) );
+		// Not strtok(): for a value of ":" it answers false, which trim()
+		// refuses under strict types.
+		return self::get_variation_attribute( Parse::meta( $value )['key'] );
 	}
 
 	/**

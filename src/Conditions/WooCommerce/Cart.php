@@ -17,6 +17,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\WooCommerce;
 
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Integrations\WooCommerce\Cart as CartHelper;
 use ArrayPress\Conditions\Integrations\WooCommerce\Options;
 use ArrayPress\Conditions\Operators;
@@ -142,7 +143,7 @@ class Cart {
 				'min'           => 0,
 				'step'          => 1,
 				'description'   => __( 'Number of distinct products, ignoring quantities. Ten of one product is one distinct product; ten different products in a single cart is the pattern worth looking at.', 'arraypress' ),
-				'compare_value' => fn( $args ) => CartHelper::get_item_count(),
+				'compare_value' => fn( $args ) => count( array_unique( CartHelper::get_product_ids() ) ),
 				'required_args' => [],
 			],
 			'wc_cart_max_line_quantity'   => [
@@ -366,7 +367,9 @@ class Cart {
 				'type'          => 'text',
 				'placeholder'   => __( 'pa_size:large', 'arraypress' ),
 				'description'   => __( 'Match a chosen variation attribute across the cart. Format: attribute:value — for example `pa_size:large` or `pa_colour:black`. The attribute name is the taxonomy, with or without its pa_ prefix.', 'arraypress' ),
-				'operators'     => Operators::text(),
+				'compare_as'    => 'tags',
+				'operators'     => Operators::tags_exact(),
+				'user_value'    => fn( $value ) => Parse::meta( (string) $value )['value'],
 				'compare_value' => fn( $args, $value ) => CartHelper::get_variation_attribute_from_rule( $value ),
 				'required_args' => [],
 			],

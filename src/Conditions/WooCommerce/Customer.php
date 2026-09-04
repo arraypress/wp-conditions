@@ -77,7 +77,7 @@ class Customer {
 				'min'           => 0,
 				'units'         => Periods::get_age_units(),
 				'description'   => __( 'How long the account has existed. A guest reports 0, the same as an account opened today — which is the direction a new-account rule points anyway.', 'arraypress' ),
-				'compare_value' => fn( $args ) => CustomerHelper::get_account_age_days(),
+				'compare_value' => fn( $args ) => CustomerHelper::get_account_age( $args ),
 				'required_args' => [],
 			],
 

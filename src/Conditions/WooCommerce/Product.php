@@ -13,6 +13,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\WooCommerce;
 
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Integrations\WooCommerce\Options;
 use ArrayPress\Conditions\Integrations\WooCommerce\Product as ProductHelper;
 use ArrayPress\Conditions\Operators;
@@ -51,7 +52,7 @@ class Product {
 				'description'   => __( 'Which product this is. Use "is any of" to name the products a rule applies to, or "is none of" to carve specific products out of a broader rule.', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'ajax'          => fn( ?string $search, ?array $ids ): array => Options::get_product_options( $search, $ids ),
-				'compare_value' => fn( $args ) => ProductHelper::get_id( $args ),
+				'compare_value' => fn( $args ) => ProductHelper::get_id_and_parent( $args ),
 				'required_args' => [ 'product_id' ],
 			],
 
@@ -534,7 +535,9 @@ class Product {
 				'type'          => 'text',
 				'placeholder'   => __( 'pa_size:large', 'arraypress' ),
 				'description'   => __( 'Match an attribute value. Format: attribute:value — for example `pa_size:large` or `pa_colour:black`. The attribute name is the taxonomy, with or without its pa_ prefix; the value is compared against every value the product carries for it.', 'arraypress' ),
-				'operators'     => Operators::text(),
+				'compare_as'    => 'tags',
+				'operators'     => Operators::tags_exact(),
+				'user_value'    => fn( $value ) => Parse::meta( (string) $value )['value'],
 				'compare_value' => fn( $args, $value ) => ProductHelper::get_attribute_from_rule( $args, $value ),
 				'required_args' => [ 'product_id' ],
 			],

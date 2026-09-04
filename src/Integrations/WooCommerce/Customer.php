@@ -17,6 +17,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\WooCommerce;
 
+use ArrayPress\Conditions\Helpers\Parse;
+use ArrayPress\Conditions\Helpers\DateTime;
 use WC_Customer;
 use WC_Order;
 
@@ -86,11 +88,58 @@ class Customer {
 	}
 
 	/**
+	 * Statuses that count as paid, everywhere a history is read.
+	 *
+	 * On-hold is not paid. Counting it in the order count but not the spend
+	 * made the average order value a division of one set by another.
+	 */
+	private const PAID_STATUSES = [ 'wc-processing', 'wc-completed' ];
+
+	/**
+	 * The query that selects this customer's own orders, or null for none.
+	 *
+	 * An account's history is looked up by its id. A guest's is looked up
+	 * by the email they typed, but only among guest orders, and not at all
+	 * when that email belongs to an account: the billing email at checkout
+	 * is whatever the shopper wrote, and looking it up unconditionally let
+	 * a fraudster type a loyal customer's address and borrow "five paid
+	 * orders, ordered three days ago" -- defeating exactly the first-order
+	 * rules this exists for.
+	 *
+	 * @param string $email An explicit email from the caller, or '' for the current customer.
+	 *
+	 * @return array|null
+	 */
+	private static function history_query( string $email = '' ): ?array {
+		if ( ! function_exists( 'wc_get_orders' ) ) {
+			return null;
+		}
+
+		if ( '' !== $email ) {
+			return [ 'billing_email' => $email ];
+		}
+
+		if ( ! self::is_guest() ) {
+			return [ 'customer_id' => self::get_user_id() ];
+		}
+
+		$email = self::get_email();
+
+		if ( '' === $email || ( function_exists( 'email_exists' ) && email_exists( $email ) ) ) {
+			return null;
+		}
+
+		return [
+			'billing_email' => $email,
+			'customer_id'   => 0,
+		];
+	}
+
+	/**
 	 * How many paid orders this customer has.
 	 *
-	 * Counted by email rather than user ID so a guest with a history is not
-	 * treated as brand new -- which is the case a first-order rule is usually
-	 * trying to catch.
+	 * A guest with a history under their own email is not treated as brand
+	 * new -- which is the case a first-order rule is usually trying to catch.
 	 *
 	 * @param string $email Optional email to count for. Defaults to the current customer.
 	 *
@@ -99,17 +148,16 @@ class Customer {
 	 * @since 1.0.0
 	 */
 	public static function get_order_count( string $email = '' ): int {
-		$email = '' !== $email ? $email : self::get_email();
+		$query = self::history_query( $email );
 
-		if ( '' === $email || ! function_exists( 'wc_get_orders' ) ) {
+		if ( null === $query ) {
 			return 0;
 		}
 
-		$orders = wc_get_orders( [
-			'billing_email' => $email,
-			'status'        => [ 'wc-processing', 'wc-completed', 'wc-on-hold' ],
-			'limit'         => -1,
-			'return'        => 'ids',
+		$orders = wc_get_orders( $query + [
+			'status' => self::PAID_STATUSES,
+			'limit'  => -1,
+			'return' => 'ids',
 		] );
 
 		return is_array( $orders ) ? count( $orders ) : 0;
@@ -136,16 +184,15 @@ class Customer {
 	 * @since 1.0.0
 	 */
 	public static function get_total_spent( string $email = '' ): float {
-		$email = '' !== $email ? $email : self::get_email();
+		$query = self::history_query( $email );
 
-		if ( '' === $email || ! function_exists( 'wc_get_orders' ) ) {
+		if ( null === $query ) {
 			return 0.0;
 		}
 
-		$orders = wc_get_orders( [
-			'billing_email' => $email,
-			'status'        => [ 'wc-processing', 'wc-completed' ],
-			'limit'         => -1,
+		$orders = wc_get_orders( $query + [
+			'status' => self::PAID_STATUSES,
+			'limit'  => -1,
 		] );
 
 		$total = 0.0;
@@ -187,6 +234,21 @@ class Customer {
 	 * @since 1.0.0
 	 */
 	public static function get_account_age_days(): int {
+		return self::get_account_age( [ '_unit' => 'day' ] );
+	}
+
+	/**
+	 * How long the account has existed, in the unit the rule carries.
+	 *
+	 * The condition offers days, weeks, months and years, and this used to
+	 * answer in days whatever was chosen -- so "Account Age < 6 weeks" was
+	 * really "< 6 days".
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_account_age( array $args ): int {
 		$user_id = self::get_user_id();
 
 		if ( 0 === $user_id ) {
@@ -199,13 +261,14 @@ class Customer {
 			return 0;
 		}
 
-		$registered = strtotime( $user->user_registered );
+		// user_registered is stored in UTC.
+		$registered = strtotime( $user->user_registered . ' UTC' );
 
 		if ( ! $registered ) {
 			return 0;
 		}
 
-		return (int) floor( ( time() - $registered ) / DAY_IN_SECONDS );
+		return DateTime::from_seconds( max( 0, time() - $registered ), Parse::number_unit( $args )['unit'] );
 	}
 
 	/**
@@ -290,18 +353,17 @@ class Customer {
 	 * @since 1.0.0
 	 */
 	public static function get_last_order_date(): string {
-		$email = self::get_email();
+		$query = self::history_query();
 
-		if ( '' === $email || ! function_exists( 'wc_get_orders' ) ) {
+		if ( null === $query ) {
 			return '';
 		}
 
-		$orders = wc_get_orders( [
-			'billing_email' => $email,
-			'status'        => [ 'wc-processing', 'wc-completed' ],
-			'limit'         => 1,
-			'orderby'       => 'date',
-			'order'         => 'DESC',
+		$orders = wc_get_orders( $query + [
+			'status'  => self::PAID_STATUSES,
+			'limit'   => 1,
+			'orderby' => 'date',
+			'order'   => 'DESC',
 		] );
 
 		$order = is_array( $orders ) ? reset( $orders ) : null;
