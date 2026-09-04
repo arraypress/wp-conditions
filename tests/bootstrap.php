@@ -109,8 +109,13 @@ if ( ! function_exists( 'get_the_terms' ) ) {
 }
 
 if ( ! function_exists( 'get_posts' ) ) {
+	/**
+	 * Records what it was asked and answers with whatever a test staged.
+	 */
 	function get_posts( $args = [] ) {
-		return [];
+		$GLOBALS['wpc_last_query'] = $args;
+
+		return $GLOBALS['wpc_posts'] ?? [];
 	}
 }
 
@@ -132,7 +137,11 @@ if ( ! function_exists( 'get_post_stati' ) ) {
 	function get_post_stati( $args = [], $output = 'names', $operator = 'and' ) {
 		$statuses = [];
 
-		foreach ( [ 'publish' => 'Published', 'draft' => 'Draft', 'private' => 'Private' ] as $name => $label ) {
+		foreach ( [
+			'publish' => 'Published',
+			'draft' => 'Draft',
+			'private' => 'Private',
+		] as $name => $label ) {
 			$statuses[ $name ] = (object) [
 				'name'  => $name,
 				'label' => $label,
@@ -195,6 +204,72 @@ if ( ! function_exists( 'get_user_locale' ) ) {
 if ( ! function_exists( 'get_locale' ) ) {
 	function get_locale() {
 		return 'en_US';
+	}
+}
+
+/*
+ * Enough of WordPress for a set to register and a rule to be saved. The
+ * sanitizers are close to core's -- close enough that a regex run through
+ * sanitize_text_field() comes out mangled the way it really does.
+ */
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+	function sanitize_text_field( $str ) {
+		if ( is_object( $str ) || is_array( $str ) ) {
+			return '';
+		}
+
+		$str = (string) $str;
+
+		if ( str_contains( $str, '<' ) ) {
+			$str = strip_tags( $str );
+			$str = str_replace( '<', '&lt;', $str );
+		}
+
+		$str = (string) preg_replace( '/[\r\n\t ]+/', ' ', $str );
+		$str = (string) preg_replace( '/%[a-f0-9]{2}/i', '', $str );
+
+		return trim( $str );
+	}
+}
+
+if ( ! function_exists( 'sanitize_key' ) ) {
+	function sanitize_key( $key ) {
+		return is_scalar( $key ) ? strtolower( (string) preg_replace( '/[^a-zA-Z0-9_\-]/', '', (string) $key ) ) : '';
+	}
+}
+
+if ( ! function_exists( 'wp_unslash' ) ) {
+	function wp_unslash( $value ) {
+		return is_string( $value ) ? stripslashes( $value ) : $value;
+	}
+}
+
+if ( ! function_exists( 'wp_check_invalid_utf8' ) ) {
+	function wp_check_invalid_utf8( $text ) {
+		return (string) $text;
+	}
+}
+
+foreach ( [ 'add_action', 'add_filter', 'register_post_type', 'register_post_meta', 'add_meta_box', 'register_rest_route' ] as $wpc_noop ) {
+	if ( ! function_exists( $wpc_noop ) ) {
+		eval( 'function ' . $wpc_noop . '( ...$args ) { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged
+	}
+}
+
+if ( ! function_exists( 'do_action' ) ) {
+	function do_action( $hook, ...$args ) {
+	}
+}
+
+if ( ! function_exists( 'post_type_exists' ) ) {
+	function post_type_exists( $post_type ) {
+		return false;
+	}
+}
+
+if ( ! function_exists( 'get_post_meta' ) ) {
+	function get_post_meta( $post_id, $key = '', $single = false ) {
+		return $GLOBALS['wpc_post_meta'][ $post_id ][ $key ] ?? ( $single ? '' : [] );
 	}
 }
 

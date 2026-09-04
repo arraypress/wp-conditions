@@ -16,7 +16,7 @@ declare( strict_types=1 );
 namespace ArrayPress\Conditions\REST;
 
 use ArrayPress\Conditions\Registry;
-use Exception;
+use Throwable;
 use WP_Error;
 use WP_REST_Request;
 
@@ -104,10 +104,16 @@ class Ajax {
 				];
 			}, $results );
 
-		} catch ( Exception $e ) {
+		} catch ( Throwable $e ) {
+			// Throwable, so a TypeError in the callback is an error response
+			// rather than a blank 500. The message stays on the server unless
+			// the site is debugging: it is whatever the callback's exception
+			// said, which can be a query or a path.
 			return new WP_Error(
 				'callback_error',
-				$e->getMessage(),
+				defined( 'WP_DEBUG' ) && WP_DEBUG
+					? $e->getMessage()
+					: __( 'The search could not be completed.', 'arraypress' ),
 				[ 'status' => 500 ]
 			);
 		}

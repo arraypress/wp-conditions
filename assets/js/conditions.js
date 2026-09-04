@@ -686,13 +686,20 @@
     }
 
     /**
-     * Escape HTML
+     * Escape a value for HTML, attributes included.
+     *
+     * Not textContent -> innerHTML: that serialises a text node, which
+     * escapes &, < and > and leaves both quotes alone -- and every use
+     * here is inside a double-quoted attribute, so a stored value of
+     * `" onfocus="alert(1)` came back as a live attribute on the next load.
      */
+    const ESCAPES = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'};
+
     function escapeHtml(text) {
         if (text === null || text === undefined) return '';
-        const div = document.createElement('div');
-        div.textContent = String(text);
-        return div.innerHTML;
+        return String(text).replace(/[&<>"']/g, function (c) {
+            return ESCAPES[c];
+        });
     }
 
     /**

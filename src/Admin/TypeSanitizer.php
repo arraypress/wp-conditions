@@ -75,6 +75,12 @@ class TypeSanitizer {
 	 * @return string The sanitized text.
 	 */
 	public static function text( mixed $value ): string {
+		// An array cast to string is the word "Array" and a warning, which is
+		// what a condition switched from multiple to single would have saved.
+		if ( ! is_scalar( $value ) ) {
+			return '';
+		}
+
 		return sanitize_text_field( (string) $value );
 	}
 
@@ -95,9 +101,11 @@ class TypeSanitizer {
 			return '';
 		}
 
-		// Non-numeric values default to min or 0
+		// A value that is not a number is no value. It used to become the
+		// minimum, or nought, so "order total > abc" was saved and evaluated
+		// as "order total > 0" -- a rule the admin never wrote.
 		if ( ! is_numeric( $value ) ) {
-			return $config['min'] ?? 0;
+			return '';
 		}
 
 		// Determine if integer based on step
@@ -145,8 +153,10 @@ class TypeSanitizer {
 		// Sanitize the number part using the same logic
 		$number = self::number( $value['number'] ?? '', $config );
 
-		// Sanitize the unit - must be from allowed units
-		$unit          = sanitize_key( $value['unit'] ?? '' );
+		// The allow-list is the validation; the unit only has to be a clean
+		// string to compare. sanitize_key() lowercased it first, so a unit
+		// written with a capital never matched and fell back to the first.
+		$unit          = self::text( $value['unit'] ?? '' );
 		$allowed_units = array_column( $config['units'] ?? [], 'value' );
 
 		if ( ! empty( $allowed_units ) && ! in_array( $unit, $allowed_units, true ) ) {
@@ -181,8 +191,8 @@ class TypeSanitizer {
 		// Sanitize the text part
 		$text = self::text( $value['text'] ?? '' );
 
-		// Sanitize the unit - must be from allowed units
-		$unit          = sanitize_key( $value['unit'] ?? '' );
+		// See number_unit(): the allow-list validates, the cast just cleans.
+		$unit          = self::text( $value['unit'] ?? '' );
 		$allowed_units = array_column( $config['units'] ?? [], 'value' );
 
 		if ( ! empty( $allowed_units ) && ! in_array( $unit, $allowed_units, true ) ) {
@@ -420,9 +430,12 @@ class TypeSanitizer {
 			return [];
 		}
 
+		// Not array_filter() alone: that drops the tag '0', which is a real
+		// tag for a rule about ids or codes.
 		return array_values(
 			array_filter(
-				array_map( 'sanitize_text_field', $value )
+				array_map( [ self::class, 'text' ], $value ),
+				static fn( string $tag ): bool => '' !== $tag
 			)
 		);
 	}
@@ -447,13 +460,14 @@ class TypeSanitizer {
 			}
 
 			return array_values(
-				array_unique(
-					array_map( 'sanitize_text_field', $value )
+				array_filter(
+					array_unique( array_map( [ self::class, 'text' ], $value ) ),
+					static fn( string $item ): bool => '' !== $item
 				)
 			);
 		}
 
-		return sanitize_text_field( (string) $value );
+		return self::text( $value );
 	}
 
 	/**

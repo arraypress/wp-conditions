@@ -92,7 +92,7 @@ class Assets {
 	 * @return void
 	 */
 	private function enqueue_select2(): void {
-		wp_enqueue_composer_style(
+		arraypress_enqueue_composer_style(
 			'conditions-select2',
 			__FILE__,
 			'css/select2.min.css',
@@ -100,7 +100,7 @@ class Assets {
 			'4.1.0'
 		);
 
-		wp_enqueue_composer_script(
+		arraypress_enqueue_composer_script(
 			'conditions-select2',
 			__FILE__,
 			'js/select2.min.js',
@@ -118,7 +118,7 @@ class Assets {
 	 * @return void
 	 */
 	private function enqueue_conditions_ui( string $post_type ): void {
-		wp_enqueue_composer_style(
+		arraypress_enqueue_composer_style(
 			'conditions-admin',
 			__FILE__,
 			'css/conditions.css',
@@ -126,7 +126,7 @@ class Assets {
 			'1.0.0'
 		);
 
-		wp_enqueue_composer_script(
+		arraypress_enqueue_composer_script(
 			'conditions-admin',
 			__FILE__,
 			'js/conditions.js',

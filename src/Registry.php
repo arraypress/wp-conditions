@@ -161,7 +161,7 @@ class Registry {
 		self::init();
 
 		// Parse defaults
-		$args = wp_parse_args( $args, [
+		$defaults = [
 			'labels'        => [
 				'singular' => ucwords( str_replace( [ '_', '-' ], ' ', $set_id ) ),
 				'plural'   => ucwords( str_replace( [ '_', '-' ], ' ', $set_id ) ) . 's',
@@ -176,8 +176,16 @@ class Registry {
 			'redirect'      => [],
 			'description'   => __( 'Configure when this rule should apply. Groups are connected with OR logic, conditions within a group use AND logic.', 'arraypress' ),
 			'metabox_title' => null,
-			'supports'      => [ 'title' ],
-		] );
+			// page-attributes is the Order box. Rules are checked in
+			// menu_order, and without the box nothing could set one.
+			'supports'      => [ 'title', 'page-attributes' ],
+		];
+
+		$args = wp_parse_args( $args, $defaults );
+
+		// wp_parse_args() is shallow: a caller giving only a singular label
+		// lost the plural, and the post type registered with a null label.
+		$args['labels'] = wp_parse_args( (array) $args['labels'], $defaults['labels'] );
 
 		self::$sets[ $set_id ] = $args;
 

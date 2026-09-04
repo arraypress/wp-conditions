@@ -50,7 +50,10 @@ class Sanitizer {
 				continue;
 			}
 
-			$sanitized_group = self::sanitize_group( $group_id, $group );
+			// PHP stores an all-digit key as an int, and under strict types
+			// that was a TypeError on save -- a white screen and nothing
+			// saved -- for any id the editor happened to build from digits.
+			$sanitized_group = self::sanitize_group( (string) $group_id, $group );
 
 			if ( ! empty( $sanitized_group['rules'] ) ) {
 				$sanitized[] = $sanitized_group;
@@ -88,10 +91,10 @@ class Sanitizer {
 				continue;
 			}
 
-			$sanitized_rule = self::sanitize_rule( $rule_id, $rule );
+			$sanitized_rule = self::sanitize_rule( (string) $rule_id, $rule );
 
-			// Skip if no condition selected
-			if ( empty( $sanitized_rule['condition'] ) ) {
+			// A rule without a condition or an operator is not a rule yet.
+			if ( '' === $sanitized_rule['condition'] || '' === $sanitized_rule['operator'] ) {
 				continue;
 			}
 
@@ -99,8 +102,12 @@ class Sanitizer {
 			$config = self::$conditions[ $sanitized_rule['condition'] ] ?? [];
 			$type   = $config['type'] ?? 'text';
 
-			// Skip if value is empty (but allow 0/'0' and skip check for boolean type)
-			if ( TypeSanitizer::is_empty( $sanitized_rule['value'], $type ) ) {
+			// Skip if value is empty (but allow 0/'0' and skip check for boolean
+			// type). The emptiness operators ask about the observed value and
+			// carry none of their own, so they are exempt -- they could never be
+			// saved otherwise.
+			if ( ! in_array( $sanitized_rule['operator'], [ 'empty', 'not_empty' ], true )
+				&& TypeSanitizer::is_empty( $sanitized_rule['value'], $type ) ) {
 				continue;
 			}
 
@@ -149,9 +156,16 @@ class Sanitizer {
 			return '';
 		}
 
-		// Handle number_unit type
+		// Handle number_unit and text_unit types. Without the second branch a
+		// text_unit value fell through to the sorted-array case, where
+		// { text: days, unit: hours } and { text: hours, unit: days } collide
+		// and the second rule was dropped as a duplicate.
 		if ( is_array( $value ) && isset( $value['number'] ) ) {
 			return $value['number'] . ':' . ( $value['unit'] ?? '' );
+		}
+
+		if ( is_array( $value ) && isset( $value['text'] ) ) {
+			return $value['text'] . ':' . ( $value['unit'] ?? '' );
 		}
 
 		// Handle arrays (multi-select values)
@@ -175,32 +189,82 @@ class Sanitizer {
 	 * @return array
 	 */
 	private static function sanitize_rule( string $rule_id, array $rule ): array {
-		$condition_id = sanitize_key( $rule['condition'] ?? '' );
-		$operator     = $rule['operator'] ?? '';
+		$raw = $rule['condition'] ?? '';
+		$raw = is_scalar( $raw ) ? (string) $raw : '';
+
+		// A registered id is taken as written. sanitize_key() lowercases, so
+		// a developer's `orderTotal` was saved as `ordertotal`, matched no
+		// configuration, and never resolved at runtime.
+		$condition_id = isset( self::$conditions[ $raw ] ) ? $raw : sanitize_key( $raw );
+		$config       = self::$conditions[ $condition_id ] ?? [];
+		$operator     = self::sanitize_operator( $rule['operator'] ?? '', $config );
 		$value        = $rule['value'] ?? null;
 
-		// Get condition config for type-aware sanitization
-		$config = self::$conditions[ $condition_id ] ?? [];
-
-		// Use TypeSanitizer for type-aware value sanitization
-		$value = TypeSanitizer::sanitize( $value, $config );
+		// A regular expression is kept as written, if it compiles. Every
+		// other value is sanitized for its type.
+		$value = 'regex' === $operator
+			? self::sanitize_pattern( $value )
+			: TypeSanitizer::sanitize( $value, $config );
 
 		return [
 			'id'        => sanitize_key( $rule_id ),
 			'condition' => $condition_id,
-			'operator'  => self::sanitize_operator( $operator ),
+			'operator'  => $operator,
 			'value'     => $value,
 		];
 	}
 
 	/**
+	 * Keep a regular expression as it was written, if it compiles.
+	 *
+	 * sanitize_text_field() rewrites `<`, strips anything shaped like a tag,
+	 * collapses whitespace and removes %xx sequences -- so a lookbehind, a
+	 * named group or a literal `<script` came back as a different pattern
+	 * that quietly matched something else. A pattern that does not compile
+	 * is dropped rather than stored: it would fail closed at runtime anyway.
+	 *
+	 * @param mixed $value The pattern as submitted.
+	 *
+	 * @return string The pattern, or '' if it is not one.
+	 */
+	private static function sanitize_pattern( mixed $value ): string {
+		if ( ! is_scalar( $value ) ) {
+			return '';
+		}
+
+		$value = trim( wp_check_invalid_utf8( (string) $value ) );
+
+		if ( '' === $value ) {
+			return '';
+		}
+
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a malformed pattern is an admin typo, not a warning to log.
+		return false === @preg_match( $value, '' ) ? '' : $value;
+	}
+
+	/**
 	 * Sanitize an operator.
 	 *
-	 * @param string $operator The operator to sanitize.
+	 * The condition's own operators are accepted alongside the built-in
+	 * list: a condition that declares `operators` renders them in the editor,
+	 * and a save that then refused them threw the rule away.
+	 *
+	 * @param mixed $operator The operator to sanitize.
+	 * @param array $config   The condition configuration.
 	 *
 	 * @return string
 	 */
-	private static function sanitize_operator( string $operator ): string {
+	private static function sanitize_operator( mixed $operator, array $config = [] ): string {
+		if ( ! is_string( $operator ) ) {
+			return '';
+		}
+
+		$custom = $config['operators'] ?? null;
+
+		if ( is_array( $custom ) && array_key_exists( $operator, $custom ) ) {
+			return $operator;
+		}
+
 		$allowed = [
 			// Comparison
 			'==',

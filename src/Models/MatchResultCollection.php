@@ -40,7 +40,11 @@ class MatchResultCollection implements Countable, IteratorAggregate {
 	 * @param MatchResult[] $results Array of match results.
 	 */
 	public function __construct( array $results = [] ) {
-		$this->results = $results;
+		// A list, whatever it was given. filter() hands back array_filter()'s
+		// result, which keeps the original keys, and get_first() reads [0] --
+		// so a filtered collection with one match said it had one and then
+		// answered null.
+		$this->results = array_values( $results );
 	}
 
 	/**

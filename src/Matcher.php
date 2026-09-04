@@ -56,8 +56,14 @@ class Matcher {
 	private const DEFAULT_QUERY_ARGS = [
 		'post_status'    => 'publish',
 		'posts_per_page' => -1,
-		'orderby'        => 'menu_order',
-		'order'          => 'ASC',
+		// The id as a tie-breaker. Every rule has a menu_order of nought until
+		// somebody sets one, and "ORDER BY menu_order" alone leaves the
+		// database to pick, so which rule check() returned first could change
+		// between servers.
+		'orderby'        => [
+			'menu_order' => 'ASC',
+			'ID'         => 'ASC',
+		],
 	];
 
 	/**
@@ -240,22 +246,36 @@ class Matcher {
 			}
 		}
 
-		// Handle number_unit type - extract unit and number into args
-		if ( $condition['type'] === 'number_unit' && is_array( $user_value ) ) {
-			$this->args['_unit']   = $user_value['unit'] ?? null;
-			$this->args['_number'] = $user_value['number'] ?? null;
-			$user_value            = $user_value['number'] ?? null;
+		// The unit and number travel to the helper through the arguments --
+		// but a copy of them. Writing into $this->args left a later rule
+		// inheriting the previous rule's unit, so "orders in 3 hours" followed
+		// by a plain number condition read that condition in hours too.
+		$args = $this->args;
+		$type = $condition['type'] ?? 'text';
+
+		if ( 'number_unit' === $type && is_array( $user_value ) ) {
+			$args['_unit']   = $user_value['unit'] ?? null;
+			$args['_number'] = $user_value['number'] ?? null;
+			$user_value      = $user_value['number'] ?? null;
 		}
 
-		// Handle text_unit type - extract unit and text into args
-		if ( $condition['type'] === 'text_unit' && is_array( $user_value ) ) {
-			$this->args['_unit'] = $user_value['unit'] ?? null;
-			$this->args['_text'] = $user_value['text'] ?? null;
-			$user_value          = $user_value['text'] ?? null;
+		if ( 'text_unit' === $type && is_array( $user_value ) ) {
+			$args['_unit'] = $user_value['unit'] ?? null;
+			$args['_text'] = $user_value['text'] ?? null;
+			$user_value    = $user_value['text'] ?? null;
 		}
 
 		// Get compare value (passing user_value for conditions that need it)
-		$compare_value = $this->get_compare_value( $condition, $user_value );
+		$compare_value = $this->get_compare_value( $condition, $user_value, $args );
+
+		// A condition may reshape the rule's value before it is compared. The
+		// key:value conditions need this: the helper reads the key half to
+		// know what to fetch, and the comparator wants the value half. Without
+		// it the observed value was compared against the whole "key:value"
+		// string, and six conditions could never match.
+		if ( isset( $condition['user_value'] ) && is_callable( $condition['user_value'] ) ) {
+			$user_value = call_user_func( $condition['user_value'], $user_value, $args );
+		}
 
 		// Perform comparison
 		return $this->compare( $condition, $operator, $user_value, $compare_value );
@@ -266,23 +286,24 @@ class Matcher {
 	 *
 	 * @param array $condition  The condition configuration.
 	 * @param mixed $user_value The value configured by the user in the admin UI.
+	 * @param array $args       The evaluation context, with any unit for this rule.
 	 *
 	 * @return mixed
 	 */
-	private function get_compare_value( array $condition, mixed $user_value = null ): mixed {
+	private function get_compare_value( array $condition, mixed $user_value, array $args ): mixed {
 		// If condition has an instance (class-based), use its method
 		if ( isset( $condition['instance'] ) && $condition['instance'] instanceof Condition ) {
-			return $condition['instance']->get_compare_value( $this->args, $user_value );
+			return $condition['instance']->get_compare_value( $args, $user_value );
 		}
 
 		// If there's a compare_value callback
 		if ( isset( $condition['compare_value'] ) && is_callable( $condition['compare_value'] ) ) {
-			return call_user_func( $condition['compare_value'], $this->args, $user_value );
+			return call_user_func( $condition['compare_value'], $args, $user_value );
 		}
 
 		// Simple arg reference
 		if ( isset( $condition['arg'] ) ) {
-			return $this->args[ $condition['arg'] ] ?? null;
+			return $args[ $condition['arg'] ] ?? null;
 		}
 
 		return null;
@@ -304,8 +325,10 @@ class Matcher {
 			return $condition['instance']->compare( $operator, $user_value, $compare_value );
 		}
 
-		// Use the comparator
-		$type     = $condition['type'] ?? 'text';
+		// Use the comparator. compare_as lets a condition render one way and
+		// compare another: a "meta_key:5" rule needs a text input and a
+		// numeric comparison.
+		$type     = $condition['compare_as'] ?? $condition['type'] ?? 'text';
 		$multiple = $condition['multiple'] ?? false;
 
 		$comparator = new Comparators\Comparator( $type, $multiple );

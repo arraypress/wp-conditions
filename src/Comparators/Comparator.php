@@ -97,6 +97,19 @@ class Comparator {
 	 * @return bool
 	 */
 	private function compare_numeric( string $operator, mixed $user_value, mixed $compare_value ): bool {
+		// A rule without a number cannot be judged.
+		if ( ! is_numeric( $user_value ) ) {
+			return false;
+		}
+
+		// An observed value that is not a number -- missing, null, "abc" --
+		// used to cast to nought, so "order total < 10" fired for every
+		// request whose caller forgot to pass the total. No number is not
+		// equal to any number, and is neither above nor below one.
+		if ( ! is_numeric( $compare_value ) ) {
+			return '!=' === $operator;
+		}
+
 		$user_value    = (float) $user_value;
 		$compare_value = (float) $compare_value;
 
@@ -138,8 +151,9 @@ class Comparator {
 			'not_contains' => ! str_contains( strtolower( $compare_value ), strtolower( $user_value ) ),
 			'starts_with' => str_starts_with( strtolower( $compare_value ), strtolower( $user_value ) ),
 			'ends_with' => str_ends_with( strtolower( $compare_value ), strtolower( $user_value ) ),
-			'empty' => empty( $compare_value ),
-			'not_empty' => ! empty( $compare_value ),
+			// Not empty(): "0" is a value.
+			'empty' => '' === $compare_value,
+			'not_empty' => '' !== $compare_value,
 			// Silenced deliberately: a malformed pattern is an admin typo in a
 			// rule, and the answer is "does not match", not a warning on the
 			// customer's checkout page. preg_match returns false either way,
@@ -162,17 +176,52 @@ class Comparator {
 	 * @return bool
 	 */
 	private function compare_equality( string $operator, mixed $user_value, mixed $compare_value ): bool {
-		// Loose on purpose. A rule saved from the admin holds strings; the value
-		// it is compared against can be an int, a float or a bool depending on
-		// the condition. Strict comparison here would make a select storing "1"
-		// never match a helper returning 1.
-		// phpcs:disable Universal.Operators.StrictComparisons
 		return match ( $operator ) {
-			'==' => $compare_value == $user_value,
-			'!=' => $compare_value != $user_value,
+			'==' => self::same( $user_value, $compare_value ),
+			'!=' => ! self::same( $user_value, $compare_value ),
 			default => false,
 		};
-		// phpcs:enable Universal.Operators.StrictComparisons
+	}
+
+	/**
+	 * Whether a configured value and an observed one are the same value.
+	 *
+	 * A rule saved from the admin holds strings; the value it is compared
+	 * against can be an int, a float or a bool depending on the condition, so
+	 * a select storing "1" has to match a helper returning 1. PHP's loose
+	 * comparison did that, and also decided that true == "no", so a boolean
+	 * helper matched whatever the rule said. Numbers are compared as numbers,
+	 * booleans as "1" and "0", and everything else as text.
+	 *
+	 * @param mixed $a One value.
+	 * @param mixed $b The other.
+	 *
+	 * @return bool
+	 */
+	private static function same( mixed $a, mixed $b ): bool {
+		// Nothing is not the same as anything, the empty option included.
+		if ( null === $a || null === $b ) {
+			return false;
+		}
+
+		if ( is_bool( $a ) ) {
+			$a = $a ? '1' : '0';
+		}
+
+		if ( is_bool( $b ) ) {
+			$b = $b ? '1' : '0';
+		}
+
+		if ( ! is_scalar( $a ) || ! is_scalar( $b ) ) {
+			return false;
+		}
+
+		if ( is_numeric( $a ) && is_numeric( $b ) ) {
+			// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- both sides are floats.
+			return (float) $a == (float) $b;
+		}
+
+		return (string) $a === (string) $b;
 	}
 
 	/**
@@ -327,8 +376,11 @@ class Comparator {
 		// Match if ANY tag matches ANY compare-value entry.
 		$matches_any = false;
 		foreach ( $tags as $tag ) {
-			$tag = strtolower( trim( $tag ) );
-			if ( empty( $tag ) ) {
+			// A tag saved programmatically for an ASN or an id is an int, and
+			// under strict types that was a TypeError in trim(). And "0" is a
+			// tag, not an absence.
+			$tag = strtolower( trim( (string) $tag ) );
+			if ( '' === $tag ) {
 				continue;
 			}
 
@@ -362,7 +414,19 @@ class Comparator {
 	 * @return bool
 	 */
 	private function compare_boolean( string $operator, mixed $compare_value ): bool {
-		$is_true = filter_var( $compare_value, FILTER_VALIDATE_BOOLEAN );
+		// No answer is not "no". A provider that could not be reached, or a
+		// helper that returned something that is not a boolean at all, used to
+		// satisfy every "is X = No" rule, so "Is VPN = No" passed whenever the
+		// lookup failed.
+		if ( null === $compare_value ) {
+			return false;
+		}
+
+		$is_true = filter_var( $compare_value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+
+		if ( null === $is_true ) {
+			return false;
+		}
 
 		return match ( $operator ) {
 			'yes' => $is_true === true,
@@ -383,8 +447,8 @@ class Comparator {
 	 * @return bool
 	 */
 	private function compare_date( string $operator, mixed $user_value, mixed $compare_value ): bool {
-		$user_date    = strtotime( (string) $user_value );
-		$compare_date = strtotime( (string) $compare_value );
+		$user_date    = self::to_timestamp( $user_value );
+		$compare_date = self::to_timestamp( $compare_value );
 
 		if ( $user_date === false || $compare_date === false ) {
 			return false;
@@ -417,6 +481,13 @@ class Comparator {
 	 * @return bool
 	 */
 	private function compare_time( string $operator, mixed $user_value, mixed $compare_value ): bool {
+		// "1970-01-01 " followed by nothing parses as midnight, so a missing
+		// time used to equal 00:00.
+		if ( ! is_scalar( $user_value ) || ! is_scalar( $compare_value )
+			|| '' === (string) $user_value || '' === (string) $compare_value ) {
+			return false;
+		}
+
 		$user_time    = strtotime( '1970-01-01 ' . $user_value );
 		$compare_time = strtotime( '1970-01-01 ' . $compare_value );
 
@@ -431,5 +502,27 @@ class Comparator {
 			'<' => $compare_time < $user_time,
 			default => false,
 		};
+	}
+
+	/**
+	 * A date value as a timestamp.
+	 *
+	 * Helpers hand over timestamps as often as strings, and strtotime() of a
+	 * timestamp is false -- so a date rule never matched one.
+	 *
+	 * @param mixed $value A date string or a timestamp.
+	 *
+	 * @return int|false
+	 */
+	private static function to_timestamp( mixed $value ): int|false {
+		if ( is_int( $value ) || is_float( $value ) ) {
+			return (int) $value;
+		}
+
+		if ( ! is_string( $value ) || '' === trim( $value ) ) {
+			return false;
+		}
+
+		return is_numeric( $value ) ? (int) $value : strtotime( $value );
 	}
 }

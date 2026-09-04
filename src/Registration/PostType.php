@@ -82,6 +82,7 @@ class PostType {
 			'menu_icon'           => $this->config['menu_icon'],
 			'capability_type'     => 'post',
 			'map_meta_cap'        => true,
+			'capabilities'        => $this->capabilities(),
 			'hierarchical'        => false,
 			'supports'            => $this->config['supports'] ?? [ 'title' ],
 			'has_archive'         => false,
@@ -91,6 +92,38 @@ class PostType {
 		];
 
 		register_post_type( $this->set_id, $args );
+	}
+
+	/**
+	 * Every primitive capability of the post type, mapped to the set's own.
+	 *
+	 * Registered as capability_type 'post', the rules answered to the post
+	 * capabilities: any Editor could retitle, unpublish or trash every rule
+	 * in a fraud or blocking set -- and the matcher only reads published
+	 * rules, so trashing one silently switched it off. Only the conditions
+	 * meta was ever gated on the set's capability. Now the post type is too.
+	 *
+	 * @return array<string, string>
+	 */
+	private function capabilities(): array {
+		$capability = (string) ( $this->config['capability'] ?? 'manage_options' );
+
+		return array_fill_keys(
+			[
+				'edit_posts',
+				'edit_others_posts',
+				'edit_private_posts',
+				'edit_published_posts',
+				'publish_posts',
+				'read_private_posts',
+				'delete_posts',
+				'delete_private_posts',
+				'delete_published_posts',
+				'delete_others_posts',
+				'create_posts',
+			],
+			$capability
+		);
 	}
 
 	/**
@@ -349,11 +382,14 @@ class PostType {
 		$plural   = $this->config['labels']['plural'];
 		$count    = count( $ids );
 
-		// Build undo URL
-		$undo_url = wp_nonce_url(
-			admin_url( sprintf( 'post.php?action=untrash&post=%s', implode( ',', $ids ) ) ),
-			'untrash-post_' . $ids[0]
-		);
+		// Build undo URL. post.php restores one post, so several ids link to
+		// the trash view instead of restoring the first and dropping the rest.
+		$undo_url = 1 === $count
+			? wp_nonce_url(
+				admin_url( sprintf( 'post.php?action=untrash&post=%d', $ids[0] ) ),
+				'untrash-post_' . $ids[0]
+			)
+			: admin_url( sprintf( 'edit.php?post_status=trash&post_type=%s', rawurlencode( $this->set_id ) ) );
 
 		$message = sprintf(
 			/* translators: 1: number of items, 2: post type name, singular or plural to match. */

@@ -131,4 +131,91 @@ final class ComparatorTest extends TestCase {
 		$this->assertTrue( $this->compare( 'select', '==', 'stripe', 'stripe' ) );
 		$this->assertFalse( $this->compare( 'select', '==', 'stripe', 'paypal' ) );
 	}
+	/**
+	 * No answer is not "no".
+	 *
+	 * A provider that could not be reached, or a helper that returned
+	 * something that is not a boolean at all, used to satisfy every
+	 * "is X = No" rule -- so "Is VPN = No" passed whenever the lookup failed.
+	 */
+	public function test_a_boolean_without_an_answer_matches_neither_way(): void {
+		foreach ( [ null, 'unknown', 2, 'maybe' ] as $unanswered ) {
+			$this->assertFalse( $this->compare( 'boolean', 'yes', null, $unanswered ) );
+			$this->assertFalse( $this->compare( 'boolean', 'no', null, $unanswered ) );
+		}
+
+		$this->assertTrue( $this->compare( 'boolean', 'no', null, false ) );
+		$this->assertTrue( $this->compare( 'boolean', 'no', null, '0' ) );
+		$this->assertTrue( $this->compare( 'boolean', 'yes', null, 'yes' ) );
+	}
+
+	/**
+	 * A missing number is not nought.
+	 *
+	 * It used to cast to 0.0, so "order total < 10" fired for every request
+	 * whose caller forgot to pass the total.
+	 */
+	public function test_a_missing_number_is_not_zero(): void {
+		foreach ( [ null, '', 'abc', [] ] as $missing ) {
+			$this->assertFalse( $this->compare( 'number', '<', 10, $missing ) );
+			$this->assertFalse( $this->compare( 'number', '<=', 0, $missing ) );
+			$this->assertFalse( $this->compare( 'number', '==', 0, $missing ) );
+			$this->assertTrue( $this->compare( 'number', '!=', 0, $missing ) );
+		}
+
+		$this->assertFalse( $this->compare( 'number', '<', 'abc', 5 ), 'A rule without a number cannot be judged.' );
+	}
+
+	/**
+	 * A tag that arrives as a number is compared, and "0" is a tag.
+	 */
+	public function test_tags_may_be_numbers(): void {
+		$this->assertTrue( $this->compare( 'tags', 'any_exact', [ 13335 ], '13335' ) );
+		$this->assertTrue( $this->compare( 'tags', 'any_exact', [ '0' ], '0' ) );
+		$this->assertFalse( $this->compare( 'tags', 'any_exact', [ '' ], '' ), 'An empty tag matches nothing.' );
+	}
+
+	/**
+	 * A single select compares values, not PHP's idea of truthiness.
+	 *
+	 * Loose comparison decided that true == "no", so a boolean helper
+	 * matched whatever the rule said.
+	 */
+	public function test_a_single_select_is_not_fooled_by_a_boolean(): void {
+		$this->assertFalse( $this->compare( 'select', '==', 'no', true ) );
+		$this->assertTrue( $this->compare( 'select', '==', '1', true ) );
+		$this->assertTrue( $this->compare( 'select', '==', '1', 1 ) );
+		$this->assertTrue( $this->compare( 'select', '==', '1.50', 1.5 ) );
+		$this->assertFalse( $this->compare( 'select', '==', '', null ), 'Nothing is not the empty option.' );
+	}
+
+	/**
+	 * "0" is not empty.
+	 */
+	public function test_a_zero_is_not_empty(): void {
+		$this->assertFalse( $this->compare( 'text', 'empty', null, '0' ) );
+		$this->assertTrue( $this->compare( 'text', 'not_empty', null, '0' ) );
+	}
+
+	/**
+	 * A date rule matches a timestamp.
+	 *
+	 * Helpers hand over timestamps as often as strings, and strtotime() of a
+	 * timestamp is false.
+	 */
+	public function test_a_date_rule_matches_a_timestamp(): void {
+		$this->assertTrue( $this->compare( 'date', '==', '2024-01-15', 1705276800 ) );
+		$this->assertTrue( $this->compare( 'date', '==', '2024-01-15', '1705276800' ) );
+		$this->assertTrue( $this->compare( 'date', '>', '2024-01-14', 1705276800 ) );
+		$this->assertFalse( $this->compare( 'date', '==', '2024-01-15', null ) );
+	}
+
+	/**
+	 * A missing time is not midnight.
+	 */
+	public function test_a_missing_time_is_not_midnight(): void {
+		$this->assertFalse( $this->compare( 'time', '==', '00:00', null ) );
+		$this->assertFalse( $this->compare( 'time', '==', '00:00', '' ) );
+		$this->assertTrue( $this->compare( 'time', '==', '09:30', '09:30' ) );
+	}
 }
