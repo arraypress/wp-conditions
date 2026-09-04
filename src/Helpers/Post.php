@@ -154,7 +154,7 @@ class Post {
 
 		$parsed = Parse::number_unit( $args );
 
-		return DateTime::get_age( $post->post_date, $parsed['unit'] );
+		return DateTime::get_age( self::gmt_date( $post->post_date_gmt, $post->post_date ), $parsed['unit'] );
 	}
 
 	/**
@@ -236,7 +236,9 @@ class Post {
 			return '';
 		}
 
-		return get_page_template_slug( $post->ID ) ?: '';
+		// Core stores no template as '', and the option list calls that
+		// 'default', so the two have to meet somewhere.
+		return get_page_template_slug( $post->ID ) ?: 'default';
 	}
 
 	/**
@@ -468,6 +470,22 @@ class Post {
 
 		$parsed = Parse::number_unit( $args );
 
-		return DateTime::get_age( $post->post_modified, $parsed['unit'] );
+		return DateTime::get_age( self::gmt_date( $post->post_modified_gmt, $post->post_modified ), $parsed['unit'] );
+	}
+
+	/**
+	 * A post date as UTC, for an age.
+	 *
+	 * The gmt column is the one to read; the local one is off by the site's
+	 * offset. A draft has no gmt date yet (all zeros), and its local date is
+	 * the best there is.
+	 *
+	 * @param string $gmt   The *_gmt column.
+	 * @param string $local The local column.
+	 *
+	 * @return string
+	 */
+	private static function gmt_date( string $gmt, string $local ): string {
+		return str_starts_with( $gmt, '0000' ) ? $local : $gmt . ' UTC';
 	}
 }

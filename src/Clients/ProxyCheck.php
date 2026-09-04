@@ -29,7 +29,7 @@ class ProxyCheck {
 	 *
 	 * @var Client|null
 	 */
-	private static ?Client $client = null;
+	private static array $clients = [];
 
 	/**
 	 * Cached IP results.
@@ -59,11 +59,9 @@ class ProxyCheck {
 			return null;
 		}
 
-		if ( self::$client === null ) {
-			self::$client = new Client( $api_key, true, 600 );
-		}
-
-		return self::$client;
+		// One client per key: a second condition set, or another blog on a
+		// network, may not share the first one's key.
+		return self::$clients[ $api_key ] ??= new Client( $api_key, true, 600 );
 	}
 
 	/**
@@ -102,7 +100,7 @@ class ProxyCheck {
 			return null;
 		}
 
-		if ( isset( self::$ip_results[ $ip ] ) ) {
+		if ( array_key_exists( $ip, self::$ip_results ) ) {
 			return self::$ip_results[ $ip ];
 		}
 
@@ -118,13 +116,11 @@ class ProxyCheck {
 			'risk' => 2,
 		] );
 
-		if ( is_wp_error( $result ) ) {
-			return null;
-		}
+		// A failure is remembered for the request too. Without this every
+		// condition in the same pass asked the provider again.
+		self::$ip_results[ $ip ] = is_wp_error( $result ) ? null : $result;
 
-		self::$ip_results[ $ip ] = $result;
-
-		return $result;
+		return self::$ip_results[ $ip ];
 	}
 
 	/**
@@ -141,7 +137,7 @@ class ProxyCheck {
 			return null;
 		}
 
-		if ( isset( self::$email_results[ $email ] ) ) {
+		if ( array_key_exists( $email, self::$email_results ) ) {
 			return self::$email_results[ $email ];
 		}
 
@@ -153,13 +149,11 @@ class ProxyCheck {
 
 		$result = $client->check_email( $email );
 
-		if ( is_wp_error( $result ) ) {
-			return null;
-		}
+		// A failure is remembered for the request too. Without this every
+		// condition in the same pass asked the provider again.
+		self::$email_results[ $email ] = is_wp_error( $result ) ? null : $result;
 
-		self::$email_results[ $email ] = $result;
-
-		return $result;
+		return self::$email_results[ $email ];
 	}
 
 	/** -------------------------------------------------------------------------
@@ -685,6 +679,6 @@ class ProxyCheck {
 	public static function clear_cache(): void {
 		self::$ip_results    = [];
 		self::$email_results = [];
-		self::$client        = null;
+		self::$clients = [];
 	}
 }

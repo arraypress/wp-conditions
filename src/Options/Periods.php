@@ -25,9 +25,43 @@ class Periods {
 	/** Time Units ****************************************************************/
 
 	/**
-	 * Get time period units (includes minutes and hours).
+	 * The window a velocity rule counts within: the last one of each unit.
 	 *
 	 * Used for conditions like "Orders in last X hours/days/weeks".
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_window_units(): array {
+		return [
+			[
+				'value' => 'minute',
+				'label' => __( 'in the last minute', 'arraypress' ),
+			],
+			[
+				'value' => 'hour',
+				'label' => __( 'in the last hour', 'arraypress' ),
+			],
+			[
+				'value' => 'day',
+				'label' => __( 'in the last day', 'arraypress' ),
+			],
+			[
+				'value' => 'week',
+				'label' => __( 'in the last week', 'arraypress' ),
+			],
+			[
+				'value' => 'month',
+				'label' => __( 'in the last month', 'arraypress' ),
+			],
+			[
+				'value' => 'year',
+				'label' => __( 'in the last year', 'arraypress' ),
+			],
+		];
+	}
+
+	/**
+	 * Get time unit options.
 	 *
 	 * @return array<array{value: string, label: string}>
 	 */

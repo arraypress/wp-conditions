@@ -28,7 +28,7 @@ class AbuseIPDB {
 	 *
 	 * @var Client|null
 	 */
-	private static ?Client $client = null;
+	private static array $clients = [];
 
 	/**
 	 * Cached Check responses keyed by IP.
@@ -50,11 +50,9 @@ class AbuseIPDB {
 			return null;
 		}
 
-		if ( self::$client === null ) {
-			self::$client = new Client( $key );
-		}
-
-		return self::$client;
+		// One client per key: a second condition set, or another blog on a
+		// network, may not share the first one's key.
+		return self::$clients[ $key ] ??= new Client( $key );
 	}
 
 	/**
@@ -189,7 +187,7 @@ class AbuseIPDB {
 	 * @return void
 	 */
 	public static function reset_cache(): void {
-		self::$client  = null;
+		self::$clients = [];
 		self::$results = [];
 	}
 }

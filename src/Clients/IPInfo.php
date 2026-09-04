@@ -29,7 +29,7 @@ class IPInfo {
 	 *
 	 * @var Client|null
 	 */
-	private static ?Client $client = null;
+	private static array $clients = [];
 
 	/**
 	 * Cached IP results.
@@ -52,11 +52,9 @@ class IPInfo {
 			return null;
 		}
 
-		if ( self::$client === null ) {
-			self::$client = new Client( $api_key, true, 3600 );
-		}
-
-		return self::$client;
+		// One client per key: a second condition set, or another blog on a
+		// network, may not share the first one's key.
+		return self::$clients[ $api_key ] ??= new Client( $api_key, true, 3600 );
 	}
 
 	/**
@@ -84,7 +82,7 @@ class IPInfo {
 			return null;
 		}
 
-		if ( isset( self::$results[ $ip ] ) ) {
+		if ( array_key_exists( $ip, self::$results ) ) {
 			return self::$results[ $ip ];
 		}
 
@@ -96,13 +94,11 @@ class IPInfo {
 
 		$result = $client->get_ip_info( $ip );
 
-		if ( is_wp_error( $result ) ) {
-			return null;
-		}
+		// A failure is remembered for the request too. Without this every
+		// condition in the same pass asked the provider again.
+		self::$results[ $ip ] = is_wp_error( $result ) ? null : $result;
 
-		self::$results[ $ip ] = $result;
-
-		return $result;
+		return self::$results[ $ip ];
 	}
 
 	/** -------------------------------------------------------------------------
@@ -326,6 +322,6 @@ class IPInfo {
 	 */
 	public static function clear_cache(): void {
 		self::$results = [];
-		self::$client  = null;
+		self::$clients = [];
 	}
 }

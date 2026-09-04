@@ -111,7 +111,7 @@ class User {
 
 		$parsed = Parse::number_unit( $args );
 
-		return DateTime::get_age( $user->user_registered, $parsed['unit'] );
+		return DateTime::get_age( $user->user_registered . ' UTC', $parsed['unit'] );
 	}
 
 	/**
@@ -332,6 +332,8 @@ class User {
 		// would reformat it through PHP's timezone, which any plugin can change
 		// at runtime -- and a registration date that moves by a day changes
 		// what an account-age rule matches.
-		return gmdate( 'Y-m-d', strtotime( $user->user_registered . ' UTC' ) );
+		$registered = strtotime( $user->user_registered . ' UTC' );
+
+		return false === $registered ? '' : gmdate( 'Y-m-d', $registered );
 	}
 }

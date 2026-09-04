@@ -13,6 +13,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\Core;
 
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\AcceptLanguageUtils\AcceptLanguage;
 use ArrayPress\Conditions\Helpers\Request as RequestHelper;
 use ArrayPress\Conditions\Operators;
@@ -84,6 +85,7 @@ class Request {
 				'type'          => 'text',
 				'placeholder'   => __( 'cookie_name:expected_value', 'arraypress' ),
 				'description'   => __( 'Match against a cookie value. Format: cookie_name:value', 'arraypress' ),
+				'user_value'    => fn( $value ) => Parse::meta( (string) $value )['value'],
 				'compare_value' => fn( $args, $user_value ) => RequestHelper::get_cookie_value( $args, $user_value ),
 				'required_args' => [],
 			],
@@ -93,6 +95,7 @@ class Request {
 				'type'          => 'text',
 				'placeholder'   => __( 'Header-Name:expected_value', 'arraypress' ),
 				'description'   => __( 'Match against an HTTP header value. Format: Header-Name:value', 'arraypress' ),
+				'user_value'    => fn( $value ) => Parse::meta( (string) $value )['value'],
 				'compare_value' => fn( $args, $user_value ) => RequestHelper::get_header_value( $args, $user_value ),
 				'required_args' => [],
 			],
@@ -116,7 +119,7 @@ class Request {
 				'description'   => __( 'Match against the visitor country (requires Cloudflare or geo-IP service).', 'arraypress' ),
 				'operators'     => Operators::collection_any_none(),
 				'options'       => fn() => function_exists( 'get_country_options' ) ? get_country_options() : [],
-				'compare_value' => fn( $args ) => $args['country'] ?? IP::get_country(),
+				'compare_value' => fn( $args ) => RequestHelper::get_country( $args ),
 				'required_args' => [],
 			],
 			'accept_language'      => [

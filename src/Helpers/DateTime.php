@@ -32,7 +32,7 @@ class DateTime {
 	 * @return string Y-m-d formatted date.
 	 */
 	public static function get_current_date( array $args = [] ): string {
-		return $args['current_date'] ?? current_time( 'Y-m-d' );
+		return (string) ( $args['current_date'] ?? current_time( 'Y-m-d' ) );
 	}
 
 	/**
@@ -43,7 +43,7 @@ class DateTime {
 	 * @return string H:i formatted time.
 	 */
 	public static function get_current_time( array $args = [] ): string {
-		return $args['current_time'] ?? current_time( 'H:i' );
+		return (string) ( $args['current_time'] ?? current_time( 'H:i' ) );
 	}
 
 	/**
@@ -54,7 +54,7 @@ class DateTime {
 	 * @return int
 	 */
 	public static function get_current_year( array $args = [] ): int {
-		return $args['current_year'] ?? (int) current_time( 'Y' );
+		return (int) ( $args['current_year'] ?? current_time( 'Y' ) );
 	}
 
 	/**
@@ -65,7 +65,7 @@ class DateTime {
 	 * @return int
 	 */
 	public static function get_current_month( array $args = [] ): int {
-		return $args['current_month'] ?? (int) current_time( 'n' );
+		return (int) ( $args['current_month'] ?? current_time( 'n' ) );
 	}
 
 	/**
@@ -76,7 +76,7 @@ class DateTime {
 	 * @return int
 	 */
 	public static function get_current_quarter( array $args = [] ): int {
-		return $args['quarter'] ?? (int) ceil( (int) current_time( 'n' ) / 3 );
+		return (int) ( $args['quarter'] ?? ceil( (int) current_time( 'n' ) / 3 ) );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class DateTime {
 	 * @return int
 	 */
 	public static function get_current_week( array $args = [] ): int {
-		return $args['week_of_year'] ?? (int) current_time( 'W' );
+		return (int) ( $args['week_of_year'] ?? current_time( 'W' ) );
 	}
 
 	/**
@@ -98,7 +98,7 @@ class DateTime {
 	 * @return int
 	 */
 	public static function get_day_of_month( array $args = [] ): int {
-		return $args['day_of_month'] ?? (int) current_time( 'j' );
+		return (int) ( $args['day_of_month'] ?? current_time( 'j' ) );
 	}
 
 	/**
@@ -109,7 +109,7 @@ class DateTime {
 	 * @return int
 	 */
 	public static function get_day_of_week( array $args = [] ): int {
-		return $args['day_of_week'] ?? (int) current_time( 'N' );
+		return (int) ( $args['day_of_week'] ?? current_time( 'N' ) );
 	}
 
 	/**
@@ -120,7 +120,7 @@ class DateTime {
 	 * @return int
 	 */
 	public static function get_day_of_year( array $args = [] ): int {
-		return $args['day_of_year'] ?? (int) current_time( 'z' ) + 1;
+		return (int) ( $args['day_of_year'] ?? (int) current_time( 'z' ) + 1 );
 	}
 
 	/**
@@ -132,7 +132,7 @@ class DateTime {
 	 */
 	public static function get_time_of_day( array $args = [] ): string {
 		if ( isset( $args['time_of_day'] ) ) {
-			return $args['time_of_day'];
+			return (string) $args['time_of_day'];
 		}
 
 		$hour = (int) current_time( 'G' );
@@ -157,7 +157,7 @@ class DateTime {
 	 * @return bool
 	 */
 	public static function is_weekend( array $args = [] ): bool {
-		return $args['is_weekend'] ?? (int) current_time( 'N' ) >= 6;
+		return (bool) ( $args['is_weekend'] ?? (int) current_time( 'N' ) >= 6 );
 	}
 
 	/**
@@ -168,7 +168,7 @@ class DateTime {
 	 * @return bool
 	 */
 	public static function is_weekday( array $args = [] ): bool {
-		return $args['is_weekday'] ?? (int) current_time( 'N' ) <= 5;
+		return (bool) ( $args['is_weekday'] ?? (int) current_time( 'N' ) <= 5 );
 	}
 
 	/**
@@ -180,7 +180,7 @@ class DateTime {
 	 */
 	public static function is_business_hours( array $args = [] ): bool {
 		if ( isset( $args['is_business_hours'] ) ) {
-			return $args['is_business_hours'];
+			return (bool) $args['is_business_hours'];
 		}
 
 		$day  = (int) current_time( 'N' );
@@ -238,6 +238,10 @@ class DateTime {
 	/**
 	 * Calculate age from a date string in specified units.
 	 *
+	 * The string is read as UTC unless it says otherwise, because that is
+	 * how WordPress and both shops store their timestamps: user_registered,
+	 * post_date_gmt, an order's date_created.
+	 *
 	 * @param string $date_string The date string (any format strtotime accepts).
 	 * @param string $unit        The unit to return.
 	 *
@@ -266,8 +270,11 @@ class DateTime {
 	 * @return int The age in the specified unit.
 	 */
 	public static function get_age_from_timestamp( int $timestamp, string $unit = 'day' ): int {
-		$now  = current_time( 'timestamp' );
-		$diff = $now - $timestamp;
+		// time(), not current_time( 'timestamp' ). The latter is the site's
+		// wall clock shifted by its UTC offset, and every timestamp handed in
+		// here is a real epoch -- so on a UTC+10 site a minute-old account
+		// read as ten hours old, and on a negative offset as not yet created.
+		$diff = time() - $timestamp;
 
 		if ( $diff < 0 ) {
 			return 0;

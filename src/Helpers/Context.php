@@ -30,7 +30,7 @@ class Context {
 	 * @return bool
 	 */
 	public static function is_rest( array $args = [] ): bool {
-		return $args['is_rest'] ?? ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		return (bool) ( $args['is_rest'] ?? ( defined( 'REST_REQUEST' ) && REST_REQUEST ) );
 	}
 
 	/**
@@ -41,7 +41,7 @@ class Context {
 	 * @return bool
 	 */
 	public static function is_cli( array $args = [] ): bool {
-		return $args['is_cli'] ?? ( defined( 'WP_CLI' ) && WP_CLI );
+		return (bool) ( $args['is_cli'] ?? ( defined( 'WP_CLI' ) && WP_CLI ) );
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Context {
 	 * @return bool
 	 */
 	public static function is_debug( array $args = [] ): bool {
-		return $args['is_debug'] ?? ( defined( 'WP_DEBUG' ) && WP_DEBUG );
+		return (bool) ( $args['is_debug'] ?? ( defined( 'WP_DEBUG' ) && WP_DEBUG ) );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Context {
 	 */
 	public static function is_local( array $args = [] ): bool {
 		if ( isset( $args['is_local'] ) ) {
-			return $args['is_local'];
+			return (bool) $args['is_local'];
 		}
 
 		if ( function_exists( 'wp_get_environment_type' ) ) {
@@ -83,7 +83,7 @@ class Context {
 	 */
 	public static function get_environment( array $args = [] ): string {
 		if ( isset( $args['environment'] ) ) {
-			return $args['environment'];
+			return (string) $args['environment'];
 		}
 
 		if ( function_exists( 'wp_get_environment_type' ) ) {

@@ -15,6 +15,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Helpers;
 
+use ArrayPress\IPUtils\IP;
 use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\ReferrerUtils\Referrer;
 
@@ -40,11 +41,43 @@ class Request {
 	 * @return string
 	 */
 	private static function read( array $source, string $key ): string {
-		if ( ! isset( $source[ $key ] ) ) {
+		if ( ! isset( $source[ $key ] ) || ! is_scalar( $source[ $key ] ) ) {
 			return '';
 		}
 
-		return sanitize_text_field( wp_unslash( (string) $source[ $key ] ) );
+		// Not sanitize_text_field(): it deletes every %xx sequence, so a
+		// URL-encoded cookie or header -- which is most of them -- never
+		// equalled what the admin typed. Control characters are the only thing
+		// a comparison has no use for.
+		$value = wp_check_invalid_utf8( wp_unslash( (string) $source[ $key ] ) );
+
+		return trim( (string) preg_replace( '/[\x00-\x1F\x7F]/', '', $value ) );
+	}
+
+	/**
+	 * The visitor's country code, when there is a trustworthy source for it.
+	 *
+	 * The Cloudflare header is the client's to write unless Cloudflare wrote
+	 * it, so it is only read when the request came through a trusted proxy.
+	 * Without that check any visitor on a site not behind Cloudflare could
+	 * send `CF-IPCountry: US` and pass a country allow-list.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string|null Two-letter code, or null when nothing trustworthy says.
+	 */
+	public static function get_country( array $args = [] ): ?string {
+		if ( isset( $args['country'] ) ) {
+			return (string) $args['country'];
+		}
+
+		$remote = self::read( $_SERVER, 'REMOTE_ADDR' );
+
+		if ( '' === $remote || ! IP::is_trusted_proxy( $remote ) ) {
+			return null;
+		}
+
+		return IP::get_country();
 	}
 
 	/**
@@ -60,7 +93,7 @@ class Request {
 		}
 
 		$protocol = is_ssl() ? 'https://' : 'http://';
-		$host     = self::read( $_SERVER, 'HTTP_HOST' );
+		$host     = sanitize_text_field( self::read( $_SERVER, 'HTTP_HOST' ) );
 
 		// esc_url_raw rather than sanitize_text_field: the URI carries query
 		// separators and encoded characters the text sniff would strip, and a
@@ -80,7 +113,7 @@ class Request {
 	 * @return bool
 	 */
 	public static function is_ssl( array $args = [] ): bool {
-		return $args['is_ssl'] ?? is_ssl();
+		return (bool) ( $args['is_ssl'] ?? is_ssl() );
 	}
 
 	/**
@@ -91,7 +124,7 @@ class Request {
 	 * @return string
 	 */
 	public static function get_method( array $args = [] ): string {
-		return $args['request_method'] ?? ( self::read( $_SERVER, 'REQUEST_METHOD' ) ?: 'GET' );
+		return (string) ( $args['request_method'] ?? ( self::read( $_SERVER, 'REQUEST_METHOD' ) ?: 'GET' ) );
 	}
 
 	/**
@@ -224,7 +257,6 @@ class Request {
 			'Playwright',
 			'Cypress',
 			'Nightmare',
-			'electron',
 			'jsdom',
 			'Lighthouse',
 		];
@@ -273,8 +305,12 @@ class Request {
 			return true;
 		}
 
-		// Safari < 13 (read the WebKit-style version token).
-		if ( preg_match( '/Version\/(\d+).*Safari/i', $ua, $m ) && (int) $m[1] < 13 ) {
+		// Safari < 13 (read the WebKit-style version token). Not on Android
+		// or alongside a Chrome token: an Android WebView and every in-app
+		// browser advertise "Version/4.0 ... Chrome/124 ... Safari", which is
+		// not an old Safari, it is a current Chrome.
+		if ( ! preg_match( '/Chrome\/|CriOS\/|Android/i', $ua )
+			&& preg_match( '/Version\/(\d+).*Safari/i', $ua, $m ) && (int) $m[1] < 13 ) {
 			return true;
 		}
 

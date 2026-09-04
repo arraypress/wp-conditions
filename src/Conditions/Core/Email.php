@@ -81,7 +81,7 @@ class Email {
 				'type'          => 'tags',
 				'placeholder'   => __( 'e.g. cc, club, xyz, top', 'arraypress' ),
 				'operators'     => Operators::tags_exact(),
-				'description'   => __( 'Match the email\'s top-level domain (the bit after the last dot — `com`, `co.uk`, `xyz`). Some TLDs correlate strongly with abuse: `.cc`, `.club`, `.xyz`, `.top`, `.tk`, `.ml`, `.work` are all common in fraud. Use "Is any of" with that watchlist for a quick block.', 'arraypress' ),
+				'description'   => __( 'Match the email\'s top-level domain (the bit after the last dot — `com`, `uk`, `xyz`; a compound like `co.uk` reads as `uk`). Some TLDs correlate strongly with abuse: `.cc`, `.club`, `.xyz`, `.top`, `.tk`, `.ml`, `.work` are all common in fraud. Use "Is any of" with that watchlist for a quick block.', 'arraypress' ),
 				'compare_value' => fn( $args ) => EmailHelper::get_tld( $args ),
 				'required_args' => [ 'email' ],
 			],

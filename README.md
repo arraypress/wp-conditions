@@ -57,6 +57,15 @@ if ( check_conditions( 'discount_rule', [ 'user_id' => get_current_user_id() ] )
 `check_conditions()` is true when any rule set matches;
 `check_all_conditions()` requires all of them.
 
+## Behind a proxy
+
+The IP and country conditions read the visitor's address from the request.
+Behind Cloudflare or a load balancer the address they see is the proxy's, and
+the real one arrives in a header any client could also send — so forwarded
+headers are believed only from proxies on a trusted list. Cloudflare's ranges
+are on it by default; add your own with the `ARRAYPRESS_TRUSTED_PROXIES`
+constant or the `arraypress_trusted_proxies` filter from wp-ip-utils.
+
 ## Requirements
 
 * PHP 8.3 or later

@@ -29,7 +29,7 @@ class IPQualityScore {
 	 *
 	 * @var Client|null
 	 */
-	private static ?Client $client = null;
+	private static array $clients = [];
 
 	/**
 	 * Cached IP results.
@@ -59,11 +59,9 @@ class IPQualityScore {
 			return null;
 		}
 
-		if ( self::$client === null ) {
-			self::$client = new Client( $api_key, true, 3600 );
-		}
-
-		return self::$client;
+		// One client per key: a second condition set, or another blog on a
+		// network, may not share the first one's key.
+		return self::$clients[ $api_key ] ??= new Client( $api_key, true, 3600 );
 	}
 
 	/**
@@ -102,7 +100,7 @@ class IPQualityScore {
 			return null;
 		}
 
-		if ( isset( self::$ip_results[ $ip ] ) ) {
+		if ( array_key_exists( $ip, self::$ip_results ) ) {
 			return self::$ip_results[ $ip ];
 		}
 
@@ -114,13 +112,11 @@ class IPQualityScore {
 
 		$result = $client->check_ip( $ip );
 
-		if ( is_wp_error( $result ) ) {
-			return null;
-		}
+		// A failure is remembered for the request too. Without this every
+		// condition in the same pass asked the provider again.
+		self::$ip_results[ $ip ] = is_wp_error( $result ) ? null : $result;
 
-		self::$ip_results[ $ip ] = $result;
-
-		return $result;
+		return self::$ip_results[ $ip ];
 	}
 
 	/**
@@ -137,7 +133,7 @@ class IPQualityScore {
 			return null;
 		}
 
-		if ( isset( self::$email_results[ $email ] ) ) {
+		if ( array_key_exists( $email, self::$email_results ) ) {
 			return self::$email_results[ $email ];
 		}
 
@@ -149,13 +145,11 @@ class IPQualityScore {
 
 		$result = $client->validate_email( $email );
 
-		if ( is_wp_error( $result ) ) {
-			return null;
-		}
+		// A failure is remembered for the request too. Without this every
+		// condition in the same pass asked the provider again.
+		self::$email_results[ $email ] = is_wp_error( $result ) ? null : $result;
 
-		self::$email_results[ $email ] = $result;
-
-		return $result;
+		return self::$email_results[ $email ];
 	}
 
 	/** -------------------------------------------------------------------------
@@ -316,7 +310,9 @@ class IPQualityScore {
 	public static function get_connection_type( array $args ): string {
 		$result = self::get_ip_result( $args );
 
-		return $result ? ( $result->get_connection_type() ?? '' ) : '';
+		// The option values are lower-case with no spaces ("datacenter");
+		// the API answers in title case ("Data Center"), so the two never met.
+		return $result ? strtolower( str_replace( ' ', '', (string) ( $result->get_connection_type() ?? '' ) ) ) : '';
 	}
 
 	/**
@@ -396,9 +392,17 @@ class IPQualityScore {
 	 * @return bool
 	 */
 	public static function is_risky_email( array $args ): bool {
-		return self::is_disposable_email( $args )
-				|| ! self::is_valid_email( $args )
-				|| self::is_leaked_email( $args );
+		$result = self::get_email_result( $args );
+
+		// No result is no verdict. This used to read "not valid" as risky, so
+		// a timeout or an exhausted quota made every address risky and a
+		// "Risky Email = yes → block" rule refused every checkout until the
+		// provider came back.
+		if ( ! $result ) {
+			return false;
+		}
+
+		return $result->is_disposable() || ! $result->is_valid() || $result->is_leaked();
 	}
 
 	/** -------------------------------------------------------------------------
@@ -413,6 +417,6 @@ class IPQualityScore {
 	public static function clear_cache(): void {
 		self::$ip_results    = [];
 		self::$email_results = [];
-		self::$client        = null;
+		self::$clients = [];
 	}
 }

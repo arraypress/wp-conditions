@@ -114,7 +114,7 @@ class IPQualityScore {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'ISO-2 country code from the IP geolocation (e.g. US, GB, DE). Useful for blocking high-fraud regions or matching against the customer\'s billing country.', 'arraypress' ),
-				'options'       => GeoHelper::get_country_options(),
+				'options'       => fn() => GeoHelper::get_country_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => IPQSHelper::get_country( $args ),
 				'required_args' => [ 'ip', 'ipqs_api_key' ],

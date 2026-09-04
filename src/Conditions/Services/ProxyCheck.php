@@ -110,7 +110,7 @@ class ProxyCheck {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'ISO-2 country code of the IP geolocation (e.g. US, GB, DE). Useful for blocking high-fraud regions or matching against the customer\'s billing country.', 'arraypress' ),
-				'options'       => GeoHelper::get_country_options(),
+				'options'       => fn() => GeoHelper::get_country_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => ProxyCheckHelper::get_country_code( $args ),
 				'required_args' => [ 'ip', 'proxycheck_api_key' ],

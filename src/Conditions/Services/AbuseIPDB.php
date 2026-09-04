@@ -78,7 +78,7 @@ class AbuseIPDB {
 				'multiple'      => true,
 				'placeholder'   => __( 'Select countries...', 'arraypress' ),
 				'description'   => __( 'ISO-2 country code from AbuseIPDB\'s geolocation. Useful when you want a second-source country check separate from your primary IP-reputation provider.', 'arraypress' ),
-				'options'       => GeoHelper::get_country_options(),
+				'options'       => fn() => GeoHelper::get_country_options(),
 				'operators'     => Operators::collection_any_none(),
 				'compare_value' => fn( $args ) => AbuseIPDBHelper::get_country( $args ),
 				'required_args' => [ 'ip', 'abuseipdb_api_key' ],

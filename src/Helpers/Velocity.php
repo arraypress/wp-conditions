@@ -52,20 +52,19 @@ class Velocity {
 	}
 
 	/**
-	 * Resolve the user-supplied number_unit value into [number, unit].
+	 * The time window a velocity rule counts within: the last one of its unit.
 	 *
-	 * Conditions store the value as ['number' => N, 'unit' => 'hour'] or via
-	 * the magic `_number` / `_unit` args set by the Matcher.
+	 * The rule's number is the threshold -- "at least 3 orders" -- and used
+	 * to double as the window, so "≥ 3 in [minute]" counted the last three
+	 * minutes and "≥ 5 in [hour]" the last five hours. The unit alone is the
+	 * window now: the last minute, hour, day, week, month or year.
 	 *
 	 * @param array $args The condition args.
 	 *
 	 * @return array{0:int,1:string}
 	 */
 	private static function resolve_window( array $args ): array {
-		$number = (int) ( $args['_number'] ?? 1 );
-		$unit   = (string) ( $args['_unit'] ?? 'hour' );
-
-		return [ max( 1, $number ), $unit ];
+		return [ 1, (string) ( $args['_unit'] ?? 'hour' ) ];
 	}
 
 	/**

@@ -13,6 +13,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\Core;
 
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\User as UserHelper;
 use ArrayPress\Conditions\Options\WordPress;
 use ArrayPress\Conditions\Options\Periods;
@@ -212,15 +213,19 @@ class User {
 				'type'          => 'text',
 				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
 				'description'   => __( 'Format: meta_key:value_to_match', 'arraypress' ),
+				'user_value'    => fn( $value ) => Parse::meta( (string) $value )['value'],
 				'compare_value' => fn( $args, $user_value ) => UserHelper::get_meta_text( $args, $user_value ),
 				'required_args' => [],
 			],
 			'user_meta_number'   => [
 				'label'         => __( 'User Meta (Number)', 'arraypress' ),
 				'group'         => __( 'User', 'arraypress' ),
-				'type'          => 'number',
+				'type'          => 'text',
+				'compare_as'    => 'number',
+				'operators'     => Operators::numeric(),
 				'placeholder'   => __( 'meta_key:value', 'arraypress' ),
 				'description'   => __( 'Match against a numeric user meta field. Format: meta_key:value', 'arraypress' ),
+				'user_value'    => fn( $value ) => Parse::meta( (string) $value )['value'],
 				'compare_value' => fn( $args, $user_value ) => UserHelper::get_meta_number( $args, $user_value ),
 				'required_args' => [],
 			],
