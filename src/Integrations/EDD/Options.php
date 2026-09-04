@@ -108,7 +108,17 @@ class Options {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_product_types(): array {
-		return Arr::to_options( edd_get_download_types() );
+		$types = edd_get_download_types();
+
+		// EDD keys the plain download as '' in this list and reports it as
+		// 'default' from the download itself, so "Type is Single Product"
+		// never matched.
+		if ( array_key_exists( '', $types ) ) {
+			$types = [ 'default' => $types[''] ] + $types;
+			unset( $types[''] );
+		}
+
+		return Arr::to_options( $types );
 	}
 
 	/**

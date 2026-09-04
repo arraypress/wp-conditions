@@ -212,7 +212,8 @@ class Product {
 			return '';
 		}
 
-		return edd_get_download_type( $product_id );
+		// EDD answers false for a missing download, and false is not a string.
+		return (string) ( edd_get_download_type( $product_id ) ?: '' );
 	}
 
 	/**

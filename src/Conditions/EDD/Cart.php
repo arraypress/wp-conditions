@@ -305,10 +305,10 @@ class Cart {
 		$conditions['edd_cart_price_ids'] = [
 			'label'         => __( 'Price Options', 'arraypress' ),
 			'group'         => $items,
-			'type'          => 'text',
+			'type'          => 'tags',
 			'placeholder'   => __( 'e.g. 1', 'arraypress' ),
 			'description'   => __( 'The price option IDs chosen across the cart. A variable-priced download sells at several tiers, and which tier was bought is often the thing a rule cares about.', 'arraypress' ),
-			'operators'     => Operators::text(),
+			'operators'     => Operators::tags_exact(),
 			'compare_value' => fn( $args ) => CartHelper::get_price_ids(),
 			'required_args' => [],
 		];

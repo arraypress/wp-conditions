@@ -33,6 +33,12 @@ class Stats {
 	 * @return array{start: string, end: string} Date range in MySQL format (UTC).
 	 */
 	public static function get_date_range( string $range ): array {
+		// Reports\ functions are loaded by EDD\Stats and the admin report
+		// screens, not on a front-end request.
+		if ( ! function_exists( 'EDD\Reports\parse_dates_for_range' ) && defined( 'EDD_PLUGIN_DIR' ) ) {
+			require_once EDD_PLUGIN_DIR . 'includes/reports/reports-functions.php';
+		}
+
 		$dates = Reports\parse_dates_for_range( $range );
 
 		return [
@@ -65,10 +71,13 @@ class Stats {
 	 * @return array
 	 */
 	private static function apply_date_range( array $args, ?string $range ): array {
+		// The preset is handed to EDD\Stats as `range`, which it resolves
+		// itself once it has loaded the Reports functions. Resolving it here
+		// first called Reports\parse_dates_for_range() on a front-end request,
+		// where nothing had loaded it, and the first period rule evaluated at
+		// checkout was a fatal.
 		if ( $range ) {
-			$dates         = self::get_date_range( $range );
-			$args['start'] = $dates['start'];
-			$args['end']   = $dates['end'];
+			$args['range'] = $range;
 		}
 
 		return $args;

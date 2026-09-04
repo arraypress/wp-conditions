@@ -59,7 +59,10 @@ class Customer {
 			return null;
 		}
 
-		return edd_get_customer( $customer_id );
+		// EDD answers false for a missing row, and false is not ?EDD_Customer.
+		$customer = edd_get_customer( $customer_id );
+
+		return $customer instanceof EDD_Customer ? $customer : null;
 	}
 
 	/** -------------------------------------------------------------------------
@@ -87,10 +90,17 @@ class Customer {
 
 		// `purchase_count` is the count of completed orders. At REVIEW
 		// pass the current order is already counted, so subtract it
-		// to get "orders prior to this one".
+		// to get "orders prior to this one" -- but only if it is counted.
+		// A pending or failed order is not, and subtracting for it made a
+		// returning customer read as first_time, the segment fraud rules
+		// single out.
 		$count = (int) $customer->purchase_count;
-		if ( ! empty( $args['order_id'] ) ) {
-			$count = max( 0, $count - 1 );
+		if ( ! empty( $args['order_id'] ) && function_exists( 'edd_get_order' ) ) {
+			$order = edd_get_order( $args['order_id'] );
+
+			if ( is_object( $order ) && in_array( (string) ( $order->status ?? '' ), edd_get_complete_order_statuses(), true ) ) {
+				$count = max( 0, $count - 1 );
+			}
 		}
 
 		return $count === 0 ? 'first_time' : 'returning';
@@ -318,6 +328,7 @@ class Customer {
 		}
 
 		$orders = edd_get_orders( [
+			'type'        => 'sale',
 			'customer_id' => $customer_id,
 			'status__in'  => edd_get_complete_order_statuses(),
 			'number'      => 999999,
@@ -367,6 +378,7 @@ class Customer {
 		}
 
 		$orders = edd_get_orders( [
+			'type'        => 'sale',
 			'customer_id' => $customer_id,
 			'status__in'  => edd_get_complete_order_statuses(),
 			'number'      => 5,
@@ -431,6 +443,7 @@ class Customer {
 		}
 
 		$orders = edd_get_orders( [
+			'type'        => 'sale',
 			'customer_id' => $customer_id,
 			'status__in'  => edd_get_complete_order_statuses(),
 			'number'      => 5,
@@ -476,6 +489,7 @@ class Customer {
 		}
 
 		return edd_count_orders( [
+			'type'        => 'sale',
 			'customer_id' => $customer_id,
 			'status'      => 'refunded',
 		] );
@@ -496,6 +510,7 @@ class Customer {
 		}
 
 		$total_orders = edd_count_orders( [
+			'type'        => 'sale',
 			'customer_id' => $customer_id,
 			'status__in'  => edd_get_complete_order_statuses(),
 		] );
@@ -505,6 +520,7 @@ class Customer {
 		}
 
 		$refunded_orders = edd_count_orders( [
+			'type'        => 'sale',
 			'customer_id' => $customer_id,
 			'status'      => 'refunded',
 		] );
@@ -544,6 +560,7 @@ class Customer {
 		}
 
 		$orders = edd_get_orders( [
+			'type'        => 'sale',
 			'customer_id' => $customer->id,
 			'status__in'  => edd_get_complete_order_statuses(),
 			'number'      => 1,

@@ -576,10 +576,10 @@ class Product {
 		$conditions['edd_product_price_ids'] = [
 			'label'         => __( 'Price Options', 'arraypress' ),
 			'group'         => __( 'Product', 'arraypress' ),
-			'type'          => 'text',
+			'type'          => 'tags',
 			'placeholder'   => __( 'e.g. 1', 'arraypress' ),
 			'description'   => __( 'The price option IDs a variable download offers.', 'arraypress' ),
-			'operators'     => Operators::text(),
+			'operators'     => Operators::tags_exact(),
 			'compare_value' => fn( $args ) => ProductHelper::get_price_ids( $args ),
 			'required_args' => [ 'product_id' ],
 		];

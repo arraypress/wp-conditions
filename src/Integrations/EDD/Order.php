@@ -44,7 +44,10 @@ class Order {
 			return null;
 		}
 
-		return edd_get_order( $order_id );
+		// EDD answers false for a missing row, and false is not ?Order.
+		$order = edd_get_order( $order_id );
+
+		return $order instanceof EDD_Order ? $order : null;
 	}
 
 	/**
@@ -279,7 +282,8 @@ class Order {
 			'number'   => 999,
 		] );
 
-		return count( $items );
+		// Quantities, not rows, so an order and the cart it came from agree.
+		return (int) array_sum( array_map( static fn( $item ) => max( 1, (int) ( $item->quantity ?? 1 ) ), (array) $items ) );
 	}
 
 	/** -------------------------------------------------------------------------

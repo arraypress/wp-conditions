@@ -516,10 +516,10 @@ class Order {
 		$conditions['edd_order_price_ids'] = [
 			'label'         => __( 'Price Options', 'arraypress' ),
 			'group'         => $items,
-			'type'          => 'text',
+			'type'          => 'tags',
 			'placeholder'   => __( 'e.g. 1', 'arraypress' ),
 			'description'   => __( 'The price option IDs across the order\'s items.', 'arraypress' ),
-			'operators'     => Operators::text(),
+			'operators'     => Operators::tags_exact(),
 			'compare_value' => fn( $args ) => OrderHelper::get_price_ids( $args ),
 			'required_args' => [ 'order_id' ],
 		];
