@@ -514,16 +514,16 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:arraypress/wp-ipinfo.git",
-                "reference": "8491c64da644b70092e7d1831fd7342ed1c3ed0d"
+                "reference": "5052c04e6640b9ba5c6cd3eeaa5d5fb8fbbe9f2f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-ipinfo/zipball/8491c64da644b70092e7d1831fd7342ed1c3ed0d",
-                "reference": "8491c64da644b70092e7d1831fd7342ed1c3ed0d",
+                "url": "https://api.github.com/repos/arraypress/wp-ipinfo/zipball/5052c04e6640b9ba5c6cd3eeaa5d5fb8fbbe9f2f",
+                "reference": "5052c04e6640b9ba5c6cd3eeaa5d5fb8fbbe9f2f",
                 "shasum": ""
             },
             "require": {
-                "arraypress/wp-countries": "^1.0",
+                "arraypress/wp-countries": "dev-main",
                 "php": ">=8.3"
             },
             "require-dev": {
@@ -586,7 +586,7 @@
                 "issues": "https://github.com/arraypress/wp-ipinfo/issues",
                 "source": "https://github.com/arraypress/wp-ipinfo"
             },
-            "time": "2026-09-02T16:26:37+00:00"
+            "time": "2026-09-04T18:03:24+00:00"
         },
         {
             "name": "arraypress/wp-ipqualityscore",
@@ -594,16 +594,16 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:arraypress/wp-ipqualityscore.git",
-                "reference": "c54cceb42f12b6a2ea5dc936c21129da3c46669d"
+                "reference": "9a1ebde082a55cecf38a5d9f8af4d8f5b4acd838"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arraypress/wp-ipqualityscore/zipball/c54cceb42f12b6a2ea5dc936c21129da3c46669d",
-                "reference": "c54cceb42f12b6a2ea5dc936c21129da3c46669d",
+                "url": "https://api.github.com/repos/arraypress/wp-ipqualityscore/zipball/9a1ebde082a55cecf38a5d9f8af4d8f5b4acd838",
+                "reference": "9a1ebde082a55cecf38a5d9f8af4d8f5b4acd838",
                 "shasum": ""
             },
             "require": {
-                "arraypress/wp-countries": "^1.0",
+                "arraypress/wp-countries": "dev-main",
                 "php": ">=8.3"
             },
             "require-dev": {
@@ -673,7 +673,7 @@
                 "issues": "https://github.com/arraypress/wp-ipqualityscore/issues",
                 "source": "https://github.com/arraypress/wp-ipqualityscore"
             },
-            "time": "2026-09-02T16:26:40+00:00"
+            "time": "2026-09-04T18:03:26+00:00"
         },
         {
             "name": "arraypress/wp-proxycheck",
