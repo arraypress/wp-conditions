@@ -1008,4 +1008,117 @@ class Order {
 
 		return Address::name_matches_email( $first, $last, $email );
 	}
+	/** -------------------------------------------------------------------------
+	 * Weight and size
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * The product and quantity of every line, for the physical measures.
+	 *
+	 * Read from the product as it is now: an order does not store weight or
+	 * dimensions, and a product deleted since contributes nothing.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array<int, array{0: WC_Product, 1: int}>
+	 */
+	private static function get_physical_lines( array $args ): array {
+		$lines = [];
+
+		foreach ( self::get_items( $args ) as $item ) {
+			if ( ! is_object( $item ) || ! method_exists( $item, 'get_product' ) ) {
+				continue;
+			}
+
+			$product = $item->get_product();
+
+			if ( ! $product instanceof WC_Product || $product->is_virtual() ) {
+				continue;
+			}
+
+			$quantity = method_exists( $item, 'get_quantity' ) ? max( 1, (int) $item->get_quantity() ) : 1;
+			$lines[]  = [ $product, $quantity ];
+		}
+
+		return $lines;
+	}
+
+	/**
+	 * Total weight of the order, quantities counted.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float In the store's weight unit.
+	 */
+	public static function get_weight( array $args ): float {
+		$weight = 0.0;
+
+		foreach ( self::get_physical_lines( $args ) as [ $product, $quantity ] ) {
+			$weight += (float) $product->get_weight() * $quantity;
+		}
+
+		return round( $weight, 4 );
+	}
+
+	/**
+	 * Total volume of the order, quantities counted.
+	 *
+	 * Lines missing a dimension contribute nothing rather than collapsing
+	 * the figure to zero, the same as the cart.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float In the store's dimension unit cubed.
+	 */
+	public static function get_volume( array $args ): float {
+		$volume = 0.0;
+
+		foreach ( self::get_physical_lines( $args ) as [ $product, $quantity ] ) {
+			$length = (float) $product->get_length();
+			$width  = (float) $product->get_width();
+			$height = (float) $product->get_height();
+
+			if ( $length <= 0 || $width <= 0 || $height <= 0 ) {
+				continue;
+			}
+
+			$volume += $length * $width * $height * $quantity;
+		}
+
+		return round( $volume, 4 );
+	}
+
+	/**
+	 * The longest single side anywhere in the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 */
+	public static function get_max_dimension( array $args ): float {
+		$max = 0.0;
+
+		foreach ( self::get_physical_lines( $args ) as [ $product ] ) {
+			$max = max( $max, (float) $product->get_length(), (float) $product->get_width(), (float) $product->get_height() );
+		}
+
+		return $max;
+	}
+
+	/**
+	 * Per-unit weight of the heaviest item in the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 */
+	public static function get_max_weight( array $args ): float {
+		$max = 0.0;
+
+		foreach ( self::get_physical_lines( $args ) as [ $product ] ) {
+			$max = max( $max, (float) $product->get_weight() );
+		}
+
+		return $max;
+	}
 }
