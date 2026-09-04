@@ -17,6 +17,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\WooCommerce;
 
+use ArrayPress\Conditions\Helpers\Address;
 use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\DateTime;
 use WC_Customer;
@@ -133,6 +134,25 @@ class Customer {
 			'billing_email' => $email,
 			'customer_id'   => 0,
 		];
+	}
+
+	/**
+	 * The customer's own orders, as objects.
+	 *
+	 * @param array $extra Further query arguments.
+	 *
+	 * @return WC_Order[]
+	 */
+	private static function get_history_orders( array $extra = [] ): array {
+		$query = self::history_query();
+
+		if ( null === $query ) {
+			return [];
+		}
+
+		$orders = wc_get_orders( $query + $extra + [ 'limit' => -1 ] );
+
+		return array_values( array_filter( (array) $orders, static fn( $order ) => $order instanceof WC_Order ) );
 	}
 
 	/**
@@ -520,5 +540,209 @@ class Customer {
 		$customer = self::get();
 
 		return $customer ? (string) $customer->get_shipping_country() : '';
+	}
+	/** -------------------------------------------------------------------------
+	 * History: what was bought, and what came back
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Every product the customer has paid for, parents included.
+	 *
+	 * @return int[]
+	 */
+	public static function get_purchased_product_ids(): array {
+		$ids = [];
+
+		foreach ( self::get_history_orders( [ 'status' => self::PAID_STATUSES ] ) as $order ) {
+			foreach ( $order->get_items() as $item ) {
+				if ( ! is_object( $item ) || ! method_exists( $item, 'get_product_id' ) ) {
+					continue;
+				}
+
+				$ids[] = (int) $item->get_product_id();
+
+				if ( method_exists( $item, 'get_variation_id' ) && $item->get_variation_id() ) {
+					$ids[] = (int) $item->get_variation_id();
+				}
+			}
+		}
+
+		return array_values( array_unique( array_filter( $ids ) ) );
+	}
+
+	/**
+	 * Term ids across every product the customer has paid for.
+	 *
+	 * Read from the parent product, since a variation carries no terms.
+	 *
+	 * @param string $taxonomy product_cat or product_tag.
+	 *
+	 * @return int[]
+	 */
+	public static function get_purchased_term_ids( string $taxonomy ): array {
+		if ( ! function_exists( 'wc_get_product' ) ) {
+			return [];
+		}
+
+		$term_ids = [];
+		$seen     = [];
+
+		foreach ( self::get_purchased_product_ids() as $product_id ) {
+			$product = wc_get_product( $product_id );
+
+			if ( ! $product instanceof WC_Product ) {
+				continue;
+			}
+
+			$source_id = $product->get_parent_id() ?: $product->get_id();
+
+			if ( isset( $seen[ $source_id ] ) ) {
+				continue;
+			}
+
+			$seen[ $source_id ] = true;
+			$source             = $source_id === $product->get_id() ? $product : wc_get_product( $source_id );
+
+			if ( ! $source instanceof WC_Product ) {
+				continue;
+			}
+
+			$ids      = 'product_tag' === $taxonomy ? $source->get_tag_ids() : $source->get_category_ids();
+			$term_ids = array_merge( $term_ids, array_map( 'intval', (array) $ids ) );
+		}
+
+		return array_values( array_unique( $term_ids ) );
+	}
+
+	/**
+	 * How many of the customer's orders have had money refunded.
+	 *
+	 * Fully refunded orders and partially refunded ones both count: what
+	 * matters is that money went back.
+	 *
+	 * @return int
+	 */
+	public static function get_refund_count(): int {
+		$count = 0;
+
+		foreach ( self::get_history_orders( [ 'status' => array_merge( self::PAID_STATUSES, [ 'wc-refunded' ] ) ] ) as $order ) {
+			if ( 'refunded' === $order->get_status() || (float) $order->get_total_refunded() > 0 ) {
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * The share of the customer's orders that were refunded, as a percentage.
+	 *
+	 * @return float
+	 */
+	public static function get_refund_rate(): float {
+		$orders = self::get_history_orders( [ 'status' => array_merge( self::PAID_STATUSES, [ 'wc-refunded' ] ) ] );
+
+		if ( [] === $orders ) {
+			return 0.0;
+		}
+
+		$refunded = 0;
+
+		foreach ( $orders as $order ) {
+			if ( 'refunded' === $order->get_status() || (float) $order->get_total_refunded() > 0 ) {
+				++$refunded;
+			}
+		}
+
+		return round( $refunded / count( $orders ) * 100, 2 );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Relative spend
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * The customer's average paid order, leaving out the one being judged.
+	 *
+	 * @param int $except_order_id An order to leave out, or 0.
+	 *
+	 * @return float|null Null when there is no earlier order to average.
+	 */
+	public static function get_prior_average_order_value( int $except_order_id = 0 ): ?float {
+		$total = 0.0;
+		$count = 0;
+
+		foreach ( self::get_history_orders( [ 'status' => self::PAID_STATUSES ] ) as $order ) {
+			if ( $except_order_id && (int) $order->get_id() === $except_order_id ) {
+				continue;
+			}
+
+			$total += (float) $order->get_total();
+			++$count;
+		}
+
+		return $count > 0 && $total > 0 ? $total / $count : null;
+	}
+
+	/**
+	 * How many times the customer's usual order a total is.
+	 *
+	 * @param float $total           The order or cart total.
+	 * @param int   $except_order_id The order being judged, to leave out.
+	 *
+	 * @return float|null Null for a first-time customer, who has no usual.
+	 */
+	public static function get_total_to_average_ratio( float $total, int $except_order_id = 0 ): ?float {
+		$average = self::get_prior_average_order_value( $except_order_id );
+
+		return null === $average ? null : round( $total / $average, 2 );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Subscriptions
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Whether the customer has a subscription that is currently billing.
+	 *
+	 * @return bool|null Null without WooCommerce Subscriptions.
+	 */
+	public static function has_active_subscription(): ?bool {
+		if ( ! function_exists( 'wcs_user_has_subscription' ) ) {
+			return null;
+		}
+
+		$user_id = self::get_user_id();
+
+		return 0 !== $user_id && (bool) wcs_user_has_subscription( $user_id, '', 'active' );
+	}
+
+	/**
+	 * How many of the customer's subscriptions are currently billing.
+	 *
+	 * Active and pending-cancel both bill until the period ends.
+	 *
+	 * @return int|null Null without WooCommerce Subscriptions.
+	 */
+	public static function get_active_subscription_count(): ?int {
+		if ( ! function_exists( 'wcs_get_users_subscriptions' ) ) {
+			return null;
+		}
+
+		$user_id = self::get_user_id();
+
+		if ( 0 === $user_id ) {
+			return 0;
+		}
+
+		$count = 0;
+
+		foreach ( (array) wcs_get_users_subscriptions( $user_id ) as $subscription ) {
+			if ( is_object( $subscription ) && method_exists( $subscription, 'has_status' ) && $subscription->has_status( [ 'active', 'pending-cancel' ] ) ) {
+				++$count;
+			}
+		}
+
+		return $count;
 	}
 }

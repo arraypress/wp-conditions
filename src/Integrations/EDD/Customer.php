@@ -15,6 +15,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\EDD;
 
+use ArrayPress\Conditions\Helpers\Velocity;
 use ArrayPress\Conditions\Helpers\DateTime;
 use ArrayPress\Conditions\Helpers\Parse;
 use EDD_Customer;
@@ -626,5 +627,243 @@ class Customer {
 		$parsed = Parse::number_unit( $args );
 
 		return DateTime::get_age( $last_order_date, $parsed['unit'] );
+	}
+	/** -------------------------------------------------------------------------
+	 * Relative spend
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * The customer's average order before this one.
+	 *
+	 * EDD counts a completed order into purchase_count and purchase_value
+	 * the moment it completes, so at a review pass the current order is
+	 * already in the average it is being compared against. It is taken back
+	 * out when it is.
+	 *
+	 * @param array $args  The condition arguments.
+	 * @param float $total The current order or cart total.
+	 *
+	 * @return float|null Null when there is no earlier order to average.
+	 */
+	public static function get_prior_average_order_value( array $args, float $total ): ?float {
+		$customer = self::get( $args );
+
+		if ( ! $customer ) {
+			return null;
+		}
+
+		$count = (int) $customer->purchase_count;
+		$value = (float) $customer->purchase_value;
+
+		if ( ! empty( $args['order_id'] ) && function_exists( 'edd_get_order' ) ) {
+			$order = edd_get_order( $args['order_id'] );
+
+			if ( is_object( $order ) && in_array( (string) ( $order->status ?? '' ), edd_get_complete_order_statuses(), true ) ) {
+				--$count;
+				$value -= $total;
+			}
+		}
+
+		return $count > 0 && $value > 0 ? $value / $count : null;
+	}
+
+	/**
+	 * How many times the customer's usual order this total is.
+	 *
+	 * "Three times their average" is a stronger signal than any fixed
+	 * amount, because it is relative to the person rather than the store.
+	 *
+	 * @param array $args  The condition arguments.
+	 * @param float $total The current order or cart total.
+	 *
+	 * @return float|null Null for a first-time customer, who has no usual.
+	 */
+	public static function get_total_to_average_ratio( array $args, float $total ): ?float {
+		$average = self::get_prior_average_order_value( $args, $total );
+
+		return null === $average ? null : round( $total / $average, 2 );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Subscriptions and licences
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * How many subscriptions the customer has that are currently billing.
+	 *
+	 * Active and trialling both count; a paused or cancelled one does not.
+	 * Needs EDD Recurring.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int|null Null without the add-on.
+	 */
+	public static function get_active_subscription_count( array $args ): ?int {
+		if ( ! class_exists( 'EDD_Subscriptions_DB' ) ) {
+			return null;
+		}
+
+		$customer = self::get( $args );
+
+		if ( ! $customer ) {
+			return 0;
+		}
+
+		$subs_db = new \EDD_Subscriptions_DB();
+		$count   = 0;
+
+		foreach ( [ 'active', 'trialling' ] as $status ) {
+			$count += (int) $subs_db->count( [
+				'customer_id' => (int) $customer->id,
+				'status'      => $status,
+			] );
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Whether the customer has a subscription that is currently billing.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null without EDD Recurring.
+	 */
+	public static function has_active_subscription( array $args ): ?bool {
+		$count = self::get_active_subscription_count( $args );
+
+		return null === $count ? null : $count > 0;
+	}
+
+	/**
+	 * How many active licences the customer holds.
+	 *
+	 * Parent licences only, so a bundle's children are not counted twice.
+	 * Needs Software Licensing.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int|null Null without the add-on.
+	 */
+	public static function get_active_license_count( array $args ): ?int {
+		if ( ! function_exists( 'edd_software_licensing' ) ) {
+			return null;
+		}
+
+		$licensing = edd_software_licensing();
+
+		if ( ! isset( $licensing->licenses_db ) || ! method_exists( $licensing->licenses_db, 'count' ) ) {
+			return null;
+		}
+
+		$customer = self::get( $args );
+
+		if ( ! $customer ) {
+			return 0;
+		}
+
+		return (int) $licensing->licenses_db->count( [
+			'customer_id' => (int) $customer->id,
+			'status'      => 'active',
+			'parent'      => 0,
+		] );
+	}
+
+	/**
+	 * Whether the customer holds an active licence.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null without Software Licensing.
+	 */
+	public static function has_active_license( array $args ): ?bool {
+		$count = self::get_active_license_count( $args );
+
+		return null === $count ? null : $count > 0;
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Download activity
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * The start of the rule's window, as a UTC MySQL datetime.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	private static function window_start( array $args ): string {
+		[ $number, $unit ] = Velocity::resolve_window( $args );
+
+		return gmdate( 'Y-m-d H:i:s', time() - ( $number * DateTime::get_multiplier( $unit ) ) );
+	}
+
+	/**
+	 * How many files the customer downloaded within the window.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_downloads_in_window( array $args ): int {
+		$customer = self::get( $args );
+
+		if ( ! $customer || ! function_exists( 'edd_count_file_download_logs' ) ) {
+			return 0;
+		}
+
+		return (int) edd_count_file_download_logs( [
+			'customer_id' => (int) $customer->id,
+			'date_query'  => [
+				[
+					'column'    => 'date_created',
+					'after'     => self::window_start( $args ),
+					'inclusive' => true,
+				],
+			],
+		] );
+	}
+
+	/**
+	 * How many different IPs downloaded the customer's files within the window.
+	 *
+	 * One customer downloading from five addresses in a day is a shared
+	 * licence, not a busy person.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_download_ip_count( array $args ): int {
+		$customer = self::get( $args );
+
+		if ( ! $customer || ! function_exists( 'edd_get_file_download_logs' ) ) {
+			return 0;
+		}
+
+		$logs = edd_get_file_download_logs( [
+			'customer_id' => (int) $customer->id,
+			'number'      => 9999,
+			'date_query'  => [
+				[
+					'column'    => 'date_created',
+					'after'     => self::window_start( $args ),
+					'inclusive' => true,
+				],
+			],
+		] );
+
+		$ips = [];
+
+		foreach ( (array) $logs as $log ) {
+			$ip = (string) ( $log->ip ?? '' );
+
+			if ( '' !== $ip ) {
+				$ips[ $ip ] = true;
+			}
+		}
+
+		return count( $ips );
 	}
 }

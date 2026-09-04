@@ -13,6 +13,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\EDD;
 
+use ArrayPress\Conditions\Helpers\CartClock;
 use ArrayPress\Conditions\Integrations\EDD\Checkout as CheckoutHelper;
 use ArrayPress\Conditions\Integrations\EDD\Options;
 use ArrayPress\Conditions\Operators;
@@ -154,6 +155,50 @@ class Checkout {
 				'type'          => 'boolean',
 				'description'   => __( 'Whether any discount code was entered at checkout.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CheckoutHelper::has_discount_code( $args ),
+				'required_args' => [],
+			],
+
+			'edd_checkout_address_is_po_box'       => [
+				'label'         => __( 'Address Is PO Box', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether the billing address typed is a post office box rather than a door.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CheckoutHelper::is_po_box( $args ),
+				'required_args' => [ 'posted' ],
+			],
+			'edd_checkout_address_has_street_number' => [
+				'label'         => __( 'Address Has Street Number', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether the billing address typed carries a number. An address with no number is usually a form filled in a hurry, by a script or a person who does not mean it.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CheckoutHelper::has_street_number( $args ),
+				'required_args' => [ 'posted' ],
+			],
+			'edd_checkout_names_identical'         => [
+				'label'         => __( 'First and Last Name Identical', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether the first and last names typed are the same word. "John John" is what a form filler produces.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CheckoutHelper::names_identical( $args ),
+				'required_args' => [ 'posted' ],
+			],
+			'edd_checkout_name_matches_email'      => [
+				'label'         => __( 'Name Appears in Email', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether the name typed appears in the email typed: "jane.doe", "jdoe", "doej". A real person\'s address tends to carry their name and a generated one does not. A legitimacy signal, so "is no" is the one to pair with other flags.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CheckoutHelper::name_matches_email( $args ),
+				'required_args' => [ 'posted' ],
+			],
+			'edd_checkout_seconds_since_cart_started' => [
+				'label'         => __( 'Seconds Since Cart Started', 'arraypress' ),
+				'group'         => __( 'Checkout', 'arraypress' ),
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 20', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 1,
+				'description'   => __( 'How many seconds passed between the first item going into the cart and this checkout. A bot fills a cart and pays in seconds; a person takes minutes. The start is noted in the shopper\'s session the moment something is added, or passed by the host as cart_started_at; when neither knows, the rule does not apply.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartClock::seconds_since_start( $args ),
 				'required_args' => [],
 			],
 		];

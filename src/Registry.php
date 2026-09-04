@@ -18,6 +18,7 @@ namespace ArrayPress\Conditions;
 
 use ArrayPress\Conditions\Abstracts\Condition;
 use ArrayPress\Conditions\Admin\Assets;
+use ArrayPress\Conditions\Helpers\CartClock;
 use ArrayPress\Conditions\Registration\MetaBox;
 use ArrayPress\Conditions\Registration\PostType;
 use ArrayPress\Conditions\Registration\RestApi;
@@ -121,6 +122,9 @@ class Registry {
 		// Initialize Assets
 		self::$assets = new Assets();
 		self::$assets->register();
+
+		// Note when a cart starts, for the checkout-speed conditions.
+		CartClock::register();
 	}
 
 	/**

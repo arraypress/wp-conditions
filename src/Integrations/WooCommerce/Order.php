@@ -17,6 +17,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\WooCommerce;
 
+use ArrayPress\Conditions\Integrations\WooCommerce\Customer as CustomerHelper;
+use ArrayPress\Conditions\Helpers\Address;
 use ArrayPress\Conditions\Helpers\DateTime;
 use ArrayPress\Conditions\Helpers\Parse;
 use WC_Order;
@@ -886,5 +888,124 @@ class Order {
 		$parsed = Parse::number_unit( $args );
 
 		return DateTime::get_age_from_timestamp( $date->getTimestamp(), $parsed['unit'] );
+	}
+	/** -------------------------------------------------------------------------
+	 * Subscriptions, relative spend and form heuristics
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Whether the order is a subscription renewal.
+	 *
+	 * Renewals are placed by the scheduler, not a person, and belong outside
+	 * every fraud rule.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null without WooCommerce Subscriptions.
+	 */
+	public static function is_renewal( array $args ): ?bool {
+		if ( ! function_exists( 'wcs_order_contains_renewal' ) ) {
+			return null;
+		}
+
+		$order = self::get( $args );
+
+		return $order ? (bool) wcs_order_contains_renewal( $order ) : false;
+	}
+
+	/**
+	 * Whether the order starts a subscription.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null without WooCommerce Subscriptions.
+	 */
+	public static function contains_subscription( array $args ): ?bool {
+		if ( ! function_exists( 'wcs_order_contains_subscription' ) ) {
+			return null;
+		}
+
+		$order = self::get( $args );
+
+		return $order ? (bool) wcs_order_contains_subscription( $order, 'parent' ) : false;
+	}
+
+	/**
+	 * How many times the customer's usual order this one is.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float|null Null for a first order.
+	 */
+	public static function get_total_to_average_ratio( array $args ): ?float {
+		$order = self::get( $args );
+
+		if ( ! $order ) {
+			return null;
+		}
+
+		return CustomerHelper::get_total_to_average_ratio( (float) $order->get_total(), (int) $order->get_id() );
+	}
+
+	/**
+	 * Whether the billing address is a post office box.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_po_box( array $args ): bool {
+		return Address::is_po_box( self::get_address( $args ) );
+	}
+
+	/**
+	 * Whether the billing address carries a street number.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null when there is no address to read.
+	 */
+	public static function has_street_number( array $args ): ?bool {
+		$address = self::get_address( $args );
+
+		return '' === $address ? null : Address::has_street_number( $address );
+	}
+
+	/**
+	 * Whether the first and last names are the same word.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function names_identical( array $args ): bool {
+		$order = self::get( $args );
+
+		return $order ? Address::names_identical( (string) $order->get_billing_first_name(), (string) $order->get_billing_last_name() ) : false;
+	}
+
+	/**
+	 * Whether the customer's name appears in their email.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null when there is no name or email to compare.
+	 */
+	public static function name_matches_email( array $args ): ?bool {
+		$order = self::get( $args );
+
+		if ( ! $order ) {
+			return null;
+		}
+
+		$first = (string) $order->get_billing_first_name();
+		$last  = (string) $order->get_billing_last_name();
+		$email = (string) $order->get_billing_email();
+
+		if ( '' === $email || ( '' === $first && '' === $last ) ) {
+			return null;
+		}
+
+		return Address::name_matches_email( $first, $last, $email );
 	}
 }

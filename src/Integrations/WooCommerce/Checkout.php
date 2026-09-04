@@ -21,6 +21,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\WooCommerce;
 
+use ArrayPress\Conditions\Helpers\Address;
 use ArrayPress\ArrayUtils\Arr;
 
 /**
@@ -459,5 +460,62 @@ class Checkout {
 		}
 
 		return $billing !== $shipping;
+	}
+	/** -------------------------------------------------------------------------
+	 * Form heuristics
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Whether the billing address is a post office box.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_po_box( array $args ): bool {
+		return Address::is_po_box( self::get_address( $args ) );
+	}
+
+	/**
+	 * Whether the billing address carries a street number.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null when the form has no address.
+	 */
+	public static function has_street_number( array $args ): ?bool {
+		$address = self::get_address( $args );
+
+		return '' === $address ? null : Address::has_street_number( $address );
+	}
+
+	/**
+	 * Whether the first and last names are the same word.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function names_identical( array $args ): bool {
+		return Address::names_identical( self::get_first_name( $args ), self::get_last_name( $args ) );
+	}
+
+	/**
+	 * Whether the name typed appears in the email typed.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null when the form has no name or no email.
+	 */
+	public static function name_matches_email( array $args ): ?bool {
+		$first = self::get_first_name( $args );
+		$last  = self::get_last_name( $args );
+		$email = self::get_email( $args );
+
+		if ( '' === $email || ( '' === $first && '' === $last ) ) {
+			return null;
+		}
+
+		return Address::name_matches_email( $first, $last, $email );
 	}
 }

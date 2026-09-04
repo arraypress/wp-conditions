@@ -568,6 +568,63 @@ class Order {
 			'required_args' => [ 'order_id' ],
 		];
 
+		$conditions['edd_order_is_upgrade'] = [
+			'label'         => __( 'Is Licence Upgrade', 'arraypress' ),
+			'group'         => $subscriptions,
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the order upgrades an existing licence rather than buying a new one. Requires Software Licensing.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::is_upgrade( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_total_vs_average'] = [
+			'label'         => __( 'Total vs Customer Average', 'arraypress' ),
+			'group'         => $money,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 3', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 0.1,
+			'description'   => __( 'The order total as a multiple of the customer\'s average order before this one. "Greater than 3" is an order three times their usual. A first order has no usual, so the rule does not apply to it.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::get_total_to_average_ratio( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_address_is_po_box'] = [
+			'label'         => __( 'Address Is PO Box', 'arraypress' ),
+			'group'         => $address,
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the billing address is a post office box rather than a door.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::is_po_box( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_address_has_street_number'] = [
+			'label'         => __( 'Address Has Street Number', 'arraypress' ),
+			'group'         => $address,
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the billing address carries a number. An address with no number is usually a form filled in a hurry, by a script or a person who does not mean it.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::has_street_number( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_names_identical'] = [
+			'label'         => __( 'First and Last Name Identical', 'arraypress' ),
+			'group'         => $customer,
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the first and last names are the same word. "John John" is what a form filler produces.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::names_identical( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
+		$conditions['edd_order_name_matches_email'] = [
+			'label'         => __( 'Name Appears in Email', 'arraypress' ),
+			'group'         => $customer,
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the customer\'s name appears in their email address: "jane.doe", "jdoe", "doej". A real person\'s address tends to carry their name and a generated one does not. A legitimacy signal, so "is no" is the one to pair with other flags.', 'arraypress' ),
+			'compare_value' => fn( $args ) => OrderHelper::name_matches_email( $args ),
+			'required_args' => [ 'order_id' ],
+		];
+
 		return $conditions;
 	}
 }

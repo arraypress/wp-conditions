@@ -894,4 +894,77 @@ class Cart {
 	public static function get_coupon_count(): int {
 		return count( self::get_coupons() );
 	}
+	/** -------------------------------------------------------------------------
+	 * Item prices and subscriptions
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Unit prices of every line in the cart.
+	 *
+	 * @return float[]
+	 */
+	private static function get_item_prices(): array {
+		$prices = [];
+
+		foreach ( self::get_items() as $item ) {
+			$product = $item['data'] ?? null;
+
+			if ( $product instanceof WC_Product ) {
+				$prices[] = (float) $product->get_price();
+			}
+		}
+
+		return $prices;
+	}
+
+	/**
+	 * The cheapest unit price in the cart.
+	 *
+	 * Card testers buy the cheapest thing there is, so the floor of the cart
+	 * says more about intent than its total.
+	 *
+	 * @return float|null Null for an empty cart.
+	 */
+	public static function get_min_item_price(): ?float {
+		$prices = self::get_item_prices();
+
+		return [] === $prices ? null : min( $prices );
+	}
+
+	/**
+	 * The dearest unit price in the cart.
+	 *
+	 * @return float|null Null for an empty cart.
+	 */
+	public static function get_max_item_price(): ?float {
+		$prices = self::get_item_prices();
+
+		return [] === $prices ? null : max( $prices );
+	}
+
+	/**
+	 * Whether the cart holds a subscription product.
+	 *
+	 * @return bool|null Null without WooCommerce Subscriptions.
+	 */
+	public static function has_subscription(): ?bool {
+		if ( ! class_exists( 'WC_Subscriptions_Cart' ) || ! method_exists( 'WC_Subscriptions_Cart', 'cart_contains_subscription' ) ) {
+			return null;
+		}
+
+		return (bool) \WC_Subscriptions_Cart::cart_contains_subscription();
+	}
+
+	/**
+	 * Whether the cart is a subscription renewal being paid by hand.
+	 *
+	 * @return bool|null Null without WooCommerce Subscriptions.
+	 */
+	public static function has_renewal(): ?bool {
+		if ( ! function_exists( 'wcs_cart_contains_renewal' ) ) {
+			return null;
+		}
+
+		return (bool) wcs_cart_contains_renewal();
+	}
 }

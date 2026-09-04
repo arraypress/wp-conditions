@@ -8,7 +8,8 @@
  * Each counter first honours `$args['velocity_*']` (caller pre-computed value),
  * then a `wp_conditions_velocity_*` filter (lets consumer plugins inject their
  * own data source — e.g. a fraud-filter log table), and finally falls back to
- * counting against EDD's `edd_orders` table when EDD is active.
+ * counting against the shop's own orders: EDD's `edd_orders` table, or
+ * WooCommerce's orders under either storage.
  *
  * @package     ArrayPress\Conditions\Helpers
  * @copyright   Copyright (c) 2026, ArrayPress Limited
@@ -174,13 +175,7 @@ class Velocity {
 			return (int) $filtered;
 		}
 
-		return self::edd_count(
-			'COUNT(*)',
-			'ip = %s',
-			[ $ip ],
-			$number,
-			$unit
-		);
+		return self::count_orders( 'orders', 'ip', $ip, $number, $unit );
 	}
 
 	/**
@@ -207,13 +202,7 @@ class Velocity {
 			return (int) $filtered;
 		}
 
-		return self::edd_count(
-			'COUNT(*)',
-			'email = %s',
-			[ $email ],
-			$number,
-			$unit
-		);
+		return self::count_orders( 'orders', 'email', $email, $number, $unit );
 	}
 
 	/**
@@ -242,13 +231,7 @@ class Velocity {
 			return (int) $filtered;
 		}
 
-		return self::edd_count(
-			'COUNT(DISTINCT email)',
-			'ip = %s',
-			[ $ip ],
-			$number,
-			$unit
-		);
+		return self::count_orders( 'distinct_email', 'ip', $ip, $number, $unit );
 	}
 
 	/**
@@ -277,13 +260,7 @@ class Velocity {
 			return (int) $filtered;
 		}
 
-		return self::edd_count(
-			'COUNT(DISTINCT ip)',
-			'email = %s',
-			[ $email ],
-			$number,
-			$unit
-		);
+		return self::count_orders( 'distinct_ip', 'email', $email, $number, $unit );
 	}
 
 	/**
@@ -310,13 +287,7 @@ class Velocity {
 			return (int) $filtered;
 		}
 
-		return self::edd_count(
-			'COUNT(*)',
-			"ip = %s AND status IN ('failed','revoked','abandoned')",
-			[ $ip ],
-			$number,
-			$unit
-		);
+		return self::count_orders( 'failed', 'ip', $ip, $number, $unit );
 	}
 
 	/**
@@ -343,13 +314,7 @@ class Velocity {
 			return (int) $filtered;
 		}
 
-		return self::edd_count(
-			'COUNT(*)',
-			"email = %s AND status IN ('failed','revoked','abandoned')",
-			[ $email ],
-			$number,
-			$unit
-		);
+		return self::count_orders( 'failed', 'email', $email, $number, $unit );
 	}
 
 	/**
@@ -423,7 +388,7 @@ class Velocity {
 			return (int) $filtered;
 		}
 
-		return self::edd_count_same_product( 'ip', $ip, $product_ids, $number, $unit );
+		return self::count_same_product( 'ip', $ip, $product_ids, $number, $unit );
 	}
 
 	/**
@@ -459,7 +424,7 @@ class Velocity {
 			return (int) $filtered;
 		}
 
-		return self::edd_count_same_product( 'email', $email, $product_ids, $number, $unit );
+		return self::count_same_product( 'email', $email, $product_ids, $number, $unit );
 	}
 
 	/**
@@ -569,17 +534,247 @@ class Velocity {
 	 */
 	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
 	// phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+	/**
+	 * Whether a table exists, remembered per table for the request.
+	 *
+	 * Keyed by the full name, so a switch_to_blog() that changes the prefix
+	 * is a different answer rather than a stale one.
+	 *
+	 * @param string $table The table name, prefix included.
+	 *
+	 * @return bool
+	 */
+	private static function has_table( string $table ): bool {
+		global $wpdb;
+
+		static $known = [];
+
+		if ( ! isset( $wpdb ) ) {
+			return false;
+		}
+
+		if ( ! array_key_exists( $table, $known ) ) {
+			$known[ $table ] = (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+		}
+
+		return $known[ $table ];
+	}
+
+	/**
+	 * Which shop's orders to count against.
+	 *
+	 * EDD's table when it is there, otherwise WooCommerce; the velocity
+	 * conditions used to count against EDD alone, so on a WooCommerce store
+	 * every one of them answered 0 unless the host answered the filter.
+	 *
+	 * @return string 'edd', 'wc' or ''.
+	 */
+	private static function store(): string {
+		global $wpdb;
+
+		if ( ! isset( $wpdb ) ) {
+			return '';
+		}
+
+		if ( function_exists( 'EDD' ) && self::has_table( $wpdb->prefix . 'edd_orders' ) ) {
+			return 'edd';
+		}
+
+		return function_exists( 'WC' ) ? 'wc' : '';
+	}
+
+	/**
+	 * Count orders by one identifier within the window, on whichever shop is here.
+	 *
+	 * @param string $kind   'orders', 'distinct_email', 'distinct_ip' or 'failed'.
+	 * @param string $column 'ip' or 'email'.
+	 * @param string $value  The identifier.
+	 * @param int    $number Window amount.
+	 * @param string $unit   Window unit.
+	 *
+	 * @return int
+	 */
+	private static function count_orders( string $kind, string $column, string $value, int $number, string $unit ): int {
+		$store = self::store();
+
+		if ( 'edd' === $store ) {
+			[ $select, $where ] = match ( $kind ) {
+				'distinct_email' => [ 'COUNT(DISTINCT email)', $column . ' = %s' ],
+				'distinct_ip'    => [ 'COUNT(DISTINCT ip)', $column . ' = %s' ],
+				'failed'         => [ 'COUNT(*)', $column . " = %s AND status IN ('failed','revoked','abandoned')" ],
+				default          => [ 'COUNT(*)', $column . ' = %s' ],
+			};
+
+			return self::edd_count( $select, $where, [ $value ], $number, $unit );
+		}
+
+		return 'wc' === $store ? self::wc_count( $kind, $column, $value, $number, $unit ) : 0;
+	}
+
+	/**
+	 * Same-product count, on whichever shop is here.
+	 *
+	 * @param string     $column      'ip' or 'email'.
+	 * @param string     $value       The identifier.
+	 * @param array<int> $product_ids Candidate product IDs.
+	 * @param int        $number      Window amount.
+	 * @param string     $unit        Window unit.
+	 *
+	 * @return int
+	 */
+	private static function count_same_product( string $column, string $value, array $product_ids, int $number, string $unit ): int {
+		$store = self::store();
+
+		if ( 'edd' === $store ) {
+			return self::edd_count_same_product( $column, $value, $product_ids, $number, $unit );
+		}
+
+		return 'wc' === $store ? self::wc_count_same_product( $column, $value, $product_ids, $number, $unit ) : 0;
+	}
+
+	/**
+	 * Count against WooCommerce's orders.
+	 *
+	 * With HPOS the orders table carries the email and IP as columns; with
+	 * the legacy storage they are post meta on a shop_order post. Either way
+	 * the date compared is the UTC one.
+	 *
+	 * @param string $kind   'orders', 'distinct_email', 'distinct_ip' or 'failed'.
+	 * @param string $column 'ip' or 'email'.
+	 * @param string $value  The identifier.
+	 * @param int    $number Window amount.
+	 * @param string $unit   Window unit.
+	 *
+	 * @return int
+	 */
+	private static function wc_count( string $kind, string $column, string $value, int $number, string $unit ): int {
+		global $wpdb;
+
+		$interval = self::to_interval( $number, $unit );
+		$failed   = "('wc-failed','wc-cancelled')";
+
+		if ( self::wc_uses_orders_table() ) {
+			$table = $wpdb->prefix . 'wc_orders';
+
+			if ( ! self::has_table( $table ) ) {
+				return 0;
+			}
+
+			$identity = 'ip' === $column ? 'ip_address' : 'billing_email';
+			$select   = match ( $kind ) {
+				'distinct_email' => 'COUNT(DISTINCT billing_email)',
+				'distinct_ip'    => 'COUNT(DISTINCT ip_address)',
+				default          => 'COUNT(*)',
+			};
+			$status   = 'failed' === $kind ? " AND status IN {$failed}" : '';
+
+			$sql = "SELECT {$select} FROM {$table} WHERE type = 'shop_order' AND {$identity} = %s{$status} AND date_created_gmt >= ( UTC_TIMESTAMP() - {$interval} )";
+
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			return (int) $wpdb->get_var( $wpdb->prepare( $sql, $value ) );
+		}
+
+		$key    = 'ip' === $column ? '_customer_ip_address' : '_billing_email';
+		$other  = 'distinct_email' === $kind ? '_billing_email' : '_customer_ip_address';
+		$select = in_array( $kind, [ 'distinct_email', 'distinct_ip' ], true ) ? 'COUNT(DISTINCT other.meta_value)' : 'COUNT(*)';
+		$join   = in_array( $kind, [ 'distinct_email', 'distinct_ip' ], true )
+			? " INNER JOIN {$wpdb->postmeta} other ON other.post_id = p.ID AND other.meta_key = '{$other}'"
+			: '';
+		$status = 'failed' === $kind ? " AND p.post_status IN {$failed}" : '';
+
+		$sql = "SELECT {$select} FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '{$key}'{$join} WHERE p.post_type = 'shop_order' AND m.meta_value = %s{$status} AND p.post_date_gmt >= ( UTC_TIMESTAMP() - {$interval} )";
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $value ) );
+	}
+
+	/**
+	 * Same-product count against WooCommerce's orders.
+	 *
+	 * The product lookup table exists under both storages, so only the
+	 * orders side differs.
+	 *
+	 * @param string     $column      'ip' or 'email'.
+	 * @param string     $value       The identifier.
+	 * @param array<int> $product_ids Candidate product IDs.
+	 * @param int        $number      Window amount.
+	 * @param string     $unit        Window unit.
+	 *
+	 * @return int
+	 */
+	private static function wc_count_same_product( string $column, string $value, array $product_ids, int $number, string $unit ): int {
+		global $wpdb;
+
+		$lookup = $wpdb->prefix . 'wc_order_product_lookup';
+
+		if ( ! self::has_table( $lookup ) ) {
+			return 0;
+		}
+
+		$product_ids = array_filter( array_map( 'intval', $product_ids ) );
+
+		if ( empty( $product_ids ) ) {
+			return 0;
+		}
+
+		$product_ids_sql = implode( ',', $product_ids );
+		$interval        = self::to_interval( $number, $unit );
+
+		if ( self::wc_uses_orders_table() ) {
+			$table = $wpdb->prefix . 'wc_orders';
+
+			if ( ! self::has_table( $table ) ) {
+				return 0;
+			}
+
+			$identity = 'ip' === $column ? 'ip_address' : 'billing_email';
+
+			$sql = "SELECT MAX(c) FROM (
+				SELECT COUNT(DISTINCT o.id) AS c
+				FROM {$table} o
+				INNER JOIN {$lookup} l ON l.order_id = o.id
+				WHERE o.type = 'shop_order'
+				  AND o.{$identity} = %s
+				  AND l.product_id IN ({$product_ids_sql})
+				  AND o.date_created_gmt >= ( UTC_TIMESTAMP() - {$interval} )
+				GROUP BY l.product_id
+			) sub";
+		} else {
+			$key = 'ip' === $column ? '_customer_ip_address' : '_billing_email';
+
+			$sql = "SELECT MAX(c) FROM (
+				SELECT COUNT(DISTINCT p.ID) AS c
+				FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '{$key}'
+				INNER JOIN {$lookup} l ON l.order_id = p.ID
+				WHERE p.post_type = 'shop_order'
+				  AND m.meta_value = %s
+				  AND l.product_id IN ({$product_ids_sql})
+				  AND p.post_date_gmt >= ( UTC_TIMESTAMP() - {$interval} )
+				GROUP BY l.product_id
+			) sub";
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $value ) );
+	}
+
+	/**
+	 * Whether WooCommerce keeps orders in its own table (HPOS).
+	 *
+	 * @return bool
+	 */
+	private static function wc_uses_orders_table(): bool {
+		return class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' )
+			&& \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+	}
+
 	private static function edd_count( string $select, string $where, array $bindings, int $number, string $unit ): int {
 		global $wpdb;
 
 		$table = $wpdb->prefix . 'edd_orders';
 
-		// Sanity: only proceed if EDD's table exists.
-		static $has_table = null;
-		if ( $has_table === null ) {
-			$has_table = (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
-		}
-		if ( ! $has_table ) {
+		if ( ! self::has_table( $table ) ) {
 			return 0;
 		}
 
@@ -616,13 +811,7 @@ class Velocity {
 		$orders_table = $wpdb->prefix . 'edd_orders';
 		$items_table  = $wpdb->prefix . 'edd_order_items';
 
-		// Sanity: skip when either table is missing (e.g. EDD inactive).
-		static $has_tables = null;
-		if ( $has_tables === null ) {
-			$has_tables = (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $orders_table ) )
-				&& (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $items_table ) );
-		}
-		if ( ! $has_tables ) {
+		if ( ! self::has_table( $orders_table ) || ! self::has_table( $items_table ) ) {
 			return 0;
 		}
 

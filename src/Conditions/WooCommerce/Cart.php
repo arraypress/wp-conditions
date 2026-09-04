@@ -17,6 +17,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\WooCommerce;
 
+use ArrayPress\Conditions\Integrations\WooCommerce\Customer as CustomerHelper;
 use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Integrations\WooCommerce\Cart as CartHelper;
 use ArrayPress\Conditions\Integrations\WooCommerce\Options;
@@ -523,6 +524,56 @@ class Cart {
 				'step'          => 0.01,
 				'description'   => __( 'Shipping cost with its tax included — what the customer actually pays for delivery.', 'arraypress' ),
 				'compare_value' => fn( $args ) => CartHelper::get_shipping_total_inc_tax(),
+				'required_args' => [],
+			],
+
+			'wc_cart_min_item_price'      => [
+				'label'         => __( 'Cheapest Item Price', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 5', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'The lowest unit price in the cart. Card testers buy the cheapest thing there is, so the floor of the cart says more about intent than its total. Pair with a velocity rule.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_min_item_price(),
+				'required_args' => [],
+			],
+			'wc_cart_max_item_price'      => [
+				'label'         => __( 'Dearest Item Price', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 500', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.01,
+				'description'   => __( 'The highest unit price in the cart.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::get_max_item_price(),
+				'required_args' => [],
+			],
+			'wc_cart_total_vs_average'    => [
+				'label'         => __( 'Total vs Customer Average', 'arraypress' ),
+				'group'         => $money,
+				'type'          => 'number',
+				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
+				'min'           => 0,
+				'step'          => 0.1,
+				'description'   => __( 'The cart total as a multiple of the customer\'s average paid order. "Greater than 3" is a cart three times their usual, which is a stronger signal than any fixed amount because it is relative to the person. A first-time customer has no usual, so the rule does not apply to them.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CustomerHelper::get_total_to_average_ratio( CartHelper::get_total() ),
+				'required_args' => [],
+			],
+			'wc_cart_has_subscription'    => [
+				'label'         => __( 'Contains Subscription', 'arraypress' ),
+				'group'         => __( 'Cart: Subscriptions', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether anything in the cart is a subscription product. Requires WooCommerce Subscriptions; without it the rule does not apply.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::has_subscription(),
+				'required_args' => [],
+			],
+			'wc_cart_has_renewal'         => [
+				'label'         => __( 'Is Renewal Payment', 'arraypress' ),
+				'group'         => __( 'Cart: Subscriptions', 'arraypress' ),
+				'type'          => 'boolean',
+				'description'   => __( 'Whether the cart is a subscription renewal being paid by hand. Requires WooCommerce Subscriptions.', 'arraypress' ),
+				'compare_value' => fn( $args ) => CartHelper::has_renewal(),
 				'required_args' => [],
 			],
 		];

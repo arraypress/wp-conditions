@@ -15,6 +15,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\EDD;
 
+use ArrayPress\Conditions\Helpers\Address;
 /**
  * Class Cart
  *
@@ -512,5 +513,54 @@ class Cart {
 		$ages = self::get_product_ages();
 
 		return empty( $ages ) ? 0.0 : round( max( $ages ), 2 );
+	}
+	/** -------------------------------------------------------------------------
+	 * Item prices
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Unit prices of every line in the cart, before discounts.
+	 *
+	 * @return float[]
+	 */
+	private static function get_item_prices(): array {
+		if ( ! function_exists( 'edd_get_cart_content_details' ) ) {
+			return [];
+		}
+
+		$prices = [];
+
+		foreach ( (array) edd_get_cart_content_details() as $item ) {
+			if ( is_array( $item ) && isset( $item['item_price'] ) && is_numeric( $item['item_price'] ) ) {
+				$prices[] = (float) $item['item_price'];
+			}
+		}
+
+		return $prices;
+	}
+
+	/**
+	 * The cheapest unit price in the cart.
+	 *
+	 * Card testers buy the cheapest thing there is, so the floor of the cart
+	 * says more about intent than its total.
+	 *
+	 * @return float|null Null for an empty cart.
+	 */
+	public static function get_min_item_price(): ?float {
+		$prices = self::get_item_prices();
+
+		return [] === $prices ? null : min( $prices );
+	}
+
+	/**
+	 * The dearest unit price in the cart.
+	 *
+	 * @return float|null Null for an empty cart.
+	 */
+	public static function get_max_item_price(): ?float {
+		$prices = self::get_item_prices();
+
+		return [] === $prices ? null : max( $prices );
 	}
 }

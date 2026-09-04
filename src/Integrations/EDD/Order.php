@@ -15,6 +15,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\EDD;
 
+use ArrayPress\Conditions\Integrations\EDD\Customer as CustomerHelper;
+use ArrayPress\Conditions\Helpers\Address;
 use ArrayPress\Conditions\Helpers\DateTime;
 use ArrayPress\Conditions\Helpers\Parse;
 use EDD\Orders\Order as EDD_Order;
@@ -897,5 +899,96 @@ class Order {
 	 */
 	public static function get_address_2( array $args ): string {
 		return (string) ( self::address( $args )?->address2 ?? '' );
+	}
+	/**
+	 * Whether the order is a licence upgrade.
+	 *
+	 * Software Licensing records the payment being upgraded from.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_upgrade( array $args ): bool {
+		$order_id = self::get_id( $args );
+
+		if ( ! $order_id || ! function_exists( 'edd_get_order_meta' ) ) {
+			return false;
+		}
+
+		return ! empty( edd_get_order_meta( $order_id, '_edd_sl_upgraded_payment_id', true ) );
+	}
+
+	/**
+	 * How many times the customer's usual order this one is.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float|null Null for a first order.
+	 */
+	public static function get_total_to_average_ratio( array $args ): ?float {
+		$order = self::get( $args );
+
+		if ( ! $order ) {
+			return null;
+		}
+
+		$args['customer_id'] = (int) $order->customer_id;
+
+		return CustomerHelper::get_total_to_average_ratio( $args, (float) $order->total );
+	}
+
+	/**
+	 * Whether the billing address is a post office box.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function is_po_box( array $args ): bool {
+		return Address::is_po_box( self::get_address( $args ) );
+	}
+
+	/**
+	 * Whether the billing address carries a street number.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null when there is no address to read.
+	 */
+	public static function has_street_number( array $args ): ?bool {
+		$address = self::get_address( $args );
+
+		return '' === $address ? null : Address::has_street_number( $address );
+	}
+
+	/**
+	 * Whether the first and last names are the same word.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function names_identical( array $args ): bool {
+		return Address::names_identical( self::get_first_name( $args ), self::get_last_name( $args ) );
+	}
+
+	/**
+	 * Whether the customer's name appears in their email.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null when there is no name or email to compare.
+	 */
+	public static function name_matches_email( array $args ): ?bool {
+		$first = self::get_first_name( $args );
+		$last  = self::get_last_name( $args );
+		$email = self::get_email( $args );
+
+		if ( '' === $email || ( '' === $first && '' === $last ) ) {
+			return null;
+		}
+
+		return Address::name_matches_email( $first, $last, $email );
 	}
 }
