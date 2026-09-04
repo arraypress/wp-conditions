@@ -56,13 +56,42 @@ class Customer {
 		$customer_id = $args['customer_id'] ?? self::get_current_id();
 
 		if ( ! $customer_id ) {
-			return null;
+			return self::get_guest( $args );
 		}
 
 		// EDD answers false for a missing row, and false is not ?EDD_Customer.
 		$customer = edd_get_customer( $customer_id );
 
 		return $customer instanceof EDD_Customer ? $customer : null;
+	}
+
+	/**
+	 * A returning guest, by the email they gave.
+	 *
+	 * Only a guest record -- one with no account behind it -- is returned.
+	 * The checkout email is whatever the shopper typed, and looking up any
+	 * record by it would let a fraudster type a loyal customer's address
+	 * and borrow their history: "returning, twelve orders, never refunded".
+	 * A guest's own past guest orders are theirs to be recognised by.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return EDD_Customer|null
+	 */
+	private static function get_guest( array $args ): ?EDD_Customer {
+		$email = (string) ( $args['email'] ?? '' );
+
+		if ( '' === $email || ! function_exists( 'edd_get_customer_by' ) ) {
+			return null;
+		}
+
+		$customer = edd_get_customer_by( 'email', $email );
+
+		if ( ! $customer instanceof EDD_Customer || (int) $customer->user_id > 0 ) {
+			return null;
+		}
+
+		return $customer;
 	}
 
 	/** -------------------------------------------------------------------------

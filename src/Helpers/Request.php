@@ -77,7 +77,17 @@ class Request {
 			return null;
 		}
 
-		return IP::get_country();
+		// Read here rather than through wp-ip-utils, which removed its own
+		// get_country() for reading the header from anyone and trimming
+		// "INVALID123" into "IN". The shape is checked instead. XX is
+		// Cloudflare's unknown and T1 its Tor marker; neither is a country.
+		$code = strtoupper( self::read( $_SERVER, 'HTTP_CF_IPCOUNTRY' ) );
+
+		if ( ! preg_match( '/^[A-Z]{2}$/', $code ) || in_array( $code, [ 'XX', 'T1' ], true ) ) {
+			return null;
+		}
+
+		return $code;
 	}
 
 	/**

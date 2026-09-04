@@ -132,10 +132,10 @@ class Payment {
 				'placeholder'   => __( 'e.g. 3', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 1,
-				'units'         => Periods::get_units(),
+				'units'         => Periods::get_window_units(),
 				'description'   => __( 'How many orders have used this exact card in the chosen time window. Higher than 1-2 in 24 hours is a strong stolen-card signal — fraudsters often run a stolen card repeatedly until the issuer blocks it. The card "fingerprint" is a salted hash of brand + last4 + country, so the lib never stores raw card data.', 'arraypress' ),
-				'compare_value' => fn( $args ) => (int) ( $args['velocity_orders_by_card_fingerprint'] ?? 0 ),
-				'required_args' => [ 'card_fingerprint', 'velocity_orders_by_card_fingerprint' ],
+				'compare_value' => fn( $args ) => VelocityHelper::count_orders_by_card_fingerprint( $args ),
+				'required_args' => [ 'card_fingerprint' ],
 			],
 			'velocity_distinct_emails_by_card_fingerprint' => [
 				'label'         => __( 'Distinct Emails per Card', 'arraypress' ),
@@ -144,10 +144,10 @@ class Payment {
 				'placeholder'   => __( 'e.g. 2', 'arraypress' ),
 				'min'           => 0,
 				'step'          => 1,
-				'units'         => Periods::get_units(),
+				'units'         => Periods::get_window_units(),
 				'description'   => __( 'How many DIFFERENT email addresses have used this card in the chosen time window. The strongest stolen-card fingerprint — a real customer doesn\'t buy under three different emails on the same card. Suggested threshold: ≥2 distinct emails in 24 hours = block.', 'arraypress' ),
-				'compare_value' => fn( $args ) => (int) ( $args['velocity_distinct_emails_by_card_fingerprint'] ?? 0 ),
-				'required_args' => [ 'card_fingerprint', 'velocity_distinct_emails_by_card_fingerprint' ],
+				'compare_value' => fn( $args ) => VelocityHelper::count_distinct_emails_by_card_fingerprint( $args ),
+				'required_args' => [ 'card_fingerprint' ],
 			],
 
 			// PayPal Orders v2 capture-time signals. Available post-payment

@@ -15,6 +15,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\EDD;
 
+use ArrayPress\Conditions\Helpers\Parse;
 /**
  * Class Store
  *
@@ -227,7 +228,9 @@ class Store {
 			return '';
 		}
 
-		return trim( strtok( $value, ':' ) );
+		// Not strtok(): for a value of ":" it answers false, which trim()
+		// refuses under strict types.
+		return Parse::meta( $value )['key'];
 	}
 
 	/** -------------------------------------------------------------------------

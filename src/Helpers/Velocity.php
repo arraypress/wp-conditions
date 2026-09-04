@@ -52,19 +52,92 @@ class Velocity {
 	}
 
 	/**
-	 * The time window a velocity rule counts within: the last one of its unit.
+	 * The time window a velocity rule counts within.
 	 *
 	 * The rule's number is the threshold -- "at least 3 orders" -- and used
 	 * to double as the window, so "≥ 3 in [minute]" counted the last three
-	 * minutes and "≥ 5 in [hour]" the last five hours. The unit alone is the
-	 * window now: the last minute, hour, day, week, month or year.
+	 * minutes and "≥ 5 in [hour]" the last five hours. The window is the
+	 * unit alone now: a preset such as "10_minutes" is ten of that unit, and
+	 * a bare unit such as "hour" is one of it.
 	 *
 	 * @param array $args The condition args.
 	 *
-	 * @return array{0:int,1:string}
+	 * @return array{0:int,1:string} Amount and unit.
 	 */
-	private static function resolve_window( array $args ): array {
-		return [ 1, (string) ( $args['_unit'] ?? 'hour' ) ];
+	public static function resolve_window( array $args ): array {
+		$unit = (string) ( $args['_unit'] ?? 'hour' );
+
+		if ( preg_match( '/^(\d+)_(minute|hour|day|week|month|year)s?$/', $unit, $m ) ) {
+			return [ max( 1, (int) $m[1] ), $m[2] ];
+		}
+
+		return [ 1, rtrim( $unit, 's' ) ];
+	}
+
+	/**
+	 * Count orders that used this card within the time window.
+	 *
+	 * A card fingerprint is a gateway's, not EDD's: there is no column for
+	 * it on the orders table, so the count comes from the host. The filter
+	 * is asked first, because it is handed the rule's window and can honour
+	 * it; a count precomputed in the arguments cannot know the window and is
+	 * read as it is, for hosts that still do it that way.
+	 *
+	 * @param array $args Condition args (must contain 'card_fingerprint').
+	 *
+	 * @return int|null The count, or null when nothing can answer.
+	 */
+	public static function count_orders_by_card_fingerprint( array $args ): ?int {
+		return self::count_by_card_fingerprint( 'wp_conditions_velocity_orders_by_card_fingerprint', 'velocity_orders_by_card_fingerprint', $args );
+	}
+
+	/**
+	 * Count distinct emails that used this card within the time window.
+	 *
+	 * @param array $args Condition args (must contain 'card_fingerprint').
+	 *
+	 * @return int|null The count, or null when nothing can answer.
+	 */
+	public static function count_distinct_emails_by_card_fingerprint( array $args ): ?int {
+		return self::count_by_card_fingerprint( 'wp_conditions_velocity_distinct_emails_by_card_fingerprint', 'velocity_distinct_emails_by_card_fingerprint', $args );
+	}
+
+	/**
+	 * One card-fingerprint counter: the filter, then the precomputed argument.
+	 *
+	 * @param string $filter The filter that may answer with the count.
+	 * @param string $arg    The argument a host may have precomputed.
+	 * @param array  $args   Condition args.
+	 *
+	 * @return int|null
+	 */
+	private static function count_by_card_fingerprint( string $filter, string $arg, array $args ): ?int {
+		$fingerprint = (string) ( $args['card_fingerprint'] ?? '' );
+
+		if ( '' === $fingerprint ) {
+			return null;
+		}
+
+		[ $number, $unit ] = self::resolve_window( $args );
+
+		/**
+		 * Filter a card-fingerprint velocity count.
+		 *
+		 * Return a non-null value to answer; the window is the rule's own.
+		 *
+		 * @param int|null $count       The count, or null to fall through.
+		 * @param string   $fingerprint The card fingerprint.
+		 * @param int      $number      Time window amount.
+		 * @param string   $unit        Time window unit.
+		 * @param array    $args        Every condition argument.
+		 */
+		$filtered = apply_filters( $filter, null, $fingerprint, $number, $unit, $args );
+
+		if ( null !== $filtered ) {
+			return (int) $filtered;
+		}
+
+		return isset( $args[ $arg ] ) ? (int) $args[ $arg ] : null;
 	}
 
 	/**

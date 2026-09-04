@@ -13,6 +13,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Conditions\EDD;
 
+use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Integrations\EDD\Options;
 use ArrayPress\Conditions\Integrations\EDD\Store as StoreHelper;
 use ArrayPress\Conditions\Operators;
@@ -196,22 +197,24 @@ class Store {
 			'edd_store_gateway_sales'     => [
 				'label'         => __( 'Gateway Sales', 'arraypress' ),
 				'group'         => __( 'Store', 'arraypress' ),
-				'type'          => 'number_unit',
+				'type'          => 'text_unit',
+				'compare_as'    => 'number',
+				'operators'     => Operators::numeric(),
 				'placeholder'   => __( 'stripe:100', 'arraypress' ),
-				'min'           => 0,
-				'step'          => 1,
+				'user_value'    => fn( $value ) => Parse::meta( (string) $value )['value'],
 				'units'         => fn() => Options::get_date_ranges(),
-				'description'   => __( 'Sales through one gateway within a period. Format: gateway:count — for example `stripe:100`. The gateway is the ID, not its display name.', 'arraypress' ),
+				'description'   => __( 'Sales through one gateway within a period. Format: gateway:count — for example `stripe:100`. The gateway is the ID, not its display name. The count is what is compared.', 'arraypress' ),
 				'compare_value' => fn( $args, $value ) => StoreHelper::get_gateway_sales( $args, $value ),
 				'required_args' => [],
 			],
 			'edd_store_gateway_earnings'  => [
 				'label'         => __( 'Gateway Earnings', 'arraypress' ),
 				'group'         => __( 'Store', 'arraypress' ),
-				'type'          => 'number_unit',
+				'type'          => 'text_unit',
+				'compare_as'    => 'number',
+				'operators'     => Operators::numeric(),
 				'placeholder'   => __( 'stripe:5000.00', 'arraypress' ),
-				'min'           => 0,
-				'step'          => 0.01,
+				'user_value'    => fn( $value ) => Parse::meta( (string) $value )['value'],
 				'units'         => fn() => Options::get_date_ranges(),
 				'description'   => __( 'Earnings through one gateway within a period. Format: gateway:amount — for example `stripe:5000.00`.', 'arraypress' ),
 				'compare_value' => fn( $args, $value ) => StoreHelper::get_gateway_earnings( $args, $value ),
@@ -220,10 +223,11 @@ class Store {
 			'edd_store_discount_usage'    => [
 				'label'         => __( 'Discount Usage', 'arraypress' ),
 				'group'         => __( 'Store', 'arraypress' ),
-				'type'          => 'number_unit',
+				'type'          => 'text_unit',
+				'compare_as'    => 'number',
+				'operators'     => Operators::numeric(),
 				'placeholder'   => __( 'e.g. 100 or SAVE10:100', 'arraypress' ),
-				'min'           => 0,
-				'step'          => 1,
+				'user_value'    => fn( $value ) => Parse::meta( (string) $value )['value'],
 				'units'         => fn() => Options::get_date_ranges(),
 				'description'   => __( 'How many times discounts were used within a period. Prefix with a code to narrow it to one — `SAVE10:100` — or leave the code off to count every discount, which is what a store-wide rule about coupon abuse is asking for.', 'arraypress' ),
 				'compare_value' => fn( $args, $value ) => StoreHelper::get_discount_usage( $args, $value ),

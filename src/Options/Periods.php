@@ -32,32 +32,31 @@ class Periods {
 	 * @return array<array{value: string, label: string}>
 	 */
 	public static function get_window_units(): array {
-		return [
-			[
-				'value' => 'minute',
-				'label' => __( 'in the last minute', 'arraypress' ),
-			],
-			[
-				'value' => 'hour',
-				'label' => __( 'in the last hour', 'arraypress' ),
-			],
-			[
-				'value' => 'day',
-				'label' => __( 'in the last day', 'arraypress' ),
-			],
-			[
-				'value' => 'week',
-				'label' => __( 'in the last week', 'arraypress' ),
-			],
-			[
-				'value' => 'month',
-				'label' => __( 'in the last month', 'arraypress' ),
-			],
-			[
-				'value' => 'year',
-				'label' => __( 'in the last year', 'arraypress' ),
-			],
+		$windows = [
+			'minute'     => __( 'in the last minute', 'arraypress' ),
+			'5_minutes'  => __( 'in the last 5 minutes', 'arraypress' ),
+			'10_minutes' => __( 'in the last 10 minutes', 'arraypress' ),
+			'15_minutes' => __( 'in the last 15 minutes', 'arraypress' ),
+			'30_minutes' => __( 'in the last 30 minutes', 'arraypress' ),
+			'hour'       => __( 'in the last hour', 'arraypress' ),
+			'6_hours'    => __( 'in the last 6 hours', 'arraypress' ),
+			'12_hours'   => __( 'in the last 12 hours', 'arraypress' ),
+			'day'        => __( 'in the last 24 hours', 'arraypress' ),
+			'week'       => __( 'in the last 7 days', 'arraypress' ),
+			'month'      => __( 'in the last 30 days', 'arraypress' ),
+			'year'       => __( 'in the last year', 'arraypress' ),
 		];
+
+		$options = [];
+
+		foreach ( $windows as $value => $label ) {
+			$options[] = [
+				'value' => $value,
+				'label' => $label,
+			];
+		}
+
+		return $options;
 	}
 
 	/**
