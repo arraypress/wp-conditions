@@ -17,6 +17,7 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\WooCommerce;
 
+use ArrayPress\Conditions\Helpers\Request;
 use ArrayPress\Conditions\Helpers\Address;
 use ArrayPress\Conditions\Helpers\Parse;
 use ArrayPress\Conditions\Helpers\DateTime;
@@ -607,7 +608,11 @@ class Customer {
 				continue;
 			}
 
-			$ids      = 'product_tag' === $taxonomy ? $source->get_tag_ids() : $source->get_category_ids();
+			$ids = match ( $taxonomy ) {
+				'product_tag'   => $source->get_tag_ids(),
+				'product_brand' => method_exists( $source, 'get_brand_ids' ) ? $source->get_brand_ids() : [],
+				default         => $source->get_category_ids(),
+			};
 			$term_ids = array_merge( $term_ids, array_map( 'intval', (array) $ids ) );
 		}
 
@@ -744,5 +749,189 @@ class Customer {
 		}
 
 		return $count;
+	}
+	/** -------------------------------------------------------------------------
+	 * Drift: what changed between this customer's orders
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * How many different IP addresses the customer has ordered from.
+	 *
+	 * @return int
+	 */
+	public static function get_ip_count(): int {
+		$ips = [];
+
+		foreach ( self::get_history_orders() as $order ) {
+			$ip = trim( (string) $order->get_customer_ip_address() );
+
+			if ( '' !== $ip ) {
+				$ips[ $ip ] = true;
+			}
+		}
+
+		return count( $ips );
+	}
+
+	/**
+	 * Whether this order's browser differs from every earlier order's.
+	 *
+	 * The current user agent is the request's, or the order's when there
+	 * is one; the earlier ones are read off the customer's other orders.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool|null Null when there is no earlier order to differ from.
+	 */
+	public static function is_user_agent_changed( array $args ): ?bool {
+		$current_id = (int) ( $args['order_id'] ?? 0 );
+		$current    = '';
+
+		if ( $current_id && function_exists( 'wc_get_order' ) ) {
+			$order   = wc_get_order( $current_id );
+			$current = $order instanceof WC_Order ? (string) $order->get_customer_user_agent() : '';
+		}
+
+		if ( '' === $current ) {
+			$current = Request::get_user_agent( $args );
+		}
+
+		$previous = [];
+
+		foreach ( self::get_history_orders() as $order ) {
+			if ( (int) $order->get_id() === $current_id ) {
+				continue;
+			}
+
+			$agent = trim( (string) $order->get_customer_user_agent() );
+
+			if ( '' !== $agent ) {
+				$previous[ $agent ] = true;
+			}
+		}
+
+		if ( [] === $previous || '' === $current ) {
+			return null;
+		}
+
+		return ! isset( $previous[ trim( $current ) ] );
+	}
+
+	/**
+	 * How many different shipping addresses the customer has used.
+	 *
+	 * A reshipper collects packages at many doors.
+	 *
+	 * @return int
+	 */
+	public static function get_distinct_shipping_address_count(): int {
+		$addresses = [];
+
+		foreach ( self::get_history_orders() as $order ) {
+			$key = strtolower( trim( (string) $order->get_shipping_address_1() ) ) . '|'
+				. strtolower( trim( (string) $order->get_shipping_postcode() ) ) . '|'
+				. strtoupper( trim( (string) $order->get_shipping_country() ) );
+
+			if ( '||' !== $key ) {
+				$addresses[ $key ] = true;
+			}
+		}
+
+		return count( $addresses );
+	}
+
+	/**
+	 * How many different billing countries the customer has used.
+	 *
+	 * @return int
+	 */
+	public static function get_distinct_billing_country_count(): int {
+		$countries = [];
+
+		foreach ( self::get_history_orders() as $order ) {
+			$country = strtoupper( trim( (string) $order->get_billing_country() ) );
+
+			if ( '' !== $country ) {
+				$countries[ $country ] = true;
+			}
+		}
+
+		return count( $countries );
+	}
+
+	/**
+	 * How many of the customer's orders failed.
+	 *
+	 * @return int
+	 */
+	public static function get_failed_order_count(): int {
+		return count( self::get_history_orders( [ 'status' => [ 'wc-failed' ] ] ) );
+	}
+
+	/**
+	 * How many of the customer's orders were cancelled.
+	 *
+	 * @return int
+	 */
+	public static function get_cancelled_order_count(): int {
+		return count( self::get_history_orders( [ 'status' => [ 'wc-cancelled' ] ] ) );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Account details
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Whether the customer has a payment method saved to their account.
+	 *
+	 * @return bool
+	 */
+	public static function has_saved_payment_method(): bool {
+		$user_id = self::get_user_id();
+
+		if ( 0 === $user_id || ! class_exists( 'WC_Payment_Tokens' ) ) {
+			return false;
+		}
+
+		return [] !== array_filter( (array) \WC_Payment_Tokens::get_customer_tokens( $user_id ) );
+	}
+
+	/**
+	 * The country WooCommerce will tax this customer in.
+	 *
+	 * @return string
+	 */
+	public static function get_taxable_country(): string {
+		$customer = self::get();
+
+		if ( ! $customer ) {
+			return '';
+		}
+
+		$address = (array) $customer->get_taxable_address();
+
+		return strtoupper( (string) ( $address[0] ?? '' ) );
+	}
+
+	/**
+	 * Whether the customer's taxable address is outside the store's base.
+	 *
+	 * @return bool
+	 */
+	public static function is_outside_base(): bool {
+		$customer = self::get();
+
+		return $customer ? (bool) $customer->is_customer_outside_base() : false;
+	}
+
+	/**
+	 * Whether the customer has a complete shipping address on file.
+	 *
+	 * @return bool
+	 */
+	public static function has_full_shipping_address(): bool {
+		$customer = self::get();
+
+		return $customer ? (bool) $customer->has_full_shipping_address() : false;
 	}
 }

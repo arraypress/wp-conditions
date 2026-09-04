@@ -647,4 +647,100 @@ class Options {
 			'all_time'     => __( 'All time', 'arraypress' ),
 		] );
 	}
+	/**
+	 * Shipping zone options, the uncovered-locations zone included.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_shipping_zone_options(): array {
+		if ( ! class_exists( 'WC_Shipping_Zones' ) ) {
+			return [];
+		}
+
+		$options = [];
+
+		foreach ( (array) \WC_Shipping_Zones::get_zones() as $zone ) {
+			if ( ! is_array( $zone ) || ! isset( $zone['id'] ) ) {
+				continue;
+			}
+
+			$options[] = [
+				'value' => (string) (int) $zone['id'],
+				'label' => (string) ( $zone['zone_name'] ?? $zone['id'] ),
+			];
+		}
+
+		$options[] = [
+			'value' => '0',
+			'label' => __( 'Locations not covered by your other zones', 'arraypress' ),
+		];
+
+		return $options;
+	}
+
+	/**
+	 * Coupon discount types.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_coupon_types(): array {
+		if ( function_exists( 'wc_get_coupon_types' ) ) {
+			return Arr::to_options( (array) wc_get_coupon_types() );
+		}
+
+		return Arr::to_options( [
+			'percent'       => __( 'Percentage discount', 'arraypress' ),
+			'fixed_cart'    => __( 'Fixed cart discount', 'arraypress' ),
+			'fixed_product' => __( 'Fixed product discount', 'arraypress' ),
+		] );
+	}
+
+	/**
+	 * Card brands, as WooCommerce names them.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_card_brands(): array {
+		return Arr::to_options( [
+			'visa'       => 'Visa',
+			'mastercard' => 'Mastercard',
+			'amex'       => 'American Express',
+			'discover'   => 'Discover',
+			'diners'     => 'Diners Club',
+			'jcb'        => 'JCB',
+			'interac'    => 'Interac',
+			'unionpay'   => 'UnionPay',
+		] );
+	}
+
+	/**
+	 * Order attribution source types.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_attribution_source_types(): array {
+		return Arr::to_options( [
+			'typein'     => __( 'Direct', 'arraypress' ),
+			'organic'    => __( 'Organic search', 'arraypress' ),
+			'referral'   => __( 'Referral', 'arraypress' ),
+			'utm'        => __( 'Campaign (UTM)', 'arraypress' ),
+			'admin'      => __( 'Admin', 'arraypress' ),
+			'mobile_app' => __( 'Mobile app', 'arraypress' ),
+			'unknown'    => __( 'Unknown', 'arraypress' ),
+		] );
+	}
+
+	/**
+	 * Device types as order attribution records them.
+	 *
+	 * @return array<array{value: string, label: string}>
+	 */
+	public static function get_attribution_device_types(): array {
+		return Arr::to_options( [
+			'desktop' => __( 'Desktop', 'arraypress' ),
+			'mobile'  => __( 'Mobile', 'arraypress' ),
+			'tablet'  => __( 'Tablet', 'arraypress' ),
+			'unknown' => __( 'Unknown', 'arraypress' ),
+		] );
+	}
 }

@@ -17,6 +17,9 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\WooCommerce;
 
+use ArrayPress\Conditions\Integrations\WooCommerce\Product as ProductHelper;
+use ArrayPress\Conditions\Integrations\WooCommerce\Cart as CartHelper;
+use ArrayPress\Conditions\Helpers\Velocity;
 use ArrayPress\Conditions\Integrations\WooCommerce\Customer as CustomerHelper;
 use ArrayPress\Conditions\Helpers\Address;
 use ArrayPress\Conditions\Helpers\DateTime;
@@ -1120,5 +1123,337 @@ class Order {
 		}
 
 		return $max;
+	}
+	/** -------------------------------------------------------------------------
+	 * Attribution
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * One order attribution field, as WooCommerce recorded it.
+	 *
+	 * @param array  $args  The condition arguments.
+	 * @param string $field source_type, utm_source, utm_medium, utm_campaign, referrer,
+	 *                      device_type, session_entry, session_pages or session_count.
+	 *
+	 * @return string '' when nothing was recorded.
+	 */
+	public static function get_attribution( array $args, string $field ): string {
+		$order = self::get( $args );
+
+		if ( ! $order ) {
+			return '';
+		}
+
+		$value = $order->get_meta( '_wc_order_attribution_' . $field, true );
+
+		return is_scalar( $value ) ? trim( (string) $value ) : '';
+	}
+
+	/**
+	 * Whether WooCommerce recorded any attribution for the order.
+	 *
+	 * Attribution is collected by a script on the storefront, so an order
+	 * with none was placed by something that did not run scripts, or from
+	 * outside the storefront altogether.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function has_attribution( array $args ): bool {
+		return '' !== self::get_attribution( $args, 'source_type' );
+	}
+
+	/**
+	 * An attribution number, or null when it was not recorded.
+	 *
+	 * @param array  $args  The condition arguments.
+	 * @param string $field session_pages or session_count.
+	 *
+	 * @return int|null
+	 */
+	public static function get_attribution_number( array $args, string $field ): ?int {
+		$value = self::get_attribution( $args, $field );
+
+		return is_numeric( $value ) ? (int) $value : null;
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Card
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * The card the order was paid with, as far as the gateway told WooCommerce.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return array{brand: string, last4: string}
+	 */
+	public static function get_card_info( array $args ): array {
+		$order = self::get( $args );
+		$info  = [
+			'brand' => '',
+			'last4' => '',
+		];
+
+		if ( ! $order || ! method_exists( $order, 'get_payment_card_info' ) ) {
+			return $info;
+		}
+
+		$card = (array) $order->get_payment_card_info();
+
+		$info['brand'] = strtolower( trim( (string) ( $card['brand'] ?? '' ) ) );
+		$info['last4'] = preg_replace( '/\D/', '', (string) ( $card['last4'] ?? '' ) ) ?? '';
+
+		return $info;
+	}
+
+	/**
+	 * The card brand, lower-case, or '' when the gateway did not say.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_card_brand( array $args ): string {
+		return self::get_card_info( $args )['brand'];
+	}
+
+	/**
+	 * The card's last four digits, or '' when the gateway did not say.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string
+	 */
+	public static function get_card_last4( array $args ): string {
+		return self::get_card_info( $args )['last4'];
+	}
+
+	/**
+	 * A fingerprint of the card, for the card-velocity conditions.
+	 *
+	 * The same salted hash the library computes for a host, so an order's
+	 * fingerprint and one computed at checkout agree.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string '' when the gateway did not say.
+	 */
+	public static function get_card_fingerprint( array $args ): string {
+		$card = self::get_card_info( $args );
+
+		if ( '' === $card['brand'] || '' === $card['last4'] ) {
+			return '';
+		}
+
+		return Velocity::compute_card_fingerprint( $card['brand'], $card['last4'], null, null, self::get_country( $args ) );
+	}
+
+	/**
+	 * Whether the order was paid with a saved payment method.
+	 *
+	 * A fraudster with a stolen card does not have it saved on an account.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function used_saved_payment_method( array $args ): bool {
+		$order = self::get( $args );
+
+		return $order ? [] !== array_filter( (array) $order->get_payment_tokens() ) : false;
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Items, money and dates the cart already reports
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Unit prices of every line, as charged, before discounts.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float[]
+	 */
+	private static function get_item_unit_prices( array $args ): array {
+		$prices = [];
+
+		foreach ( self::get_items( $args ) as $item ) {
+			if ( ! is_object( $item ) || ! method_exists( $item, 'get_subtotal' ) ) {
+				continue;
+			}
+
+			$quantity = method_exists( $item, 'get_quantity' ) ? max( 1, (int) $item->get_quantity() ) : 1;
+			$prices[] = (float) $item->get_subtotal() / $quantity;
+		}
+
+		return $prices;
+	}
+
+	/**
+	 * The cheapest unit price in the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float|null Null for an order with no lines.
+	 */
+	public static function get_min_item_price( array $args ): ?float {
+		$prices = self::get_item_unit_prices( $args );
+
+		return [] === $prices ? null : round( min( $prices ), 4 );
+	}
+
+	/**
+	 * The dearest unit price in the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float|null Null for an order with no lines.
+	 */
+	public static function get_max_item_price( array $args ): ?float {
+		$prices = self::get_item_unit_prices( $args );
+
+		return [] === $prices ? null : round( max( $prices ), 4 );
+	}
+
+	/**
+	 * Total of the order's fees.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float
+	 */
+	public static function get_fee_total( array $args ): float {
+		$order = self::get( $args );
+
+		return $order ? (float) $order->get_total_fees() : 0.0;
+	}
+
+	/**
+	 * How many units have been refunded from the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int
+	 */
+	public static function get_refunded_item_count( array $args ): int {
+		$order = self::get( $args );
+
+		return $order ? abs( (int) $order->get_total_qty_refunded() ) : 0;
+	}
+
+	/**
+	 * The date the order was completed, as Y-m-d.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string '' until it is.
+	 */
+	public static function get_date_completed( array $args ): string {
+		$order = self::get( $args );
+		$date  = $order?->get_date_completed();
+
+		return $date ? $date->date( 'Y-m-d' ) : '';
+	}
+
+	/**
+	 * What the order's contents cost the store.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float|null Null when cost of goods is not tracked.
+	 */
+	public static function get_cost_total( array $args ): ?float {
+		$order = self::get( $args );
+
+		if ( ! $order || ! ProductHelper::cogs_enabled() || ! method_exists( $order, 'get_cogs_total_value' ) ) {
+			return null;
+		}
+
+		return (float) $order->get_cogs_total_value();
+	}
+
+	/**
+	 * The order's margin after discounts, as a percentage of the item revenue.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float|null Null when cost is not tracked or nothing was charged.
+	 */
+	public static function get_margin_percentage( array $args ): ?float {
+		$order = self::get( $args );
+		$cost  = self::get_cost_total( $args );
+
+		if ( ! $order || null === $cost ) {
+			return null;
+		}
+
+		$revenue = (float) $order->get_subtotal() - (float) $order->get_discount_total();
+
+		return $revenue > 0 ? round( ( $revenue - $cost ) / $revenue * 100, 2 ) : null;
+	}
+
+	/**
+	 * The order's coupons as objects.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return object[]
+	 */
+	private static function get_coupon_objects( array $args ): array {
+		if ( ! class_exists( 'WC_Coupon' ) ) {
+			return [];
+		}
+
+		$coupons = [];
+
+		foreach ( self::get_coupons( $args ) as $code ) {
+			$coupon = new \WC_Coupon( $code );
+
+			if ( method_exists( $coupon, 'get_id' ) && $coupon->get_id() ) {
+				$coupons[] = $coupon;
+			}
+		}
+
+		return $coupons;
+	}
+
+	/**
+	 * Discount types of the coupons used on the order.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return string[]
+	 */
+	public static function get_coupon_types( array $args ): array {
+		$types = [];
+
+		foreach ( self::get_coupon_objects( $args ) as $coupon ) {
+			$types[] = (string) $coupon->get_discount_type();
+		}
+
+		return array_values( array_unique( array_filter( $types ) ) );
+	}
+
+	/**
+	 * Whether a coupon on the order was restricted to somebody else's email.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function has_coupon_email_mismatch( array $args ): bool {
+		$emails = array_values( array_filter( [ self::get_email( $args ) ] ) );
+
+		foreach ( self::get_coupon_objects( $args ) as $coupon ) {
+			$restrictions = array_values( array_filter( array_map( 'strval', (array) $coupon->get_email_restrictions() ) ) );
+
+			if ( [] !== $restrictions && ! CartHelper::email_matches_restrictions( $emails, $restrictions ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

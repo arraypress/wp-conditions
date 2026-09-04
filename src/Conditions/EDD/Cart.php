@@ -386,6 +386,27 @@ class Cart {
 			'required_args' => [],
 		];
 
+		$conditions['edd_cart_median_product_age'] = [
+			'label'         => __( 'Median Product Age', 'arraypress' ),
+			'group'         => $items,
+			'type'          => 'number',
+			'placeholder'   => __( 'e.g. 30', 'arraypress' ),
+			'min'           => 0,
+			'step'          => 1,
+			'description'   => __( 'Median age in days of the products in the cart. The mean is pulled about by one brand-new listing in a basket of staples; the median says what the typical item is.', 'arraypress' ),
+			'compare_value' => fn( $args ) => CartHelper::get_median_product_age(),
+			'required_args' => [],
+		];
+
+		$conditions['edd_cart_contains_repurchase'] = [
+			'label'         => __( 'Contains a Repeat Purchase', 'arraypress' ),
+			'group'         => $items,
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the cart holds something this customer has bought before, judged by their own order history. The loyalty signal: a returning customer buying again is the one to thank with a discount.', 'arraypress' ),
+			'compare_value' => fn( $args ) => CartHelper::contains_repurchase( $args ),
+			'required_args' => [],
+		];
+
 		return $conditions;
 	}
 }

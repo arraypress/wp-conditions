@@ -1086,4 +1086,88 @@ class Product {
 
 		return $product ? (int) $product->get_review_count() : 0;
 	}
+	/** -------------------------------------------------------------------------
+	 * Brands and cost
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Brand term ids, read from a variation's parent.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return int[]
+	 */
+	public static function get_brands( array $args ): array {
+		$product = self::get_taxonomy_source( $args );
+
+		if ( ! $product || ! method_exists( $product, 'get_brand_ids' ) ) {
+			return [];
+		}
+
+		return array_map( 'intval', (array) $product->get_brand_ids() );
+	}
+
+	/**
+	 * Whether the store tracks cost of goods.
+	 *
+	 * A feature behind a flag, and its getters complain when it is off, so
+	 * the flag is read once rather than the getters guessed at.
+	 *
+	 * @return bool
+	 */
+	public static function cogs_enabled(): bool {
+		static $enabled = null;
+
+		if ( null !== $enabled ) {
+			return $enabled;
+		}
+
+		$enabled = false;
+
+		if ( function_exists( 'wc_get_container' ) && class_exists( 'Automattic\\WooCommerce\\Internal\\CostOfGoodsSold\\CostOfGoodsSoldController' ) ) {
+			try {
+				$controller = wc_get_container()->get( \Automattic\WooCommerce\Internal\CostOfGoodsSold\CostOfGoodsSoldController::class );
+				$enabled    = is_object( $controller ) && method_exists( $controller, 'feature_is_enabled' ) && $controller->feature_is_enabled();
+			} catch ( \Throwable $e ) {
+				$enabled = false;
+			}
+		}
+
+		return $enabled;
+	}
+
+	/**
+	 * What the product costs the store, per unit.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float|null Null when cost of goods is not tracked.
+	 */
+	public static function get_cost( array $args ): ?float {
+		$product = self::get( $args );
+
+		if ( ! $product || ! self::cogs_enabled() || ! method_exists( $product, 'get_cogs_effective_value' ) ) {
+			return null;
+		}
+
+		return (float) $product->get_cogs_effective_value();
+	}
+
+	/**
+	 * The product's margin, as a percentage of its price.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return float|null Null when cost is not tracked or there is no price.
+	 */
+	public static function get_margin_percentage( array $args ): ?float {
+		$cost  = self::get_cost( $args );
+		$price = self::get_price( $args );
+
+		if ( null === $cost || $price <= 0 ) {
+			return null;
+		}
+
+		return round( ( $price - $cost ) / $price * 100, 2 );
+	}
 }

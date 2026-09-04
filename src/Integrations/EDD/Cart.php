@@ -563,4 +563,46 @@ class Cart {
 
 		return [] === $prices ? null : max( $prices );
 	}
+	/**
+	 * Median age, in days, of the products in the cart.
+	 *
+	 * The mean is pulled about by one brand-new listing in a basket of
+	 * staples; the median says what the typical item is.
+	 *
+	 * @return float
+	 */
+	public static function get_median_product_age(): float {
+		$ages = self::get_product_ages();
+
+		if ( empty( $ages ) ) {
+			return 0.0;
+		}
+
+		sort( $ages );
+
+		$count  = count( $ages );
+		$middle = intdiv( $count, 2 );
+
+		return round( 0 === $count % 2 ? ( $ages[ $middle - 1 ] + $ages[ $middle ] ) / 2 : $ages[ $middle ], 2 );
+	}
+
+	/**
+	 * Whether the cart holds something this customer has bought before.
+	 *
+	 * The loyalty signal: a returning customer buying again is the one to
+	 * thank with a discount, and not the one a first-order rule is after.
+	 *
+	 * @param array $args The condition arguments.
+	 *
+	 * @return bool
+	 */
+	public static function contains_repurchase( array $args ): bool {
+		$in_cart = self::get_product_ids();
+
+		if ( [] === $in_cart ) {
+			return false;
+		}
+
+		return [] !== array_intersect( array_map( 'intval', $in_cart ), array_map( 'intval', Customer::get_product_ids( $args ) ) );
+	}
 }

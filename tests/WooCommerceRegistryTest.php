@@ -231,9 +231,10 @@ final class WooCommerceRegistryTest extends TestCase {
 			}
 
 			$this->assertArrayHasKey( 'taxonomy', $config, "$name needs a taxonomy" );
+			// Brands became a core taxonomy in WooCommerce 9.6.
 			$this->assertContains(
 				$config['taxonomy'],
-				[ 'product_cat', 'product_tag' ],
+				[ 'product_cat', 'product_tag', 'product_brand' ],
 				"$name names a taxonomy WooCommerce does not register"
 			);
 		}

@@ -18,6 +18,9 @@ declare( strict_types=1 );
 
 namespace ArrayPress\Conditions\Integrations\WooCommerce;
 
+use WC_Coupon;
+use ArrayPress\Conditions\Integrations\WooCommerce\Product as ProductHelper;
+use ArrayPress\Conditions\Integrations\WooCommerce\Customer as CustomerHelper;
 use ArrayPress\Conditions\Helpers\Parse;
 use WC_Cart;
 use WC_Product;
@@ -966,5 +969,297 @@ class Cart {
 		}
 
 		return (bool) wcs_cart_contains_renewal();
+	}
+	/** -------------------------------------------------------------------------
+	 * Age, again: the median
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * Median age, in days, of the products in the cart.
+	 *
+	 * The mean is pulled about by one brand-new listing in a basket of
+	 * staples; the median says what the typical item is.
+	 *
+	 * @return float
+	 */
+	public static function get_median_product_age(): float {
+		$ages = self::get_product_ages();
+
+		if ( empty( $ages ) ) {
+			return 0.0;
+		}
+
+		sort( $ages );
+
+		$count  = count( $ages );
+		$middle = intdiv( $count, 2 );
+
+		return round( 0 === $count % 2 ? ( $ages[ $middle - 1 ] + $ages[ $middle ] ) / 2 : $ages[ $middle ], 2 );
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Applied coupons, in detail
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * The applied coupons as objects.
+	 *
+	 * @return WC_Coupon[]
+	 */
+	private static function get_coupon_objects(): array {
+		$cart = self::get();
+
+		if ( ! $cart ) {
+			return [];
+		}
+
+		return array_values( array_filter( (array) $cart->get_coupons(), static fn( $coupon ) => $coupon instanceof WC_Coupon ) );
+	}
+
+	/**
+	 * Discount types of the applied coupons.
+	 *
+	 * @return string[]
+	 */
+	public static function get_coupon_types(): array {
+		$types = [];
+
+		foreach ( self::get_coupon_objects() as $coupon ) {
+			$types[] = (string) $coupon->get_discount_type();
+		}
+
+		return array_values( array_unique( array_filter( $types ) ) );
+	}
+
+	/**
+	 * The largest amount among the applied coupons, in its own terms.
+	 *
+	 * A percentage coupon's amount is a percentage and a fixed one's is
+	 * money, so this is best paired with the type.
+	 *
+	 * @return float|null Null with no coupon applied.
+	 */
+	public static function get_coupon_max_amount(): ?float {
+		$max = null;
+
+		foreach ( self::get_coupon_objects() as $coupon ) {
+			$max = max( (float) $max, (float) $coupon->get_amount() );
+		}
+
+		return $max;
+	}
+
+	/**
+	 * Whether any applied coupon grants free shipping.
+	 *
+	 * @return bool
+	 */
+	public static function has_free_shipping_coupon(): bool {
+		foreach ( self::get_coupon_objects() as $coupon ) {
+			if ( $coupon->get_free_shipping() ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * How often the most-used applied coupon has been used before.
+	 *
+	 * @return int|null Null with no coupon applied.
+	 */
+	public static function get_coupon_max_usage_count(): ?int {
+		$max = null;
+
+		foreach ( self::get_coupon_objects() as $coupon ) {
+			$max = max( (int) $max, (int) $coupon->get_usage_count() );
+		}
+
+		return $max;
+	}
+
+	/**
+	 * Days until the soonest applied coupon expires.
+	 *
+	 * @return int|null Null when no applied coupon expires.
+	 */
+	public static function get_coupon_expires_in_days(): ?int {
+		$soonest = null;
+
+		foreach ( self::get_coupon_objects() as $coupon ) {
+			$expires = $coupon->get_date_expires();
+
+			if ( ! $expires ) {
+				continue;
+			}
+
+			$days    = (int) ceil( ( $expires->getTimestamp() - time() ) / DAY_IN_SECONDS );
+			$soonest = null === $soonest ? $days : min( $soonest, $days );
+		}
+
+		return $soonest;
+	}
+
+	/**
+	 * Whether an applied coupon is restricted to emails that are not this customer's.
+	 *
+	 * WooCommerce checks the restriction at payment; before that a coupon
+	 * meant for one customer sits in another's cart, which is what a shared
+	 * coupon looks like.
+	 *
+	 * @return bool
+	 */
+	public static function has_coupon_email_mismatch(): bool {
+		$emails = array_values( array_filter( [ CustomerHelper::get_email(), self::current_user_email() ] ) );
+
+		foreach ( self::get_coupon_objects() as $coupon ) {
+			$restrictions = array_values( array_filter( array_map( 'strval', (array) $coupon->get_email_restrictions() ) ) );
+
+			if ( [] !== $restrictions && ! self::email_matches_restrictions( $emails, $restrictions ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether any of the emails satisfies a coupon's email restrictions.
+	 *
+	 * Case-insensitive, and a restriction of "*@example.com" matches the
+	 * whole domain, as WooCommerce's own check allows.
+	 *
+	 * @param string[] $emails       The customer's emails.
+	 * @param string[] $restrictions The coupon's allowed emails.
+	 *
+	 * @return bool
+	 */
+	public static function email_matches_restrictions( array $emails, array $restrictions ): bool {
+		$emails = array_map( static fn( $email ) => strtolower( trim( (string) $email ) ), $emails );
+
+		foreach ( $restrictions as $restriction ) {
+			$restriction = strtolower( trim( (string) $restriction ) );
+
+			if ( '' === $restriction ) {
+				continue;
+			}
+
+			foreach ( $emails as $email ) {
+				if ( '' === $email ) {
+					continue;
+				}
+
+				if ( $email === $restriction ) {
+					return true;
+				}
+
+				if ( str_starts_with( $restriction, '*@' ) && str_ends_with( $email, substr( $restriction, 1 ) ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * The signed-in user's account email, if any.
+	 *
+	 * @return string
+	 */
+	private static function current_user_email(): string {
+		if ( ! function_exists( 'wp_get_current_user' ) ) {
+			return '';
+		}
+
+		$user = wp_get_current_user();
+
+		return is_object( $user ) ? (string) ( $user->user_email ?? '' ) : '';
+	}
+
+	/** -------------------------------------------------------------------------
+	 * Shipping zone, cost and history
+	 * ------------------------------------------------------------------------ */
+
+	/**
+	 * The shipping zone the cart's first package falls in.
+	 *
+	 * @return int|null The zone id (0 for locations not covered), or null when nothing ships.
+	 */
+	public static function get_shipping_zone_id(): ?int {
+		$cart = self::get();
+
+		if ( ! $cart || ! class_exists( 'WC_Shipping_Zones' ) || ! self::needs_shipping() ) {
+			return null;
+		}
+
+		$packages = (array) $cart->get_shipping_packages();
+		$package  = reset( $packages );
+
+		if ( ! is_array( $package ) ) {
+			return null;
+		}
+
+		$zone = \WC_Shipping_Zones::get_zone_matching_package( $package );
+
+		return is_object( $zone ) && method_exists( $zone, 'get_id' ) ? (int) $zone->get_id() : null;
+	}
+
+	/**
+	 * What the cart's contents cost the store, quantities counted.
+	 *
+	 * @return float|null Null when cost of goods is not tracked.
+	 */
+	public static function get_cost_total(): ?float {
+		if ( ! ProductHelper::cogs_enabled() ) {
+			return null;
+		}
+
+		$total = 0.0;
+
+		foreach ( self::get_items() as $item ) {
+			$product = $item['data'] ?? null;
+
+			if ( $product instanceof WC_Product && method_exists( $product, 'get_cogs_effective_value' ) ) {
+				$total += (float) $product->get_cogs_effective_value() * max( 1, (int) ( $item['quantity'] ?? 1 ) );
+			}
+		}
+
+		return round( $total, 4 );
+	}
+
+	/**
+	 * The cart's margin after discounts, as a percentage of the item revenue.
+	 *
+	 * @return float|null Null when cost is not tracked or the cart is free.
+	 */
+	public static function get_margin_percentage(): ?float {
+		$cost    = self::get_cost_total();
+		$revenue = self::get_contents_total();
+
+		if ( null === $cost || $revenue <= 0 ) {
+			return null;
+		}
+
+		return round( ( $revenue - $cost ) / $revenue * 100, 2 );
+	}
+
+	/**
+	 * Whether the cart holds something this customer has bought before.
+	 *
+	 * The loyalty signal: a returning customer buying again is the one to
+	 * thank with a discount, and not the one a first-order rule is after.
+	 *
+	 * @return bool
+	 */
+	public static function contains_repurchase(): bool {
+		$in_cart = array_merge( self::get_product_ids(), self::get_variation_ids() );
+
+		if ( [] === $in_cart ) {
+			return false;
+		}
+
+		return [] !== array_intersect( $in_cart, CustomerHelper::get_purchased_product_ids() );
 	}
 }
